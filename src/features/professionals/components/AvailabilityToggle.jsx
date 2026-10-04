@@ -18,6 +18,7 @@ export function AvailabilityToggle({ isAvailable = true, onChange, loading }) {
         <button
           type="button"
           role="switch"
+          aria-label="Disponibilité"
           aria-checked={on}
           disabled={loading}
           onClick={() => onChange?.(!on)}
