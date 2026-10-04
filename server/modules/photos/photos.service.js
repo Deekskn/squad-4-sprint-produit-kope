@@ -57,7 +57,7 @@ export async function addPhoto(professionalId, file, caption) {
 
 /** US-05 CA4 : la photo disparaît aussi de la fiche publique (même table). */
 export async function removePhoto(professionalId, photoId) {
-  const removed = await repository.remove(photoId, professionalId); // filtre par propriétaire
+  const removed = await withTransaction((tx) => repository.remove(photoId, professionalId, tx)); // filtre par propriétaire
   if (!removed) throw ApiError.notFound('Photo introuvable');
   await storage.remove(removed);
 }

@@ -29,7 +29,12 @@ export async function create({ professionalId, filePath, thumbPath, caption }, d
      RETURNING ${PHOTO_COLUMNS}`,
     [professionalId, filePath, thumbPath, caption],
   );
+  await touchProfile(professionalId, db);
   return rows[0];
+}
+
+export async function touchProfile(professionalId, db = pool) {
+  await db.query('UPDATE professionals SET updated_at = now() WHERE user_id = $1', [professionalId]);
 }
 
 /** Supprime uniquement si la photo appartient à ce professionnel. */
@@ -40,5 +45,6 @@ export async function remove(photoId, professionalId, db = pool) {
       RETURNING file_path AS "filePath", thumb_path AS "thumbPath"`,
     [photoId, professionalId],
   );
+  if (rows[0]) await touchProfile(professionalId, db);
   return rows[0] ?? null;
 }
