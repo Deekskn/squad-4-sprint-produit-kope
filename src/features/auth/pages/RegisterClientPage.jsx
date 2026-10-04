@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
@@ -12,10 +12,12 @@ import { useForm } from '@/components/form/useForm.js';
 import { registerClientSchema } from '@/components/form/validators.js';
 import { registerClient } from '../services/auth.service.js';
 import { ROUTES } from '@/lib/constants.js';
+import { Lock, LockOpen } from 'lucide-react';
 
 const INITIAL = { firstName: '', lastName: '', phone: '', password: '', consent: false };
 
 export function RegisterClientForm({ bare = false } = {}) {
+  const [showPassword, setShowPassword] = useState(false);
   const { user, login } = useAuthContext();
   const { close: closeModal } = useAuthModal();
   const navigate = useNavigate();
@@ -47,7 +49,7 @@ export function RegisterClientForm({ bare = false } = {}) {
   };
 
   return (
-    <Card className={bare ? 'p-0 border-0 shadow-none' : 'p-6 sm:p-8'}>
+    <aside className={bare ? 'p-6 ' : 'p-6 sm:p-8'}>
         <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Créer un compte client</h1>
         <p className="mt-1 text-sm text-gray-500">
           En 1 minute, créez votre compte pour contacter des artisans qualifiés.
@@ -78,8 +80,7 @@ export function RegisterClientForm({ bare = false } = {}) {
             label="Numéro de téléphone"
             required
             error={errors.phone}
-            help="Format Congo : 06 000 00 00"
-            placeholder="+242..."
+            placeholder="+242 06 000 00 00"
             value={values.phone}
             onChange={(e) => setField('phone', e.target.value)}
             autoComplete="tel"
@@ -93,22 +94,34 @@ export function RegisterClientForm({ bare = false } = {}) {
             as="input"
             help="Minimum 8 caractères"
           >
+            <div className="relative">
             <Input
               id="rc-password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={values.password}
               onChange={(e) => setField('password', e.target.value)}
               autoComplete="new-password"
               error={errors.password}
               placeholder="8 caractères minimum"
             />
+            <button
+              className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer"
+              type="button" aria-label="Afficher le mot de passe"
+              onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <LockOpen size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-500" aria-hidden />
+              ) : (
+                <Lock size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden />
+              )}
+            </button>
+            </div>
           </FormField>
           <div>
             <Checkbox
               id="rc-consent"
               label={
                 <span className="text-sm leading-5 text-gray-700">
-                  J'accepte les conditions d'utilisation de KÔPE.
+                  J'accepte les conditions d'utilisation de KOP.
                 </span>
               }
               checked={Boolean(values.consent)}
@@ -123,10 +136,10 @@ export function RegisterClientForm({ bare = false } = {}) {
             Créer mon compte
           </Button>
         </form>
-        <div className="mt-6 border-t border-gray-100 pt-4 text-center text-sm text-gray-600">
+        <div className="pt-4 pl-4 text-sm text-gray-600">
           Déjà inscrit ? <Link className="link-underline font-medium text-primary-700" to={ROUTES.LOGIN}>Se connecter</Link>
         </div>
-    </Card>
+    </aside>
   );
 }
 

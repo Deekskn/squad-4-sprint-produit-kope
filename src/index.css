@@ -163,6 +163,9 @@ p {
 }
 
 .focus-ring:focus-visible {
+  & .error{
+    --color-primary-500: #b42318 !important;
+  }
   outline: none;
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary-500) 22%, transparent);
 }

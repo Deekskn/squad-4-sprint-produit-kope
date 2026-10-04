@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
@@ -11,6 +11,7 @@ import { useForm } from '@/components/form/useForm.js';
 import { loginSchema } from '@/components/form/validators.js';
 import { login } from '../services/auth.service.js';
 import { ROLES, ROUTES } from '@/lib/constants.js';
+import { Eye, Lock, LockOpen } from 'lucide-react';
 
 const INITIAL = { phone: '', password: '' };
 
@@ -27,6 +28,7 @@ export function LoginForm({ bare = false } = {}) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { toast } = useNotification();
+  const [showPassword, setShowPassword] = useState(false);
 
   const { values, errors, globalError, submitting, setField, handleSubmit, setGlobalError } =
     useForm(loginSchema, INITIAL, async (data) => login(data));
@@ -52,56 +54,75 @@ export function LoginForm({ bare = false } = {}) {
   return (
     <div className={`${bare ? 'w-full' : 'mx-auto w-full max-w-md'} px-12 space-y-4 `}>
 
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Connexion</h1>
-        <p className=" text-sm mb-8 text-gray-500">
-          Accédez à votre espace client, professionnel ou administrateur.
-        </p>
-        <form className=" space-y-5" onSubmit={onSubmit} noValidate>
-          {(globalError || errors._global) && (
-            <div role="alert" className="rounded-[16px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-              {globalError || errors._global}
-            </div>
-          )}
-          <FormField
-            id="login-phone"
-            label="Numéro de téléphone"
-            required
-            error={errors.phone}
-            placeholder="+242 06 000 00 00"
-            value={values.phone}
-            onChange={(e) => setField('phone', e.target.value)}
-            autoComplete="tel"
-            inputMode="tel"
-          />
-          <FormField
-            id="login-password"
-            label="Mot de passe"
-            required
-            error={errors.password}
-            as="input"
-          >
+      <h1 className="text-3xl font-extrabold tracking-tight text-primary-500!">Connexion</h1>
+      <p className=" text-sm mb-8 text-gray-500">
+        Accédez à votre espace client, professionnel ou administrateur.
+      </p>
+      <form className=" space-y-5" onSubmit={onSubmit} noValidate>
+        {(globalError || errors._global) && (
+          <div role="alert" className="rounded-[16px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {globalError || errors._global}
+          </div>
+        )}
+        <FormField
+          id="login-phone"
+          label="Numéro de téléphone"
+          required
+          error={errors.phone}
+          placeholder="+242 06 000 00 00"
+          value={values.phone}
+          onChange={(e) => setField('phone', e.target.value)}
+          autoComplete="tel"
+          inputMode="tel"
+        />
+        <FormField
+          id="login-password"
+          label="Mot de passe"
+          required
+          error={errors.password}
+          as="input"
+        >
+          <div className="relative">
             <Input
               id="login-password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={values.password}
               autoComplete="current-password"
               error={errors.password}
               onChange={(e) => setField('password', e.target.value)}
               placeholder="8 caractères minimum"
             />
-          </FormField>
-          <Button type="submit" loading={submitting} size="lg" className="w-full!">
-            Se connecter
-          </Button>
-          
-        </form>
-          <p className="text-sm">
-            Je n'ai pas de compte.
-            <Link
-              to={ROUTES.REGISTER_CLIENT}
-              className="text-primary-500 font-semibold hover:text-primary-600 ml-1"
-            > S'inscrire</Link>
+            <button
+              className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer"
+              type="button" aria-label="Afficher le mot de passe"
+              onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <LockOpen size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-500" aria-hidden />
+              ) : (
+                <Lock size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden />
+              )}
+            </button>
+          </div>
+        </FormField>
+          <p className="text-end -mt-3 mr-2">
+
+            <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs text-gray-500 ">
+              Mot de passe oublié
+            </Link>
           </p>
+
+        <Button type="submit" loading={submitting} size="lg" className="w-full!">
+          Se connecter
+        </Button>
+
+      </form>
+      <p className="text-sm">
+        Je n'ai pas de compte.
+        <Link
+          to={ROUTES.REGISTER_CLIENT}
+          className="text-primary-500 font-semibold hover:text-primary-600 ml-1"
+        > S'inscrire</Link>
+      </p>
     </div>
   );
 }
