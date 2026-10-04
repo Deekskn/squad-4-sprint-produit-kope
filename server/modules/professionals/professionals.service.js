@@ -1,0 +1,66 @@
+import { withTransaction } from '../../db/pool.js';
+import { ApiError } from '../../utils/ApiError.js';
+import * as repository from './professionals.repository.js';
+import * as photosService from '../photos/photos.service.js';
+import * as reviewsRepository from '../reviews/reviews.repository.js';
+
+// Checklist affichée au professionnel (US-06 CA2).
+// ⚠ La vraie règle de publication est la vue SQL `published_professionals` (RG-04).
+// Si RG-04 change, modifier la vue ET cette liste.
+const MISSING_ITEMS = [
+  { code: 'description', label: 'Ajoutez une description (30 caractères minimum)', isMissing: (p) => !p.description },
+  { code: 'yearsExperience', label: "Indiquez vos années d'expérience", isMissing: (p) => p.yearsExperience === null },
+  { code: 'zones', label: "Choisissez au moins une zone d'intervention", isMissing: (p) => p.zones.length === 0 },
+  { code: 'photos', label: 'Ajoutez au moins une photo de réalisation', isMissing: (p) => p.photoCount === 0 },
+];
+
+/** US-04 / US-06 : mon profil, avec son statut (incomplete | published | hidden) et ce qu'il manque. */
+export async function getOwnProfile(userId) {
+  const profile = await repository.findOwnProfile(userId);
+  if (!profile) throw ApiError.notFound('Profil introuvable');
+
+  const photos = await photosService.listPhotos(userId);
+  const { isPublished, isHidden, ...rest } = profile;
+
+  let status = 'incomplete';
+  if (isHidden) status = 'hidden';
+  else if (isPublished) status = 'published';
+
+  const missing = status === 'incomplete'
+    ? MISSING_ITEMS.filter((item) => item.isMissing(profile)).map(({ code, label }) => ({ code, label }))
+    : [];
+
+  return { ...rest, photos, status, missing };
+}
+
+/** US-04 : tout est enregistré ou rien (transaction). Visible tout de suite sur la fiche (CA3). */
+export async function updateOwnProfile(userId, { description, yearsExperience, whatsapp, zoneIds }) {
+  await withTransaction(async (tx) => {
+    await repository.updateProfile(userId, { description, yearsExperience, whatsapp: whatsapp ?? null }, tx);
+    await repository.replaceZones(userId, zoneIds, tx);
+  });
+  return getOwnProfile(userId);
+}
+
+/** US-12 */
+export function setAvailability(userId, isAvailable) {
+  return repository.setAvailability(userId, isAvailable);
+}
+
+/** Fiche publique (US-07 CA3, US-15) : profil publié + photos + rating. */
+export async function getPublishedDetail(id) {
+  const profile = await repository.findPublishedDetail(id);
+  if (!profile) throw ApiError.notFound('Profil introuvable');
+
+  const [photos, rating] = await Promise.all([
+    photosService.listPhotos(profile.id),
+    reviewsRepository.getSummary(profile.id).then((r) => ({
+      average: Number(r?.average ?? 0),
+      count: Number(r?.count ?? 0),
+    })),
+  ]);
+
+  const trade = { id: profile.tradeId, name: profile.trade };
+  const { tradeId, ...rest } = profile;
+  return { profile: { ...rest, trade }, photos, rating };
+}

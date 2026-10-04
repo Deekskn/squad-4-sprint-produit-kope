@@ -1,0 +1,62 @@
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { api } from '@/lib/api.js';
+import { ROUTES } from '@/lib/constants.js';
+
+const AuthContext = createContext(null);
+
+function redirect(to) {
+  if (typeof window === 'undefined') return;
+  window.location.assign(to);
+}
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMe = useCallback(async () => {
+    try {
+      const data = await api.get('/auth/me');
+      setUser(data?.user ?? null);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchMe();
+  }, [fetchMe]);
+
+  const login = useCallback((userData) => setUser(userData), []);
+
+  const logout = useCallback(async () => {
+    try {
+      await api.postJson('/auth/logout', {});
+    } catch {
+      /* ignore network errors on logout */
+    } finally {
+      setUser(null);
+      redirect(ROUTES.HOME);
+    }
+  }, []);
+
+  const hasRole = useCallback(
+    (role) => Boolean(user?.role && user.role === role),
+    [user],
+  );
+
+  const value = { user, loading, login, logout, hasRole, refresh: fetchMe };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useAuthContext() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuthContext must be used inside <AuthProvider>');
+  return ctx;
+}
+
+export default AuthContext;

@@ -1,0 +1,75 @@
+import bcrypt from 'bcryptjs';
+import { withTransaction } from '../../db/pool.js';
+import { ApiError } from '../../utils/ApiError.js';
+import { normalizePhone } from '../../utils/phone.js';
+import * as repository from './auth.repository.js';
+import * as professionalsRepository from '../professionals/professionals.repository.js';
+
+const BCRYPT_ROUNDS = 10;
+const DUPLICATE_PHONE = 'Ce numéro est déjà utilisé';
+const INVALID_CREDENTIALS = 'Numéro ou mot de passe incorrect';
+
+// Comparé quand le numéro n'existe pas, pour que la réponse prenne le même temps
+// que pour un vrai compte (on ne révèle pas quels numéros sont inscrits).
+const DUMMY_HASH = bcrypt.hashSync('mot-de-passe-factice', BCRYPT_ROUNDS);
+
+async function insertUser(data, db) {
+  try {
+    return await repository.createUser(data, db);
+  } catch (err) {
+    if (err.code === '23505') {
+      throw ApiError.conflict(DUPLICATE_PHONE, { phone: DUPLICATE_PHONE });
+    }
+    throw err;
+  }
+}
+
+/** US-01 */
+export async function registerClient({ firstName, lastName, phone, password }) {
+  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+  return insertUser({ role: 'client', phone, passwordHash, firstName, lastName });
+}
+
+/** US-02 : le profil est créé "Incomplet" (non publié tant que RG-04 n'est pas satisfaite). */
+export async function registerProfessional({ displayName, phone, password, tradeId, zoneIds }) {
+  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+
+  return withTransaction(async (tx) => {
+    const user = await insertUser({ role: 'professional', phone, passwordHash }, tx);
+    await professionalsRepository.create({ userId: user.id, displayName, tradeId }, tx);
+    await professionalsRepository.replaceZones(user.id, zoneIds, tx);
+    return { ...user, displayName };
+  });
+}
+
+/** US-03 : message identique que le numéro ou le mot de passe soit faux (CA2). */
+export async function login({ phone, password }) {
+  const normalized = normalizePhone(phone);
+  const user = normalized ? await repository.findByPhone(normalized) : null;
+
+  const passwordMatches = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
+  if (!user || !passwordMatches) throw ApiError.unauthorized(INVALID_CREDENTIALS);
+
+  const { passwordHash: _passwordHash, ...publicUser } = user;
+  return publicUser;
+}
+
+/** Convertit un compte client existant en compte professionnel : mise a jour du role et creation du profil pro. */
+export async function becomeProfessional(userId, { displayName, tradeId, zoneIds, yearsExperience, description }) {
+  return withTransaction(async (tx) => {
+    const user = await repository.findById(userId, tx);
+    if (!user) throw ApiError.unauthorized();
+    if (user.role === 'professional') {
+      throw ApiError.conflict('Vous avez deja un compte professionnel');
+    }
+    await repository.updateRole(userId, 'professional', tx);
+    await professionalsRepository.create({ userId, displayName, tradeId }, tx);
+    await professionalsRepository.replaceZones(userId, zoneIds, tx);
+    await professionalsRepository.updateProfile(userId, { description, yearsExperience, whatsapp: null }, tx);
+    return { ...user, role: 'professional', displayName };
+  });
+}
+
+export function getCurrentUser(userId) {
+  return repository.findById(userId);
+}
