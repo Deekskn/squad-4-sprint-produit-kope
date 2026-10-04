@@ -11,7 +11,6 @@ import { useForm } from '@/components/form/useForm.js';
 import { loginSchema } from '@/components/form/validators.js';
 import { login } from '../services/auth.service.js';
 import { ROLES, ROUTES } from '@/lib/constants.js';
-import { mockImage, LOGIN_IMAGE_PROMPT } from '@/mocks/images.js';
 
 const INITIAL = { phone: '', password: '' };
 
@@ -51,78 +50,65 @@ export function LoginForm({ bare = false } = {}) {
   };
 
   return (
-    <div className={bare ? 'w-full' : 'mx-auto w-full max-w-md'}>
-      <Card className={bare ? 'p-0 border-0 shadow-none' : 'p-7 sm:p-9 shadow-[0_20px_60px_-20px_rgba(45,92,74,0.2)]'}>
-            <div className="flex items-center gap-2 text-primary-700 font-bold mb-6">
-              <svg viewBox="0 0 32 32" className="h-6 w-6" fill="none">
-                <path d="M5 21h22l-3.5-3.5L18 14l-6 6-3-3-4 4z" fill="#2d5c4a"/>
-              </svg>
-              KOP
+    <div className={`${bare ? 'w-full' : 'mx-auto w-full max-w-md'} px-12 space-y-4 `}>
+
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Connexion</h1>
+        <p className=" text-sm mb-8 text-gray-500">
+          Accédez à votre espace client, professionnel ou administrateur.
+        </p>
+        <form className=" space-y-5" onSubmit={onSubmit} noValidate>
+          {(globalError || errors._global) && (
+            <div role="alert" className="rounded-[16px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {globalError || errors._global}
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Connexion</h1>
-            <p className="mt-1.5 text-sm text-gray-500">
-              Accédez à votre espace client, professionnel ou administrateur.
-            </p>
-            <form className="mt-7 space-y-5" onSubmit={onSubmit} noValidate>
-              {(globalError || errors._global) && (
-                <div role="alert" className="rounded-[16px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {globalError || errors._global}
-                </div>
-              )}
-              <FormField
-                id="login-phone"
-                label="Numéro de téléphone"
-                required
-                error={errors.phone}
-                placeholder="+242 06 000 00 00"
-                value={values.phone}
-                onChange={(e) => setField('phone', e.target.value)}
-                autoComplete="tel"
-                inputMode="tel"
-              />
-              <FormField
-                id="login-password"
-                label="Mot de passe"
-                required
-                error={errors.password}
-                as="input"
-              >
-                <Input
-                  id="login-password"
-                  type="password"
-                  value={values.password}
-                  autoComplete="current-password"
-                  error={errors.password}
-                  onChange={(e) => setField('password', e.target.value)}
-                  placeholder="8 caractères minimum"
-                />
-              </FormField>
-              <Button type="submit" loading={submitting} size="lg" className="!w-full">
-                Se connecter
-              </Button>
-            </form>
-            <div className="mt-8 grid gap-2.5 border-t border-gray-100 pt-6 text-sm sm:grid-cols-2 sm:gap-3">
-              <Link
-                to={ROUTES.REGISTER_CLIENT}
-                className="rounded-[14px] border border-gray-200 px-4 py-2.5 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50 focus-ring transition"
-              >
-                Créer un compte client
-              </Link>
-              <Link
-                to={ROUTES.REGISTER_PRO}
-                className="rounded-[14px] border border-primary-200 bg-primary-50 px-4 py-2.5 text-center text-sm font-bold text-primary-800 hover:bg-primary-100 focus-ring transition"
-              >
-                S'inscrire en tant qu'artisan
-              </Link>
-            </div>
-      </Card>
+          )}
+          <FormField
+            id="login-phone"
+            label="Numéro de téléphone"
+            required
+            error={errors.phone}
+            placeholder="+242 06 000 00 00"
+            value={values.phone}
+            onChange={(e) => setField('phone', e.target.value)}
+            autoComplete="tel"
+            inputMode="tel"
+          />
+          <FormField
+            id="login-password"
+            label="Mot de passe"
+            required
+            error={errors.password}
+            as="input"
+          >
+            <Input
+              id="login-password"
+              type="password"
+              value={values.password}
+              autoComplete="current-password"
+              error={errors.password}
+              onChange={(e) => setField('password', e.target.value)}
+              placeholder="8 caractères minimum"
+            />
+          </FormField>
+          <Button type="submit" loading={submitting} size="lg" className="w-full!">
+            Se connecter
+          </Button>
+          
+        </form>
+          <p className="text-sm">
+            Je n'ai pas de compte.
+            <Link
+              to={ROUTES.REGISTER_CLIENT}
+              className="text-primary-500 font-semibold hover:text-primary-600 ml-1"
+            > S'inscrire</Link>
+          </p>
     </div>
   );
 }
 
 export function LoginPage() {
   return (
-    <div className="container-kop page-padding">
+    <div className="container-kop page-padding ">
       <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16 min-h-[72vh]">
         {/* Left illustration */}
         <div className="hidden lg:block">
@@ -136,15 +122,7 @@ export function LoginPage() {
             <p className="mt-3 text-base leading-7 text-gray-700/90 max-w-md">
               Un compte pour chercher, contacter et laisser des avis aux pros de votre quartier.
             </p>
-            <div className="mt-10">
-              <div className="rounded-[24px] overflow-hidden ring-1 ring-black/5 shadow-[0_24px_60px_-30px_rgba(45,92,74,0.45)] max-w-[380px]">
-                <img
-                  src={mockImage(LOGIN_IMAGE_PROMPT)}
-                  alt="Connexion KOP"
-                  className="w-full h-[320px] object-cover"
-                />
-              </div>
-            </div>
+
           </div>
         </div>
         {/* Right form */}

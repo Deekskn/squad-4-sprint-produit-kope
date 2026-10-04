@@ -38,7 +38,7 @@ export function AuthModal() {
   return (
     <Dialog open={mode != null} onOpenChange={(o) => !o && close()}>
       <DialogContent className="max-w-4xl p-2 " onClose={close}>
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+        <div className="grid lg:grid-cols-2 lg:items-start">
           <aside className="hidden  h-full min-h-142.5 lg:flex flex-col justify-between gap-3 rounded-[16px] bg-primary-600 p-2 text-white">
             <div className='space-y-2 p-6'>
               <p className="text-xs font-bold uppercase tracking-wider text-primary-100">KOP · Les savoir-faire des Congolais</p>
@@ -68,7 +68,7 @@ export function AuthModal() {
 
             </Card>
           </aside>
-          <div className="min-w-0">
+          <div className="min-w-0 h-full grid place-content-center">
             {mode === 'login' && <LoginForm bare />}
             {mode === 'register-client' && <RegisterClientForm bare />}
             {mode === 'register-pro' && renderPro()}
