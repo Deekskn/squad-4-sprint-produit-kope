@@ -21,7 +21,7 @@ export function Dialog({ open, onOpenChange, children }) {
   if (!open || typeof document === 'undefined') return null;
   return createPortal(
     <div
-      className="fixed inset-0 z-90 flex items-end justify-center bg-black/50 p-0 animate-fade-in sm:items-center sm:p-2"
+      className="fixed inset-0 z-90 flex items-end justify-center bg-black/50 backdrop-blur p-0 animate-fade-in sm:items-center sm:p-2"
       onClick={() => onOpenChange?.(false)}
     >
       {children}
@@ -45,7 +45,7 @@ export function DialogContent({ className, children, onClose }) {
       <button
         type="button"
         aria-label="Fermer"
-        className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 focus-ring"
+        className="absolute cursor-pointer right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 focus-ring"
         onClick={() => onClose?.()}
       >
         <X size={16} aria-hidden />

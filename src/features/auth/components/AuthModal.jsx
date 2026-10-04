@@ -38,11 +38,10 @@ export function AuthModal() {
   return (
     <Dialog open={mode != null} onOpenChange={(o) => !o && close()}>
       <DialogContent className="max-w-4xl p-2 " onClose={close}>
-        <div className="grid lg:grid-cols-2 lg:items-start">
-          <aside className="hidden  h-full min-h-142.5 lg:flex flex-col justify-between gap-3 rounded-[16px] bg-primary-600 p-2 text-white">
+        <div className="grid lg:grid-cols-2 lg:items-start min-h-140">
+          <aside className="hidden  h-full  lg:flex flex-col justify-between gap-3 rounded-[16px] bg-radial from-[#28604B] to-[#183E30] p-2 text-white">
             <div className='space-y-2 p-6'>
-              <p className="text-xs font-bold uppercase tracking-wider text-primary-100">KOP · Les savoir-faire des Congolais</p>
-              <h2 className="text-2xl font-extrabold tracking-tight leading-tight">
+              <h2 className="text-3xl font-semibold tracking-tight leading-tight text-white!">
                 Les belles rencontres commencent tout près.
               </h2>
               <p className="text-sm leading-6 text-white/80">
