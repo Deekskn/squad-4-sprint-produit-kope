@@ -2,7 +2,7 @@
 
 Application fullstack de mise en relation avec des artisans. Le projet utilise une architecture monolithique moderne intégrant Express 5 et React 19 dans un même runtime via `vite-express`.
 
-> **Scope MVP** : US-01 → US-16. Sont **hors scope** : US-09, US-10, US-11, US-17 (workflow de demande de contact supprimé — les coordonnées du pro sont visibles directement sur sa fiche) et US-18 (Could, hors sprint). Détail : `AGENT.md` §1.
+> **Scope MVP** : US-01 → US-16. Sont **hors scope** : US-09, US-10, US-11, US-17 (workflow de demande de contact supprimé — les coordonnées du pro sont visibles directement sur sa fiche) et US-18 (Could, hors sprint).
 
 ---
 
@@ -40,7 +40,7 @@ Application fullstack de mise en relation avec des artisans. Le projet utilise u
 
 ## Prerequisites
 
-- **Node.js:** `>=18.0.0`
+- **Node.js:** `^20.19.0` ou `>=22.12.0` (versions compatibles avec Vite 8)
 - **Package Manager:** `npm` ou `bun` (un fichier `bun.lock` est présent)
 - **Database:** PostgreSQL (local, Docker, ou service Cloud)
 
