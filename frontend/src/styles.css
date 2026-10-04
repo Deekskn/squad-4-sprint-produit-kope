@@ -1,0 +1,68 @@
+:root{--vert:#0b5d3f;--vert-fonce:#084a33;--sauge:#cddbd3;--sauge-clair:#e8f0eb;--texte:#16241d;--gris:#68776f;--bord:#e2e8e4;--fond:#f4f6f5}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:#fff;line-height:1.5}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--vert);outline-offset:2px}
+.entete{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 48px;border-bottom:1px solid var(--bord);background:#fff}
+.logo{font-weight:800;font-size:22px;letter-spacing:1px;color:var(--vert)}
+.nav{display:flex;align-items:center;gap:22px;font-size:14px;flex-wrap:wrap}
+.btn{display:inline-block;border:1px solid var(--vert);border-radius:8px;padding:10px 18px;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer;background:var(--vert);color:#fff}
+.btn:hover{background:var(--vert-fonce)}
+.btn-clair{background:#fff;color:var(--texte);border-color:var(--bord)}
+.btn-clair:hover{background:var(--fond)}
+.btn-bloc{display:block;width:100%;text-align:center}
+.conteneur{max-width:1180px;margin:0 auto;padding:32px 48px}
+.hero{background:var(--sauge);padding:64px 48px 72px}
+.hero-in{max-width:1180px;margin:0 auto}
+.hero h1{font-size:56px;line-height:1.05;letter-spacing:-1.5px;color:var(--vert-fonce);max-width:640px}
+.hero p{margin:20px 0 32px;max-width:520px;color:#3d4d44}
+.boite-recherche{background:#fff;border-radius:18px;padding:14px;max-width:880px}
+.onglet{display:inline-block;font-size:13px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--fond);margin-bottom:10px}
+.champs{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;background:var(--fond);border-radius:12px;padding:10px}
+.champs.col{grid-template-columns:1fr}
+input,select{width:100%;padding:12px 14px;border:1px solid var(--bord);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--texte)}
+.section{padding:56px 48px}
+.section h2{font-size:28px;margin-bottom:24px;letter-spacing:-.5px}
+.etapes{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.etape{border:1px solid var(--bord);border-radius:14px;padding:22px}
+.etape strong{display:block;margin-bottom:6px}
+.etape span{color:var(--gris);font-size:14px}
+details{border-bottom:1px solid var(--bord);padding:14px 0;max-width:720px}
+summary{cursor:pointer;font-weight:600;font-size:15px}
+details p{margin-top:8px;color:var(--gris);font-size:14px}
+.appel{background:var(--sauge);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:36px 48px;flex-wrap:wrap}
+.appel h2{font-size:26px;color:var(--vert-fonce)}
+.pied{display:flex;justify-content:space-between;padding:16px 48px;font-size:12px;color:var(--gris);flex-wrap:wrap;gap:8px}
+.pied nav{display:flex;gap:18px}
+.grille-recherche{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:start}
+.panneau{border:1px solid var(--bord);border-radius:16px;padding:14px}
+.compte{font-size:13px;color:var(--gris);margin-bottom:10px}
+.liste{display:grid;gap:14px}
+.carte{display:flex;align-items:center;gap:16px;border:1px solid var(--bord);border-radius:14px;padding:16px}
+.avatar{flex:none;width:64px;height:64px;border-radius:50%;background:var(--sauge-clair);color:var(--vert);font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.carte-corps{flex:1;min-width:0}
+.carte-corps h3{font-size:17px}
+.metier{color:var(--vert);font-weight:600;font-size:14px}
+.meta{color:var(--gris);font-size:13px}
+.vide{border:1px solid var(--bord);border-radius:16px;padding:64px 24px;text-align:center}
+.vide h2{font-size:22px;margin:10px 0 6px}
+.vide p{color:var(--gris);font-size:14px;margin-bottom:18px}
+.erreur{color:#9b2c2c}
+.grille-profil{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
+.profil-tete{display:flex;gap:20px;align-items:center;margin-bottom:24px}
+.profil-tete .avatar{width:96px;height:96px;font-size:30px}
+.profil-tete h1{font-size:30px;letter-spacing:-.5px}
+.etiquettes{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 28px}
+.etiquette{background:var(--sauge-clair);color:var(--vert-fonce);font-size:13px;padding:4px 12px;border-radius:99px}
+.galerie{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.galerie figure{position:relative;border-radius:14px;overflow:hidden;background:var(--sauge-clair);aspect-ratio:4/3}
+.galerie figure:first-child{grid-column:1/-1;aspect-ratio:16/9}
+.galerie img{width:100%;height:100%;object-fit:cover;display:block}
+.galerie figcaption{position:absolute;left:10px;bottom:10px;right:10px;background:rgba(255,255,255,.92);border-radius:8px;padding:6px 10px;font-size:13px}
+.contact{position:sticky;top:20px;border:1px solid var(--bord);border-radius:16px;padding:20px}
+.contact h2{font-size:20px;margin-bottom:6px}
+.contact p{color:var(--gris);font-size:14px;margin-bottom:16px}
+.coords{margin-top:14px;background:var(--sauge-clair);border-radius:10px;padding:12px 14px;font-size:14px;display:grid;gap:6px}
+.coords a{color:var(--vert);font-weight:600}
+@media(max-width:860px){.entete,.hero,.section,.appel,.pied,.conteneur{padding-left:20px;padding-right:20px}.hero h1{font-size:38px}.champs{grid-template-columns:1fr}.etapes,.grille-recherche,.grille-profil{grid-template-columns:1fr}.contact{position:static}}

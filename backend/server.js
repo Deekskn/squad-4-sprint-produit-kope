@@ -10,6 +10,7 @@ const rechercheRouter = require('./route/rechercheRouter');
 app.use(cors());
 app.use(express.json());
 app.use('/api/recherche', rechercheRouter);
+app.use('/uploads', express.static('uploads'));
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {

@@ -36,31 +36,6 @@ CREATE TABLE professionnel_zone (
     zone VARCHAR(50) NOT NULL
         CHECK (zone IN (
             'Makélékélé',
-            'Bacongo',
-            'Poto-Poto',
-            'Moungali',
-            'Ouenzé',
-            'Talangaï',
-            'Mfilou',
-            'Madibou',
-            'Djiri'
-        )),
-    PRIMARY KEY (id_pro, zone)
-);
-
-CREATE TABLE photo (
-    id_photo SERIAL PRIMARY KEY,
-    fichier VARCHAR(255) NOT NULL,
-    miniature VARCHAR(255) NOT NULL,
-    legende VARCHAR(150),
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    id_pro INTEGER NOT NULL
-        REFERENCES professionnel(id_pro) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_photo_pro ON photo(id_pro);
-CREATE INDEX idx_professionnel_metier ON professionnel(metier);
-CREATE INDEX idx_professionnel_zone_zone ON professionnel_zone(zone);
 
 CREATE VIEW profil_publie AS
 SELECT

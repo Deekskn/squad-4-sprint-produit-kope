@@ -33,5 +33,5 @@ Un exemple de configuration est disponible dans `.env.example`.
 
 ## État actuel
 
-Le backend n’est pas encore initialisé.
+## création de l'api recherche 
 
