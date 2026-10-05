@@ -57,7 +57,7 @@ export function AdminReviewsTable() {
               </li>
             ) : (
               (data?.items || []).map((r) => (
-                <li key={r.id} className={`rounded-2xl border bg-white p-4 shadow-sm ${r.isHidden ? 'border-rose-200 bg-rose-50/30' : 'border-gray-200'}`}>
+                <li key={r.id} className={`rounded-2xl border bg-white p-4 ${r.isHidden ? 'border-rose-200 bg-rose-50/30' : 'border-gray-200'}`}>
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div>

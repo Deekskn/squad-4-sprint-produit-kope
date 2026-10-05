@@ -1,7 +1,7 @@
 import { api } from '@/lib/api.js';
 import { callApi } from '@/lib/dataSource.js';
 import { getDemoUser, setDemoUser } from '@/mocks/appMock.js';
-import { setTokens, clearTokens, getRefreshToken } from '@/lib/authTokens.js';
+import { setTokens, clearTokens, getRefreshToken, getAccessToken } from '@/lib/authTokens.js';
 
 export function registerClient(payload) {
   return callApi(
@@ -63,6 +63,12 @@ export function logout() {
 }
 
 export function getCurrentUser() {
+  // En mode démo (login mock), l'utilisateur vit dans localStorage et il n'y a
+  // pas de jeton : on le restitue directement, sans appeler l'API.
+  const demoUser = getDemoUser();
+  if (demoUser && !getAccessToken()) {
+    return Promise.resolve(demoUser);
+  }
   return callApi(
     () => api.get('/auth/me').then((r) => { setTokens(r); return r?.user; }),
     async () => getDemoUser(),
