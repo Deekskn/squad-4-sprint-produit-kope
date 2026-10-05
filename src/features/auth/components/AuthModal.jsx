@@ -15,20 +15,9 @@ export function AuthModal() {
   const { user } = useAuthContext();
 
   const renderPro = () => {
-    if (!user) {
-      return (
-        <div className="space-y-4 p-2 text-sm text-gray-600">
-          <p>
-            Créez d'abord un compte client, puis vous pourrez passer en compte
-            professionnel à tout moment depuis votre espace.
-          </p>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => open('login')}>Se connecter</Button>
-            <Button onClick={() => open('register-client')}>Créer un compte</Button>
-          </div>
-        </div>
-      );
-    }
+
+    if (!user) return <LoginForm bare />
+    
     if (user.role === ROLES.PRO) {
       return <p className="p-2 text-sm text-gray-600">Votre compte est déjà professionnel.</p>;
     }
@@ -70,7 +59,7 @@ export function AuthModal() {
           <div className="min-w-0 h-full grid place-content-center">
             {mode === 'login' && <LoginForm bare />}
             {mode === 'register-client' && <RegisterClientForm bare />}
-            {mode === 'register-pro' && renderPro()}
+            {mode === 'register-pro' &&  renderPro() }
           </div>
         </div>
       </DialogContent>

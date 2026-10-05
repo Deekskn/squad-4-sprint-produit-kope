@@ -120,7 +120,7 @@ export function LoginForm({ bare = false } = {}) {
         Je n'ai pas de compte.
         <Link
           to={ROUTES.REGISTER_CLIENT}
-          className="text-primary-500 font-semibold hover:text-primary-600 ml-1"
+          className="text-primary-500 link-underline  font-semibold hover:text-primary-600 ml-1"
         > S'inscrire</Link>
       </p>
     </div>
