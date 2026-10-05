@@ -55,7 +55,16 @@ export function login(payload) {
 
 export function logout() {
   return callApi(
-    () => api.postJson('/auth/logout', { refreshToken: getRefreshToken() }).finally(() => clearTokens()),
+    async () => {
+      try {
+        await api.postJson('/auth/logout', { refreshToken: getRefreshToken() });
+      } finally {
+        clearTokens();
+        // Le compte démo local nuit aussi à la déconnexion : on le purge.
+        setDemoUser(null);
+      }
+      return {};
+    },
     async () => { clearTokens(); setDemoUser(null);
       return {};
     },
@@ -105,6 +114,23 @@ export function changePassword(payload) {
   return callApi(
     () => api.putJson('/auth/password', payload),
     async () => ({}),
+  );
+}
+
+export function uploadAvatar(file) {
+  const fd = new FormData();
+  fd.append('avatar', file);
+  return callApi(
+    () => api.postFormData('/auth/avatar', fd).then((r) => r.avatarUrl),
+    async () => {
+      if (file) {
+        const avatarUrl = URL.createObjectURL(file);
+        const demo = getDemoUser();
+        if (demo) setDemoUser({ ...demo, avatarUrl });
+        return avatarUrl;
+      }
+      return null;
+    },
   );
 }
 

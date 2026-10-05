@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.js';
 import { requireAuth } from '../../middlewares/requireAuth.js';
 import { rateLimit } from '../../middlewares/rateLimit.js';
+import { upload } from '../../middlewares/upload.js';
 import {
   becomeProfessionalSchema,
   changePasswordSchema,
@@ -23,6 +24,7 @@ router.post('/auth/logout', controller.logout);
 router.get('/auth/me', requireAuth, controller.me);
 router.put('/auth/me', requireAuth, validate(updateAccountSchema), controller.updateAccount);
 router.put('/auth/password', requireAuth, validate(changePasswordSchema), controller.changePassword);
+router.post('/auth/avatar', requireAuth, upload.single('avatar'), controller.uploadAvatar);
 
 // US-18 (Could) : mot de passe oublié — à ajouter quand la story sera arbitrée.
 

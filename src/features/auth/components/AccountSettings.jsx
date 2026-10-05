@@ -7,12 +7,13 @@ import { FormField } from '@/components/ui/FormField.jsx';
 import { Input } from '@/components/ui/Input.jsx';
 import { Card } from '@/components/ui/Card.jsx';
 
-export function AccountSettings({ user }) {
+export function AccountSettings({ user, passwordOnly = false }) {
   const { refresh } = useAuthContext();
   const { toast } = useNotification();
 
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [phone, setPhone] = useState(user?.phone ?? '');
   const [savingName, setSavingName] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState('');
@@ -23,8 +24,13 @@ export function AccountSettings({ user }) {
   const submitName = async (e) => {
     e.preventDefault();
     setSavingName(true);
+    const payload = { phone: phone.trim() };
+    if (user?.role !== 'professional' && user?.role !== 'admin') {
+      payload.firstName = firstName.trim();
+      payload.lastName = lastName.trim();
+    }
     try {
-      await updateAccount({ firstName: firstName.trim(), lastName: lastName.trim() });
+      await updateAccount(payload);
       await refresh();
       toast({ message: 'Informations enregistrées.', type: 'success' });
     } catch (err) {
@@ -58,7 +64,7 @@ export function AccountSettings({ user }) {
 
   return (
     <div className="space-y-6">
-      {showNameForm && (
+      {!passwordOnly && showNameForm && (
         <Card className="p-6">
           <h3 className="text-base font-bold text-gray-900">Informations personnelles</h3>
           <form onSubmit={submitName} className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -68,9 +74,24 @@ export function AccountSettings({ user }) {
             <FormField label="Nom" id="acc-lastname">
               <Input id="acc-lastname" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
             </FormField>
-            <div className="sm:col-span-2">
+            <FormField label="Téléphone" id="acc-phone">
+              <Input id="acc-phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            </FormField>
+            <div className="flex items-end">
               <Button type="submit" loading={savingName} variant="primary">Enregistrer</Button>
             </div>
+          </form>
+        </Card>
+      )}
+
+      {!passwordOnly && !showNameForm && (
+        <Card className="p-6">
+          <h3 className="text-base font-bold text-gray-900">Numéro de téléphone</h3>
+          <form onSubmit={submitName} className="mt-4 max-w-md space-y-4">
+            <FormField label="Téléphone" id="acc-phone-pro">
+              <Input id="acc-phone-pro" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            </FormField>
+            <Button type="submit" loading={savingName} variant="primary">Enregistrer</Button>
           </form>
         </Card>
       )}

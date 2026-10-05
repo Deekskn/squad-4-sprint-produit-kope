@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { UserMenu } from './UserMenu.jsx';
-import { avatarFor, displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
+import { displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
+import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
 import { ROUTES } from '@/lib/constants.js';
 import { cn } from '@/lib/utils.js';
 import { Button } from '@/components/ui/Button.jsx';
@@ -149,9 +150,7 @@ export function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-800 ring-1 ring-gray-300">
-                  {avatarFor(user)}
-                </span>
+                <UserAvatar user={user} name={displayNameFor(user)} className="h-9 w-9" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-gray-800">{displayNameFor(user)}</p>
                   <p className="text-xs text-gray-500">{roleLabel(user.role)}</p>

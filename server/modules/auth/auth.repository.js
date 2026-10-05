@@ -17,6 +17,19 @@ export async function updateNames(userId, { firstName, lastName }, db = pool) {
   return rows[0] ?? null;
 }
 
+export async function updateAccount(userId, { firstName, lastName, phone }, db = pool) {
+  const { rows } = await db.query(
+    `UPDATE users
+        SET first_name = COALESCE($2, first_name),
+            last_name = COALESCE($3, last_name),
+            phone = COALESCE($4, phone)
+      WHERE id = $1
+  RETURNING id, role, phone, first_name AS "firstName", last_name AS "lastName"`,
+    [userId, firstName ?? null, lastName ?? null, phone ?? null],
+  );
+  return rows[0] ?? null;
+}
+
 export async function updatePasswordHash(userId, passwordHash, db = pool) {
   await db.query('UPDATE users SET password_hash = $2 WHERE id = $1', [userId, passwordHash]);
 }
@@ -41,6 +54,7 @@ export async function findById(id, db = pool) {
   const { rows } = await db.query(
     `SELECT u.id, u.role, u.phone,
             u.first_name AS "firstName", u.last_name AS "lastName",
+            u.avatar_url AS "avatarUrl",
             p.display_name AS "displayName"
        FROM users u
        LEFT JOIN professionals p ON p.user_id = u.id
@@ -48,6 +62,10 @@ export async function findById(id, db = pool) {
     [id],
   );
   return rows[0] ?? null;
+}
+
+export async function updateAvatarUrl(userId, avatarUrl, db = pool) {
+  await db.query('UPDATE users SET avatar_url = $2 WHERE id = $1', [userId, avatarUrl]);
 }
 
 export async function createUser({ role, phone, passwordHash, firstName = null, lastName = null }, db = pool) {

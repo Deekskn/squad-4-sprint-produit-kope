@@ -3,7 +3,10 @@ import { env } from '../../config/env.js';
 import { signToken, verifyToken } from '../../utils/tokens.js';
 import { ApiError } from '../../utils/ApiError.js';
 import * as service from './auth.service.js';
+import * as repository from './auth.repository.js';
 import * as refreshTokens from './refreshTokens.repository.js';
+import { processAvatar, saveAvatar } from './avatar.storage.js';
+import { uploadUrl } from '../../utils/uploads.js';
 
 async function issueTokens(user) {
   const accessToken = signToken({ sub: user.id, role: user.role }, env.ACCESS_TOKEN_SECRET, env.ACCESS_TOKEN_TTL);
@@ -103,6 +106,16 @@ export async function refresh(req, res) {
 export async function updateAccount(req, res) {
   const user = await service.updateAccount(currentUser(req).id, req.validated.body);
   res.json({ user });
+}
+
+export async function uploadAvatar(req, res) {
+  if (!req.file) throw ApiError.badRequest('Aucun fichier envoyé');
+  const userId = currentUser(req).id;
+  const buffer = await processAvatar(req.file.buffer);
+  const relativePath = await saveAvatar(buffer, userId);
+  const avatarUrl = uploadUrl(relativePath);
+  await repository.updateAvatarUrl(userId, avatarUrl);
+  res.json({ avatarUrl });
 }
 
 export async function changePassword(req, res) {

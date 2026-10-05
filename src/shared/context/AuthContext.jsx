@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
       /* ignore network errors on logout */
     } finally {
       setUser(null);
-      redirect(ROUTES.HOME);
+      setInterval(() => redirect(ROUTES.HOME), 0);
     }
   }, []);
 

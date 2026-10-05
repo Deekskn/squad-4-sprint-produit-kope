@@ -91,6 +91,13 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
   await refreshTokensRepository.revokeAllForUser(userId);
 }
 
-export async function updateAccount(userId, { firstName, lastName }) {
-  return repository.updateNames(userId, { firstName, lastName });
+export async function updateAccount(userId, { firstName, lastName, phone }) {
+  try {
+    return await repository.updateAccount(userId, { firstName, lastName, phone });
+  } catch (err) {
+    if (err.code === '23505') {
+      throw ApiError.conflict(DUPLICATE_PHONE, { phone: DUPLICATE_PHONE });
+    }
+    throw err;
+  }
 }

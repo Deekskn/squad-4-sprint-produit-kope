@@ -52,8 +52,9 @@ export const loginSchema = z.object({
 
 /** Mise à jour des informations personnelles (client) */
 export const updateAccountSchema = z.object({
-  firstName: requiredText(100),
-  lastName: requiredText(100),
+  firstName: requiredText(100).optional(),
+  lastName: requiredText(100).optional(),
+  phone: phoneSchema.optional(),
 });
 
 /** Changement de mot de passe : exige l'ancien pour autoriser le nouveau */
