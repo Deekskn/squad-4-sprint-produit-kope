@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Select } from '../src/components/ui/Select.jsx';
-import { Table, TableRow, TableCell, TableEmpty } from '../src/components/ui/Table.jsx';
+import { Table, TableRow, TableEmpty } from '../src/components/ui/Table.jsx';
 import { Skeleton } from '../src/components/ui/Skeleton.jsx';
 import { FloatingCaption } from '../src/components/ui/FloatingCaption.jsx';
 

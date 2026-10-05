@@ -3,8 +3,6 @@ import { requireAuth } from '../server/middlewares/requireAuth.js';
 import { requireRole } from '../server/middlewares/requireRole.js';
 import { signToken } from '../server/utils/tokens.js';
 
-const SECRET = process.env.ACCESS_TOKEN_SECRET || process.env.SESSION_SECRET || 'test-secret';
-
 // requireAuth/requireRole utilisent env.ACCESS_TOKEN_SECRET — on génère le token avec le même env.
 import { env } from '../server/config/env.js';
 
@@ -15,7 +13,6 @@ function bearer(payload) {
 describe('requireAuth', () => {
   it('accepte un Bearer token valide et remplit req.user', () => {
     const req = bearer({ sub: 7, role: 'client' });
-    const next = () => {};
     let called = false;
     requireAuth(req, {}, () => { called = true; });
     expect(called).toBe(true);

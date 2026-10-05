@@ -3,12 +3,13 @@ import { env } from '../../config/env.js';
 import { signToken, verifyToken } from '../../utils/tokens.js';
 import { ApiError } from '../../utils/ApiError.js';
 import * as service from './auth.service.js';
+import * as refreshTokens from './refreshTokens.repository.js';
 
-function issueTokens(user) {
-  return {
-    accessToken: signToken({ sub: user.id, role: user.role }, env.ACCESS_TOKEN_SECRET, env.ACCESS_TOKEN_TTL),
-    refreshToken: signToken({ sub: user.id, role: user.role, type: 'refresh' }, env.REFRESH_TOKEN_SECRET, env.REFRESH_TOKEN_TTL),
-  };
+async function issueTokens(user) {
+  const accessToken = signToken({ sub: user.id, role: user.role }, env.ACCESS_TOKEN_SECRET, env.ACCESS_TOKEN_TTL);
+  const refreshToken = signToken({ sub: user.id, role: user.role, type: 'refresh' }, env.REFRESH_TOKEN_SECRET, env.REFRESH_TOKEN_TTL);
+  await refreshTokens.store({ userId: user.id, token: refreshToken, expiresInSeconds: env.REFRESH_TOKEN_TTL });
+  return { accessToken, refreshToken };
 }
 
 function currentUser(req) {
@@ -32,28 +33,32 @@ function startSession(req, user) {
 export async function registerClient(req, res) {
   const user = await service.registerClient(req.validated.body);
   await startSession(req, user);
-  res.status(201).json({ user, ...issueTokens(user) });
+  res.status(201).json({ user, ...(await issueTokens(user)) });
 }
 
 export async function registerProfessional(req, res) {
   const user = await service.registerProfessional(req.validated.body);
   await startSession(req, user);
-  res.status(201).json({ user, ...issueTokens(user) });
+  res.status(201).json({ user, ...(await issueTokens(user)) });
 }
 
 export async function becomeProfessional(req, res) {
   const user = await service.becomeProfessional(currentUser(req).id, req.validated.body);
   req.session.user = { id: user.id, role: user.role };
-  res.json({ user, ...issueTokens(user) });
+  res.json({ user, ...(await issueTokens(user)) });
 }
 
 export async function login(req, res) {
   const user = await service.login(req.validated.body);
   await startSession(req, user);
-  res.json({ user, ...issueTokens(user) });
+  res.json({ user, ...(await issueTokens(user)) });
 }
 
-export function logout(req, res, next) {
+export async function logout(req, res, next) {
+  const { refreshToken } = req.body ?? {};
+  if (refreshToken) {
+    try { await refreshTokens.revoke(refreshToken); } catch { /* ignore */ }
+  }
   req.session.destroy((err) => {
     if (err) return next(err);
     res.clearCookie(SESSION_COOKIE);
@@ -81,7 +86,11 @@ export async function refresh(req, res) {
     throw ApiError.unauthorized('Refresh token invalide ou expiré');
   }
   if (payload.type !== 'refresh') throw ApiError.unauthorized('Token invalide');
+  const stored = await refreshTokens.findActiveByToken(refreshToken);
+  if (!stored) throw ApiError.unauthorized('Refresh token révoqué ou expiré');
   const user = await service.getCurrentUser(payload.sub);
   if (!user) throw ApiError.unauthorized('Compte introuvable');
-  res.json({ user, ...issueTokens(user) });
+  // Rotation : l'ancien refresh token est révoqué, un nouveau est émis
+  await refreshTokens.revoke(refreshToken);
+  res.json({ user, ...(await issueTokens(user)) });
 }

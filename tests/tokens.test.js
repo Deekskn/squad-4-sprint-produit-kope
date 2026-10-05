@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { describe, it, expect } from 'vitest';
 import { signToken, verifyToken } from '../server/utils/tokens.js';
 
@@ -19,7 +20,7 @@ describe('tokens.js (JWT HS256)', () => {
 
   it('rejette un payload modifié', () => {
     const token = signToken({ sub: 1, role: 'client' }, SECRET, 3600);
-    const [h, b, s] = token.split('.');
+    const [h, , s] = token.split('.');
     const tampered = `${h}.${Buffer.from(JSON.stringify({ sub: 1, role: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url')}.${s}`;
     expect(() => verifyToken(tampered, SECRET)).toThrow(/Signature invalide/);
   });

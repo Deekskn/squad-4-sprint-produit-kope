@@ -1,7 +1,7 @@
 import { api } from '@/lib/api.js';
 import { callApi } from '@/lib/dataSource.js';
 import { getDemoUser, setDemoUser } from '@/mocks/appMock.js';
-import { setTokens, clearTokens } from '@/lib/authTokens.js';
+import { setTokens, clearTokens, getRefreshToken } from '@/lib/authTokens.js';
 
 export function registerClient(payload) {
   return callApi(
@@ -55,7 +55,7 @@ export function login(payload) {
 
 export function logout() {
   return callApi(
-    () => api.postJson('/auth/logout', {}).finally(() => clearTokens()),
+    () => api.postJson('/auth/logout', { refreshToken: getRefreshToken() }).finally(() => clearTokens()),
     async () => { clearTokens(); setDemoUser(null);
       return {};
     },
