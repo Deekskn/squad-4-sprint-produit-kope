@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, LayoutDashboard, User, Image as ImageIcon } from 'lucide-react';
 import { getMyProfile, setAvailability } from '../services/professionals.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
@@ -10,7 +10,15 @@ import { PublicationStatus } from '../components/PublicationStatus.jsx';
 import { AvailabilityToggle } from '../components/AvailabilityToggle.jsx';
 import { ProfileEditor } from '../components/ProfileEditor.jsx';
 import { PhotoManager } from '../components/PhotoManager.jsx';
+import { Card } from '@/components/ui/Card.jsx';
+import { cn, initials } from '@/lib/utils.js';
 import { ROUTES } from '@/lib/constants.js';
+
+const NAV_ITEMS = [
+  { id: 'overview', label: 'Vue d\u2019ensemble', icon: LayoutDashboard },
+  { id: 'profil', label: 'Mon profil', icon: User },
+  { id: 'photos', label: 'Mes photos', icon: ImageIcon },
+];
 
 export function ProProfilePage() {
   const { user } = useAuthContext();
@@ -19,6 +27,7 @@ export function ProProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [savingAvailability, setSavingAvailability] = useState(false);
+  const [active, setActive] = useState('overview');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,35 +87,73 @@ export function ProProfilePage() {
     );
   }
 
+  const displayName = user?.displayName || profile?.displayName || 'Professionnel';
+
   return (
-    <div className="container-kop page-padding mx-auto max-w-5xl space-y-6">
-      <header className="rounded-[32px] bg-kop-mint p-7 sm:p-9 flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-primary-800/70">Espace professionnel</p>
-          <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 leading-[1.1]">
-            Bonjour, {user?.displayName || profile?.displayName || 'Professionnel'}
-          </h1>
-          <p className="mt-2 max-w-lg text-sm text-gray-700/90 leading-6">
-            Gérez votre profil, vos réalisations et votre disponibilité. Les clients pourront alors vous trouver dans les recherches.
-          </p>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <Button as={Link} to={ROUTES.PROFESSIONAL(user?.id || profile?.userId || profile?.id || '0')} variant="secondary" size="md">
+    <div className="container-kop py-10 lg:py-16">
+      <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="space-y-6">
+          <Card className="p-5">
+            <div className="flex items-center gap-4">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-100 text-lg font-bold text-primary-800 ring-1 ring-primary-200">
+                {initials('', displayName) || 'P'}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-gray-900">{displayName}</p>
+                <p className="text-xs text-gray-500">{profile?.tradeName || 'Professionnel'}</p>
+              </div>
+            </div>
+          </Card>
+          <nav aria-label="Navigation de l'espace pro" className="space-y-1">
+            {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActive(id)}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition',
+                  active === id
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                )}
+              >
+                <Icon size={18} aria-hidden />
+                {label}
+              </button>
+            ))}
+          </nav>
+          <Button as={Link} to={ROUTES.PROFESSIONAL(user?.id || profile?.userId || profile?.id || '0')} variant="secondary" size="md" className="w-full">
             Voir ma fiche publique <ChevronRight size={16} className="inline" aria-hidden />
           </Button>
-        </div>
-      </header>
+        </aside>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <PublicationStatus status={profile?.status} missing={profile?.missing || []} />
-        <AvailabilityToggle
-          isAvailable={profile?.isAvailable}
-          onChange={handleAvailabilityChange}
-          loading={savingAvailability}
-        />
+        <main className="space-y-6">
+          <header className="rounded-[24px] bg-kop-mint p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-800/70">Espace professionnel</p>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
+              Bonjour, {displayName}
+            </h1>
+            <p className="mt-2 max-w-lg text-sm text-gray-700/90 leading-6">
+              Gérez votre profil, vos réalisations et votre disponibilité.
+            </p>
+          </header>
+
+          {active === 'overview' && (
+            <div className="grid gap-5 sm:grid-cols-2">
+              <PublicationStatus status={profile?.status} missing={profile?.missing || []} />
+              <AvailabilityToggle
+                isAvailable={profile?.isAvailable}
+                onChange={handleAvailabilityChange}
+                loading={savingAvailability}
+              />
+            </div>
+          )}
+
+          {active === 'profil' && <ProfileEditor profile={profile} onUpdated={(p) => setProfile(p)} />}
+
+          {active === 'photos' && <PhotoManager photos={profile?.photos || []} onChange={updatePhotos} />}
+        </main>
       </div>
-      <ProfileEditor profile={profile} onUpdated={(p) => setProfile(p)} />
-      <PhotoManager photos={profile?.photos || []} onChange={updatePhotos} />
     </div>
   );
 }
