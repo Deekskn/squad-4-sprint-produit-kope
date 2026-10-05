@@ -37,6 +37,14 @@ Application fullstack de mise en relation avec des artisans. Le projet utilise u
 
 ---
 
+## US-15 — Note moyenne et avis
+
+La fiche publique expose la moyenne des avis visibles, arrondie à une décimale, et leur nombre. `GET /api/professionals/:id/reviews?page=<n>&pageSize=<n>` renvoie également les avis paginés du plus récent au plus ancien avec le prénom et l'initiale du nom du client. Les avis masqués sont exclus. La moyenne est calculée directement depuis `reviews` à chaque lecture : un avis ajouté est donc pris en compte sans cache ni mise à jour manuelle d'un agrégat. Les cartes de recherche reçoivent cette même moyenne et ce nombre.
+
+La migration `1759500000004_reviews_public_index.sql` ajoute un index partiel pour accélérer le chargement chronologique des avis publics. Appliquer les migrations avec `npm run migrate:up`.
+
+---
+
 ## Prerequisites
 
 - **Node.js:** `^20.19.0` ou `>=22.12.0` (versions compatibles avec Vite 8)
