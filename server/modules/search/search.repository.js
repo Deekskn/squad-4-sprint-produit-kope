@@ -33,7 +33,7 @@ export async function searchPublished({ tradeId, zoneId, limit, offset }, db = p
              OR EXISTS (SELECT 1 FROM professional_zones pz
                          WHERE pz.professional_id = p.user_id AND pz.zone_id = $2))
       GROUP BY p.user_id, p.display_name, p.years_experience, p.is_available, p.updated_at, t.name
-      ORDER BY p.is_available DESC, "ratingAverage" DESC NULLS LAST, p.updated_at DESC, p.user_id
+      ORDER BY p.is_available DESC, AVG(r.rating) DESC NULLS LAST, p.updated_at DESC, p.user_id
       LIMIT $3 OFFSET $4`,
     [tradeId, zoneId, limit, offset],
   );

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button.jsx';
 import { FormField } from '@/components/ui/FormField.jsx';
 import { Input } from '@/components/ui/Input.jsx';
 import { Checkbox } from '@/components/ui/Checkbox.jsx';
-import { Card } from '@/components/ui/Card.jsx';
 import { useForm } from '@/components/form/useForm.js';
 import { registerClientSchema } from '@/components/form/validators.js';
 import { registerClient } from '../services/auth.service.js';
@@ -50,7 +49,7 @@ export function RegisterClientForm({ bare = false } = {}) {
 
   return (
     <aside className={bare ? 'p-6 ' : 'p-6 sm:p-8'}>
-        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Créer un compte client</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Créer un compte </h1>
         <p className="mt-1 text-sm text-gray-500">
           En 1 minute, créez votre compte pour contacter des artisans qualifiés.
         </p>

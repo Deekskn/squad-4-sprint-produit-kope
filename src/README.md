@@ -13,17 +13,19 @@ Documentation du client frontend intégré via React 19, Tailwind CSS v4 et Vite
 
 ---
 
-## Recommended Client Structure
+## Organisation actuelle
 
 ```text
 src/
-├── assets/          # Images, icônes SVG, polices
-├── components/      # Composants UI réutilisables (Boutons, Inputs, Modales)
-├── features/        # Composants et états regroupés par fonctionnalité/page
-├── hooks/           # Custom React Hooks
-├── services/        # Clients API & appels fetch vers /api/*
-├── styles/          # Fichiers CSS globaux & directives Tailwind
-├── App.jsx          # Composant Racine & Routing
+├── assets/          # Images et ressources
+├── components/      # Composants UI, formulaires et layout partagés
+├── features/        # Fonctionnalités métier (auth, professionnels, recherche...)
+├── lib/             # API, constantes et utilitaires
+├── mocks/           # Données et ressources de démonstration
+├── pages/           # Pages générales
+├── routes/          # Définition du routage
+├── shared/          # Hooks et contextes partagés
+├── index.css        # Styles globaux et directives Tailwind
 └── main.jsx         # Point d'entrée React DOM
 ```
 
@@ -34,9 +36,9 @@ src/
 Puisque le frontend et le backend partagent la même origine grâce à `vite-express`, tous les appels d'API vers le serveur doivent utiliser des chemins relatifs :
 
 ```javascript
-// Exemple d'appel API propre
-const response = await fetch('/api/professionals');
-const data = await response.json();
+import { api } from '@/lib/api.js';
+
+const data = await api.get('/professionals');
 ```
 
 ---

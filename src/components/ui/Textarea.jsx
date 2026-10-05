@@ -5,7 +5,7 @@ export function Textarea({ className, error, id, ...rest }) {
     <textarea
       id={id}
       className={cn(
-        'block w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm transition-colors focus-ring focus:outline-none disabled:bg-gray-100',
+        'block w-full rounded-sm border bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm transition-colors focus-ring focus:outline-none disabled:bg-gray-100',
         error ? 'border-danger-500 focus:border-danger-500' : 'border-gray-300 focus:border-primary-500',
         className,
       )}

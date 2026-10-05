@@ -52,12 +52,12 @@ export function AdminReviewsTable() {
         <>
           <ul className="space-y-3">
             {(data?.items || []).length === 0 ? (
-              <li className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-sm text-gray-500">
+              <li className="rounded-sm border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-sm text-gray-500">
                 Aucun avis.
               </li>
             ) : (
               (data?.items || []).map((r) => (
-                <li key={r.id} className={`rounded-2xl border bg-white p-4 shadow-sm ${r.isHidden ? 'border-rose-200 bg-rose-50/30' : 'border-gray-200'}`}>
+                <li key={r.id} className={`rounded-md border bg-white p-4 ${r.isHidden ? 'border-rose-200 bg-rose-50/30' : 'border-gray-200'}`}>
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div>

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { api } from '@/lib/api.js';
+import * as authService from '@/features/auth/services/auth.service.js';
 import { ROUTES } from '@/lib/constants.js';
 
 const AuthContext = createContext(null);
@@ -15,8 +15,8 @@ export function AuthProvider({ children }) {
 
   const fetchMe = useCallback(async () => {
     try {
-      const data = await api.get('/auth/me');
-      setUser(data?.user ?? null);
+      const data = await authService.getCurrentUser();
+      setUser(data ?? null);
     } catch {
       setUser(null);
     } finally {
@@ -33,12 +33,12 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await api.postJson('/auth/logout', {});
+      await authService.logout();
     } catch {
       /* ignore network errors on logout */
     } finally {
       setUser(null);
-      redirect(ROUTES.HOME);
+      setInterval(() => redirect(ROUTES.HOME), 0);
     }
   }, []);
 

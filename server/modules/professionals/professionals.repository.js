@@ -36,7 +36,10 @@ export async function updateProfile(userId, { description, yearsExperience, what
 }
 
 export async function setAvailability(userId, isAvailable, db = pool) {
-  await db.query('UPDATE professionals SET is_available = $2 WHERE user_id = $1', [userId, isAvailable]);
+  await db.query(
+    'UPDATE professionals SET is_available = $2, updated_at = now() WHERE user_id = $1',
+    [userId, isAvailable],
+  );
 }
 
 /** Profil du propriétaire, quel que soit son statut. */
@@ -84,8 +87,7 @@ export async function findPublishedDetail(id, db = pool) {
        FROM published_professionals p
        JOIN users u ON u.id = p.user_id
        JOIN trades t ON t.id = p.trade_id
-      WHERE p.user_id = $1
-        AND NOT p.is_hidden`,
+      WHERE p.user_id = $1`,
     [id],
   );
   return rows[0] ?? null;

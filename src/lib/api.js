@@ -1,3 +1,5 @@
+import { getAccessToken, getRefreshToken, setTokens, clearTokens } from './authTokens.js';
+
 const DEFAULT_HEADERS = { Accept: 'application/json' };
 const JSON_HEADERS = { ...DEFAULT_HEADERS, 'Content-Type': 'application/json' };
 
@@ -33,13 +35,46 @@ async function parseResponse(res) {
   return payload;
 }
 
-export async function fetchApi(url, options = {}) {
+let refreshPromise = null;
+
+async function refreshAccessToken() {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) throw new Error('no-refresh-token');
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+        headers: JSON_HEADERS,
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!res.ok) throw new Error('refresh-failed');
+      const data = await res.json();
+      setTokens(data);
+      return data.accessToken;
+    })().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+export async function fetchApi(url, options = {}, retry = true) {
   const { headers, ...rest } = options;
+  const token = getAccessToken();
   const res = await fetch(resolveUrl(url), {
     credentials: 'include',
-    headers: { ...DEFAULT_HEADERS, ...headers },
+    headers: { ...DEFAULT_HEADERS, ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers },
     ...rest,
   });
+  if (res.status === 401 && retry && !url.includes('/auth/refresh') && !url.includes('/auth/login')) {
+    try {
+      await refreshAccessToken();
+      return fetchApi(url, options, false);
+    } catch {
+      clearTokens();
+    }
+  }
   return parseResponse(res);
 }
 
