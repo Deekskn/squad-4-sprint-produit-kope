@@ -6,7 +6,7 @@ import { Select } from '@/components/ui/Select.jsx';
 import { SearchFilters } from '../components/SearchFilters.jsx';
 import { SearchResults } from '../components/SearchResults.jsx';
 import { useSearch } from '../hooks/useSearch.js';
-import { Spinner } from '@/components/ui/Spinner.jsx';
+import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/lib/constants.js';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
 
@@ -87,8 +87,17 @@ export function SearchPage() {
           </div>
 
           {loading && (
-            <div className="flex items-center justify-center py-20 bg-white rounded-[28px] border border-gray-100">
-              <Spinner size="lg" />
+            <div className="space-y-4" aria-busy="true">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="flex gap-4 rounded-[28px] border border-gray-100 bg-white p-5">
+                  <Skeleton className="h-28 w-32 shrink-0 rounded-2xl" />
+                  <div className="flex-1 space-y-3 py-1">
+                    <Skeleton className="h-5 w-1/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-1/4" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
           {error && !loading && (

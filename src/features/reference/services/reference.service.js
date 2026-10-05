@@ -1,19 +1,28 @@
 import { api } from '@/lib/api.js';
 import { callApi } from '@/lib/dataSource.js';
+import { cached, cacheInvalidate } from '@/lib/cache.js';
 import { MOCK_TRADES, MOCK_ZONES } from '@/mocks/appMock.js';
 
 export function listTrades() {
-  return callApi(
-    () => api.get('/trades').then((r) => r.trades || []),
-    async () => MOCK_TRADES,
+  return cached('reference:trades', 5 * 60_000, () =>
+    callApi(
+      () => api.get('/trades').then((r) => r.trades || []),
+      async () => MOCK_TRADES,
+    ),
   );
 }
 
 export function listZones() {
-  return callApi(
-    () => api.get('/zones').then((r) => r.zones || []),
-    async () => MOCK_ZONES,
+  return cached('reference:zones', 5 * 60_000, () =>
+    callApi(
+      () => api.get('/zones').then((r) => r.zones || []),
+      async () => MOCK_ZONES,
+    ),
   );
+}
+
+export function invalidateReferenceCache() {
+  cacheInvalidate('reference:');
 }
 
 export default { listTrades, listZones };

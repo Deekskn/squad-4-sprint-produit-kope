@@ -5,7 +5,7 @@ const cx = (...parts) => parts.filter(Boolean).join(" ");
 
 const controlClasses = (error) =>
   cx(
-    "min-h-11 w-full rounded-lg border bg-white px-3.5 py-2 text-base text-gray-900",
+    "min-h-11 w-full rounded-sm border bg-white px-3.5 py-2 text-base text-gray-900",
     "focus-visible:outline-2 focus-visible:outline-green-700",
     error ? "border-red-600" : "border-gray-300",
   );
@@ -284,7 +284,7 @@ export function MultiSelect({
                   onClick={() => !isDisabled && toggle(option.value)}
                   onMouseMove={() => setActiveIndex(index)}
                   className={cx(
-                    "flex min-h-10 cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2 text-base",
+                    "flex min-h-10 cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2 text-base",
                     index === activeIndex && "bg-green-50",
                     isDisabled && "cursor-not-allowed opacity-45",
                   )}

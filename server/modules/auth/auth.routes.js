@@ -10,6 +10,7 @@ router.post('/auth/register/client', validate(registerClientSchema), controller.
 router.post('/auth/register/professional', validate(registerProfessionalSchema), controller.registerProfessional);
 router.post('/auth/become-professional', requireAuth, validate(becomeProfessionalSchema), controller.becomeProfessional);
 router.post('/auth/login', validate(loginSchema), controller.login);
+router.post('/auth/refresh', controller.refresh);
 router.post('/auth/logout', controller.logout);
 router.get('/auth/me', requireAuth, controller.me);
 

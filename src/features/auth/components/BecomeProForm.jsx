@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/Input.jsx';
 import { Select } from '@/components/ui/Select.jsx';
 import { Textarea } from '@/components/ui/Textarea.jsx';
 import { Card } from '@/components/ui/Card.jsx';
-import { Spinner } from '@/components/ui/Spinner.jsx';
+import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { useForm } from '@/components/form/useForm.js';
 import { becomeProfessionalSchema } from '@/components/form/validators.js';
 import { becomeProfessional } from '../services/auth.service.js';
@@ -68,8 +68,9 @@ export function BecomeProForm({ bare = false } = {}) {
         Commencez par l'essentiel. Vous compléterez votre profil ensuite.
       </p>
       {loadingRefs && (
-        <div className="mt-6 flex items-center gap-2 text-sm text-gray-500">
-          <Spinner /> Chargement des métiers et zones...
+        <div className="mt-6 space-y-3" aria-busy="true">
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-11 w-full" />
         </div>
       )}
       <form className="mt-6 space-y-5" onSubmit={onSubmit} noValidate hidden={loadingRefs}>

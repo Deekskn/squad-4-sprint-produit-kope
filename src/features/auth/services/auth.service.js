@@ -1,10 +1,11 @@
 import { api } from '@/lib/api.js';
 import { callApi } from '@/lib/dataSource.js';
 import { getDemoUser, setDemoUser } from '@/mocks/appMock.js';
+import { setTokens, clearTokens } from '@/lib/authTokens.js';
 
 export function registerClient(payload) {
   return callApi(
-    () => api.postJson('/auth/register/client', payload).then((r) => r?.user),
+    () => api.postJson('/auth/register/client', payload).then((r) => { setTokens(r); return r?.user; }),
     async () => {
       const user = {
         id: Date.now() % 100000,
@@ -21,7 +22,7 @@ export function registerClient(payload) {
 
 export function registerProfessional(payload) {
   return callApi(
-    () => api.postJson('/auth/register/professional', payload).then((r) => r?.user),
+    () => api.postJson('/auth/register/professional', payload).then((r) => { setTokens(r); return r?.user; }),
     async () => {
       const user = {
         id: Date.now() % 100000,
@@ -37,7 +38,7 @@ export function registerProfessional(payload) {
 
 export function login(payload) {
   return callApi(
-    () => api.postJson('/auth/login', payload).then((r) => r?.user),
+    () => api.postJson('/auth/login', payload).then((r) => { setTokens(r); return r?.user; }),
     async () => {
       const user = {
         id: Date.now() % 100000,
@@ -54,9 +55,8 @@ export function login(payload) {
 
 export function logout() {
   return callApi(
-    () => api.postJson('/auth/logout', {}),
-    async () => {
-      setDemoUser(null);
+    () => api.postJson('/auth/logout', {}).finally(() => clearTokens()),
+    async () => { clearTokens(); setDemoUser(null);
       return {};
     },
   );
@@ -64,14 +64,14 @@ export function logout() {
 
 export function getCurrentUser() {
   return callApi(
-    () => api.get('/auth/me').then((r) => r?.user),
+    () => api.get('/auth/me').then((r) => { setTokens(r); return r?.user; }),
     async () => getDemoUser(),
   );
 }
 
 export function becomeProfessional(payload) {
   return callApi(
-    () => api.postJson('/auth/become-professional', payload).then((r) => r?.user),
+    () => api.postJson('/auth/become-professional', payload).then((r) => { setTokens(r); return r?.user; }),
     async () => {
       const user = {
         ...(getDemoUser() || { id: Date.now() % 100000 }),
