@@ -12,9 +12,11 @@ export const PHOTO_MAX_WIDTH = 1280;
 export const PHOTO_THUMB_WIDTH = 400;
 
 export const RG04_CHECKLIST = [
-  { code: 'description', label: 'Ajoutez une description (30 caractères minimum)' },
-  { code: 'yearsExperience', label: "Indiquez vos années d'expérience" },
+  { code: 'displayName', label: 'Renseignez le nom affiché' },
+  { code: 'trade', label: 'Choisissez un métier' },
   { code: 'zones', label: "Choisissez au moins une zone d'intervention" },
+  { code: 'phone', label: 'Renseignez un numéro de téléphone' },
+  { code: 'description', label: 'Ajoutez une description (30 caractères minimum)' },
   { code: 'photos', label: 'Ajoutez au moins une photo de réalisation' },
 ];
 
