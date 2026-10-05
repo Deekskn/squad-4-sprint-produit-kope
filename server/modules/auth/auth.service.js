@@ -60,6 +60,9 @@ export async function becomeProfessional(userId, { displayName, tradeId, zoneIds
   return withTransaction(async (tx) => {
     const user = await repository.findById(userId, tx);
     if (!user) throw ApiError.unauthorized();
+    if (user.role === 'admin') {
+      throw ApiError.forbidden('Un administrateur ne peut pas devenir professionnel');
+    }
     if (user.role === 'professional') {
       throw ApiError.conflict('Vous avez deja un compte professionnel');
     }

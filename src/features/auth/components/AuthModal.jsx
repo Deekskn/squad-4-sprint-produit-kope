@@ -18,6 +18,9 @@ export function AuthModal() {
 
     if (!user) return <LoginForm bare />
     
+    if (user.role === ROLES.ADMIN) {
+      return <p className="p-2 text-sm text-gray-600">Un compte administrateur ne peut pas devenir professionnel.</p>;
+    }
     if (user.role === ROLES.PRO) {
       return <p className="p-2 text-sm text-gray-600">Votre compte est déjà professionnel.</p>;
     }
