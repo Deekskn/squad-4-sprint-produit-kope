@@ -2,7 +2,14 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.js';
 import { requireAuth } from '../../middlewares/requireAuth.js';
 import { rateLimit } from '../../middlewares/rateLimit.js';
-import { loginSchema, registerClientSchema, registerProfessionalSchema, becomeProfessionalSchema } from './auth.schemas.js';
+import {
+  becomeProfessionalSchema,
+  changePasswordSchema,
+  loginSchema,
+  registerClientSchema,
+  registerProfessionalSchema,
+  updateAccountSchema,
+} from './auth.schemas.js';
 import * as controller from './auth.controller.js';
 
 const router = Router();
@@ -14,6 +21,8 @@ router.post('/auth/login', rateLimit({ max: 10, key: 'login' }), validate(loginS
 router.post('/auth/refresh', rateLimit({ max: 30, key: 'refresh' }), controller.refresh);
 router.post('/auth/logout', controller.logout);
 router.get('/auth/me', requireAuth, controller.me);
+router.put('/auth/me', requireAuth, validate(updateAccountSchema), controller.updateAccount);
+router.put('/auth/password', requireAuth, validate(changePasswordSchema), controller.changePassword);
 
 // US-18 (Could) : mot de passe oublié — à ajouter quand la story sera arbitrée.
 

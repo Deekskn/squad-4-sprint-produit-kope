@@ -9,7 +9,9 @@ export const pool = new pg.Pool({
   connectionString: env.DATABASE_URL,
   max: Number(process.env.PG_POOL_MAX) || 10,
   connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 30000,
+  idleTimeoutMillis: 10000,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 5000,
 });
 
 pool.on('error', (err) => {

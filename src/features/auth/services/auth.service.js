@@ -90,6 +90,24 @@ export function becomeProfessional(payload) {
   );
 }
 
+export function updateAccount(payload) {
+  return callApi(
+    () => api.putJson('/auth/me', payload).then((r) => r?.user),
+    async () => {
+      const demo = getDemoUser();
+      if (demo) setDemoUser({ ...demo, ...payload });
+      return demo ? { ...demo, ...payload } : null;
+    },
+  );
+}
+
+export function changePassword(payload) {
+  return callApi(
+    () => api.putJson('/auth/password', payload),
+    async () => ({}),
+  );
+}
+
 export default {
   registerClient,
   registerProfessional,
@@ -97,4 +115,6 @@ export default {
   logout,
   getCurrentUser,
   becomeProfessional,
+  updateAccount,
+  changePassword,
 };

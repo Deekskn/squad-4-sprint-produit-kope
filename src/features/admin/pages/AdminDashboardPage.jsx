@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { Briefcase, Star } from 'lucide-react';
+import { Briefcase, Star, Settings } from 'lucide-react';
 import { AdminProfessionalsTable } from '../components/AdminProfessionalsTable.jsx';
 import { AdminReviewsTable } from '../components/AdminReviewsTable.jsx';
-import { cn } from '@/lib/utils.js';
+import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
+import { useAuthContext } from '@/shared/context/AuthContext.jsx';
+import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
 
 const TABS = [
   { id: 'pros', label: 'Professionnels', icon: Briefcase },
   { id: 'reviews', label: 'Avis', icon: Star },
+  { id: 'compte', label: 'Mon compte', icon: Settings },
 ];
 
 export function AdminDashboardPage() {
   const [tab, setTab] = useState('pros');
+  const { user } = useAuthContext();
 
   return (
     <div className="container-kop py-10 lg:py-16">
@@ -22,31 +26,18 @@ export function AdminDashboardPage() {
               Modération
             </h1>
           </div>
-          <nav aria-label="Navigation admin" className="space-y-1">
-            {TABS.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={tab === id}
-                onClick={() => setTab(id)}
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition cursor-pointer',
-                  tab === id
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-                )}
-              >
-                <Icon size={18} aria-hidden />
-                {label}
-              </button>
-            ))}
-          </nav>
+          <SidebarNav
+            items={TABS}
+            active={tab}
+            onChange={setTab}
+            ariaLabel="Navigation admin"
+          />
         </aside>
 
         <main>
           {tab === 'pros' && <AdminProfessionalsTable />}
           {tab === 'reviews' && <AdminReviewsTable />}
+          {tab === 'compte' && <AccountSettings user={user} />}
         </main>
       </div>
     </div>

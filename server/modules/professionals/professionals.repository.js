@@ -84,8 +84,7 @@ export async function findPublishedDetail(id, db = pool) {
        FROM published_professionals p
        JOIN users u ON u.id = p.user_id
        JOIN trades t ON t.id = p.trade_id
-      WHERE p.user_id = $1
-        AND NOT p.is_hidden`,
+      WHERE p.user_id = $1`,
     [id],
   );
   return rows[0] ?? null;

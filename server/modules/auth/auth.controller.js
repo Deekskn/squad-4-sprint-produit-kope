@@ -99,3 +99,13 @@ export async function refresh(req, res) {
   await refreshTokens.revoke(refreshToken);
   res.json({ user, ...(await issueTokens(user)) });
 }
+
+export async function updateAccount(req, res) {
+  const user = await service.updateAccount(currentUser(req).id, req.validated.body);
+  res.json({ user });
+}
+
+export async function changePassword(req, res) {
+  await service.changePassword(currentUser(req).id, req.validated.body);
+  res.status(204).end();
+}
