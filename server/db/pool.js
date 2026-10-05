@@ -5,7 +5,12 @@ import { env } from '../config/env.js';
 // On les convertit en nombres (sûr tant qu'on reste sous 2^53).
 pg.types.setTypeParser(20, Number);
 
-export const pool = new pg.Pool({ connectionString: env.DATABASE_URL });
+export const pool = new pg.Pool({
+  connectionString: env.DATABASE_URL,
+  max: Number(process.env.PG_POOL_MAX) || 10,
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 30000,
+});
 
 pool.on('error', (err) => {
   console.error('Erreur inattendue du pool Postgres', err);

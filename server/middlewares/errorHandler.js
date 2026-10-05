@@ -7,6 +7,11 @@ const PG_ERRORS = {
 
 // Les 4 paramètres sont obligatoires : c'est ce qui fait reconnaître un middleware d'erreur à Express.
 
+// Erreurs de connexion/pool : la DB est indisponible -> 503 explicite
+const DB_UNAVAILABLE = [
+  'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', '57P01', '57P02', '57P03', '08006', '08001',
+];
+
 export function errorHandler(err, req, res, next) {
   if (res.headersSent) return next(err);
 
@@ -14,7 +19,18 @@ export function errorHandler(err, req, res, next) {
   let message = err.message;
   let errors = err.errors;
 
-  if (err.code === 'LIMIT_FILE_SIZE') {
+  if (
+    DB_UNAVAILABLE.includes(err.code) ||
+    err.code === 'ETIMEDOUT' ||
+    err.message === 'timeout expired' ||
+    err.message?.includes('Connection terminated') ||
+    err.message?.includes('Connection timeout') ||
+    err.message?.includes('timeout of')
+  ) {
+    status = 503;
+    message = 'Base de données indisponible, réessayez plus tard';
+    errors = undefined;
+  } else if (err.code === 'LIMIT_FILE_SIZE') {
     status = 400;
     message = 'La photo dépasse 5 Mo';
     errors = { photo: message };
@@ -31,8 +47,10 @@ export function errorHandler(err, req, res, next) {
 
   if (status >= 500) {
     console.error(err);
-    message = 'Erreur interne du serveur';
-    errors = undefined;
+    if (status !== 503) {
+      message = 'Erreur interne du serveur';
+      errors = undefined;
+    }
   }
 
   res.status(status).json({ message, ...(errors && { errors }) });

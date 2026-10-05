@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { getMyProfile, setAvailability } from '../services/professionals.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { Spinner } from '@/components/ui/Spinner.jsx';
+import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { Button } from '@/components/ui/Button.jsx';
 import { PublicationStatus } from '../components/PublicationStatus.jsx';
 import { AvailabilityToggle } from '../components/AvailabilityToggle.jsx';
@@ -58,8 +58,10 @@ export function ProProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Spinner size="lg" />
+      <div className="container-kop space-y-4 py-10" aria-busy="true">
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }

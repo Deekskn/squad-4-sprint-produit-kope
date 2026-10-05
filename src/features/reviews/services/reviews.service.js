@@ -1,11 +1,32 @@
 import { api } from '@/lib/api.js';
+import { callApi } from '@/lib/dataSource.js';
+import { mockReviewsFor } from '@/mocks/appMock.js';
 
 export function listReviews(professionalId, { page = 1, pageSize = 10 } = {}) {
-  return api.get(`/professionals/${professionalId}/reviews`, { page, pageSize });
+  return callApi(
+    () => api.get(`/professionals/${professionalId}/reviews`, { page, pageSize }),
+    async () => {
+      const all = mockReviewsFor(professionalId);
+      const items = all.slice((page - 1) * pageSize, page * pageSize);
+      const average = all.length
+        ? Math.round((all.reduce((s, r) => s + r.rating, 0) / all.length) * 10) / 10
+        : 0;
+      return { summary: { average, count: all.length }, items, total: all.length, page, pageSize, totalPages: 1 };
+    },
+  );
 }
 
 export function createReview(professionalId, payload) {
-  return api.postJson(`/professionals/${professionalId}/reviews`, payload).then((r) => r.review);
+  return callApi(
+    () => api.postJson(`/professionals/${professionalId}/reviews`, payload).then((r) => r.review),
+    async () => ({
+      id: Date.now(),
+      rating: payload.rating,
+      comment: payload.comment ?? '',
+      createdAt: new Date().toISOString(),
+      client: { firstName: 'Vous', lastName: '' },
+    }),
+  );
 }
 
 export default { listReviews, createReview };

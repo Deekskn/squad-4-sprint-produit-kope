@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react';
 import { listReviews } from '../services/reviews.service.js';
 import { Pagination } from '@/components/ui/Pagination.jsx';
 import { StarRating } from '@/components/ui/StarRating.jsx';
-import { Spinner } from '@/components/ui/Spinner.jsx';
+import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { Button } from '@/components/ui/Button.jsx';
 import { formatDateFr, fullNameInitials } from '@/lib/utils.js';
 
@@ -49,7 +49,14 @@ export function ReviewList({ professionalId, compact }) {
     load();
   }, [load]);
 
-  if (loading) return <div className="flex justify-center py-6"><Spinner size="sm" /></div>;
+  if (loading) {
+    return (
+      <div className="space-y-3 py-4" aria-busy="true">
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+      </div>
+    );
+  }
   if (error) return <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">Impossible de charger les avis.</div>;
 
   const total = Number(data?.total ?? 0);

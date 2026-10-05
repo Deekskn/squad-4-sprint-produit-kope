@@ -152,6 +152,15 @@ p {
   animation: floatSlow 6s ease-in-out infinite;
 }
 
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.22s ease-out both;
+}
+
 .container-kop {
   max-width: 1240px;
   margin-inline: auto;
@@ -163,6 +172,9 @@ p {
 }
 
 .focus-ring:focus-visible {
+  & .error{
+    --color-primary-500: #b42318 !important;
+  }
   outline: none;
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary-500) 22%, transparent);
 }
@@ -171,6 +183,13 @@ p {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+}
+
+/* Mobile: paddings réduits */
+@media (max-width: 768px) {
+  .container-kop {
+    padding-inline: 1.25rem;
+  }
 }
 
 /* Respect strict 360px layouts */
