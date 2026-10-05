@@ -1,46 +1,45 @@
 import { useState } from 'react';
+import { Briefcase, Star, Settings } from 'lucide-react';
 import { AdminProfessionalsTable } from '../components/AdminProfessionalsTable.jsx';
 import { AdminReviewsTable } from '../components/AdminReviewsTable.jsx';
-import { cn } from '@/lib/utils.js';
+import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
+import { useAuthContext } from '@/shared/context/AuthContext.jsx';
+import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
 
 const TABS = [
-  { id: 'pros', label: 'Professionnels' },
-  { id: 'reviews', label: 'Avis' },
+  { id: 'pros', label: 'Professionnels', icon: Briefcase },
+  { id: 'reviews', label: 'Avis', icon: Star },
+  { id: 'compte', label: 'Mon compte', icon: Settings },
 ];
 
 export function AdminDashboardPage() {
   const [tab, setTab] = useState('pros');
+  const { user } = useAuthContext();
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <header>
-        <p className="text-sm text-gray-500">Espace administrateur</p>
-        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-          Tableau de bord de modération
-        </h1>
-      </header>
+    <div className="container-kop py-10 lg:py-16">
+      <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="space-y-6">
+          <div>
+            <p className="text-sm text-gray-500">Espace administrateur</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
+              Modération
+            </h1>
+          </div>
+          <SidebarNav
+            items={TABS}
+            active={tab}
+            onChange={setTab}
+            ariaLabel="Navigation admin"
+          />
+        </aside>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-1 shadow-sm inline-flex gap-1">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={cn(
-              'rounded-xl px-4 py-2 text-sm font-medium transition',
-              tab === t.id
-                ? 'bg-primary-500 text-white shadow'
-                : 'text-gray-600 hover:bg-gray-50',
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
+        <main>
+          {tab === 'pros' && <AdminProfessionalsTable />}
+          {tab === 'reviews' && <AdminReviewsTable />}
+          {tab === 'compte' && <AccountSettings user={user} />}
+        </main>
       </div>
-
-      {tab === 'pros' && <AdminProfessionalsTable />}
-      {tab === 'reviews' && <AdminReviewsTable />}
     </div>
   );
 }

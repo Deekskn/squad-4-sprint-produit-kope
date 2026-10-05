@@ -10,9 +10,9 @@ import User2 from '@/assets/user2.png';
 
 
 export const CATEGORIES = [
-  { id: 'plomberie', image: what1, name: 'Plomberie', sub: 'Fuites & Installations', icon: Wrench, prompt: 'a photo of an african plumber working on bathroom sink pipe, professional, bright daylight, waist up, realistic' },
-  { id: 'electricite', image: what2, name: 'Électricité', sub: 'Dépannage & Équipements', icon: Zap, prompt: 'professional african electrician working on electrical panel with wires, daylight, realistic' },
-  { id: 'peinture', image: what3, name: 'Peinture', sub: 'Murs & Finitions', icon: Palette, prompt: 'african house painter rolling paint on white wall, professional, daylight, realistic' },
+  { id: 'plomberie', image: what1, name: 'Plomberie', sub: 'Fuites & Installations', icon: Wrench, tradeId: 1, prompt: 'a photo of an african plumber working on bathroom sink pipe, professional, bright daylight, waist up, realistic' },
+  { id: 'electricite', image: what2, name: 'Électricité', sub: 'Dépannage & Équipements', icon: Zap, tradeId: 2, prompt: 'professional african electrician working on electrical panel with wires, daylight, realistic' },
+  { id: 'maconnerie', image: what3, name: 'Maçonnerie', sub: 'Gros œuvre & Finitions', icon: Palette, tradeId: 3, prompt: 'african house painter rolling paint on white wall, professional, daylight, realistic' },
 ];
 
 export const FEATURED = [

@@ -53,14 +53,8 @@ throw ApiError.badRequest('Données invalides');
 
 Le middleware `errorHandler.js` intercepte ces erreurs centralisées et formate une réponse JSON standardisée.
 
-## Base de données et US-12
-
-La configuration locale est chargée depuis `.env` à la racine du dépôt. Renseignez `DATABASE_URL` et `SESSION_SECRET` à partir de `.env.example`, puis appliquez les migrations depuis la racine :
 
 ```sh
 npm run migrate:up
 ```
 
-La disponibilité est stockée dans `professionals.is_available`, colonne `BOOLEAN NOT NULL DEFAULT true` créée avec la table `professionals` par `server/db/migrations/1759500000000_init.sql`. La valeur est modifiée par `PATCH /api/me/availability`; cette route exige une session avec le rôle `professional` et valide le booléen `isAvailable`. Les profils publics et les résultats de recherche exposent ce champ sans exclure les professionnels indisponibles.
-
-Après une installation ou une mise à jour du schéma, vérifiez l’état des migrations avec `npm run migrate:up`. Les tests d’acceptation frontend et backend de l’US-12 sont dans `tests/us12-availability.test.jsx` et s’exécutent avec `npm test -- --run`.

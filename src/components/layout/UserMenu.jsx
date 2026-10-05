@@ -2,36 +2,11 @@ import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { ROUTES, ROLES } from '@/lib/constants.js';
 import { Button } from '@/components/ui/Button.jsx';
-import { cn, initials } from '@/lib/utils.js';
+import { cn } from '@/lib/utils.js';
 import { useState } from 'react';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
-
-function avatarFor(user) {
-  if (!user) return '?';
-  if (user.role === ROLES.PRO) return initials(user.displayName || '', '');
-  return initials(user.firstName, user.lastName);
-}
-
-function displayNameFor(user) {
-  if (!user) return null;
-  if (user.role === ROLES.PRO) return user.displayName;
-  return [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || `#${user.id}`;
-}
-
-function roleLabel(role) {
-  return {
-    [ROLES.CLIENT]: 'Client',
-    [ROLES.PRO]: 'Professionnel',
-    [ROLES.ADMIN]: 'Administrateur',
-  }[role] || role;
-}
-
-function dashboardHref(role) {
-  if (role === ROLES.CLIENT) return ROUTES.DASHBOARD_CLIENT;
-  if (role === ROLES.PRO) return ROUTES.DASHBOARD_PRO;
-  if (role === ROLES.ADMIN) return ROUTES.ADMIN;
-  return ROUTES.HOME;
-}
+import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
+import { displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
 
 export function UserMenu({ onNavigate }) {
   const { user, loading, logout, hasRole } = useAuthContext();
@@ -64,17 +39,15 @@ export function UserMenu({ onNavigate }) {
     <div className="relative">
       <button
         type="button"
-        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-100 focus-ring"
+        className="flex cursor-pointer items-center gap-2 rounded-sm ring bg-white ring-gray-200 pl-1 pr-4 py-1 hover:bg-gray-100 focus-ring"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-primary-800 text-sm font-semibold ring-1 ring-primary-200">
-          {avatarFor(user)}
-        </span>
+        <UserAvatar user={user} name={displayNameFor(user)} className="h-8 w-8" />
         <span className="hidden text-left sm:block">
           <span className="block text-sm font-medium text-gray-800 leading-4">
-            {displayNameFor(user)}
+            { displayNameFor(user)}
           </span>
           <span className="block text-[11px] text-gray-500">{roleLabel(user.role)}</span>
         </span>
@@ -88,7 +61,7 @@ export function UserMenu({ onNavigate }) {
           <div className="fixed inset-0 z-30" onClick={close} aria-hidden />
           <div
             role="menu"
-            className="absolute right-0 z-40 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-200 bg-white shadow-[var(--shadow-pop)] animate-scale-in"
+            className="absolute right-0 z-40 mt-2 w-64 origin-top-right overflow-hidden rounded-sm border border-gray-200 bg-white shadow-[var(--shadow-pop)] animate-scale-in"
           >
             <div className="border-b border-gray-100 px-4 py-3">
               <p className="truncate text-sm font-semibold text-gray-800">{displayNameFor(user)}</p>
@@ -100,7 +73,7 @@ export function UserMenu({ onNavigate }) {
                   to={dashboardHref(user.role)}
                   role="menuitem"
                   onClick={close}
-                  className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="rounded px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   {hasRole(ROLES.PRO) ? 'Mon profil' : hasRole(ROLES.ADMIN) ? 'Administration' : 'Mon espace'}
                 </Link>
@@ -110,13 +83,13 @@ export function UserMenu({ onNavigate }) {
                   to={ROUTES.PROFESSIONAL(user.id)}
                   role="menuitem"
                   onClick={close}
-                  className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="rounded px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Voir ma fiche publique
                 </Link>
               )}
             </div>
-            <div className="border-t border-gray-100 p-1.5">
+            <div className="border-t border-gray-100 p-1">
               <button
                 role="menuitem"
                 onClick={() => {
@@ -124,8 +97,8 @@ export function UserMenu({ onNavigate }) {
                   logout();
                 }}
                 className={cn(
-                  'w-full text-left rounded-md px-3 py-2 text-sm',
-                  'text-danger-600 hover:bg-rose-50',
+                  'w-full text-left rounded cursor-pointer  bg-gray-100 px-3 py-2 text-sm',
+                  'text-danger-500 hover:bg-rose-50',
                 )}
               >
                 Se déconnecter

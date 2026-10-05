@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
@@ -8,24 +8,18 @@ import { Button } from '@/components/ui/Button.jsx';
 import { FormField } from '@/components/ui/FormField.jsx';
 import { Input } from '@/components/ui/Input.jsx';
 import { Select } from '@/components/ui/Select.jsx';
-import { Checkbox } from '@/components/ui/Checkbox.jsx';
 import { Textarea } from '@/components/ui/Textarea.jsx';
 import { Card } from '@/components/ui/Card.jsx';
-import { Spinner } from '@/components/ui/Spinner.jsx';
+import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { useForm } from '@/components/form/useForm.js';
 import { becomeProfessionalSchema } from '@/components/form/validators.js';
 import { becomeProfessional } from '../services/auth.service.js';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
 import { ROUTES } from '@/lib/constants.js';
+import { MultiSelect } from "@/components/ui/MultiSelect.jsx";
 
 const INITIAL = { displayName: '', tradeId: '', zoneIds: [], yearsExperience: '', description: '' };
 const STEP1_FIELDS = { displayName: true, tradeId: true, zoneIds: true };
-
-function toggleZone(list, id, on) {
-  const n = Number(id);
-  if (on) return Array.from(new Set([...list, n]));
-  return list.filter((z) => z !== n);
-}
 
 export function BecomeProForm({ bare = false } = {}) {
   const { refresh } = useAuthContext();
@@ -68,14 +62,15 @@ export function BecomeProForm({ bare = false } = {}) {
   };
 
   return (
-    <Card className={bare ? 'p-0 border-0 shadow-none' : 'p-6 sm:p-8'}>
-      <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Devenir prestataire</h1>
+    <Card className={bare ? 'p-6 border-0 shadow-none' : 'p-6 sm:p-8'}>
+      <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Faites connaître votre métier.</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Étape {step}/2 — complétez votre profil professionnel.
+        Commencez par l'essentiel. Vous compléterez votre profil ensuite.
       </p>
       {loadingRefs && (
-        <div className="mt-6 flex items-center gap-2 text-sm text-gray-500">
-          <Spinner /> Chargement des métiers et zones...
+        <div className="mt-6 space-y-3" aria-busy="true">
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-11 w-full" />
         </div>
       )}
       <form className="mt-6 space-y-5" onSubmit={onSubmit} noValidate hidden={loadingRefs}>
@@ -83,7 +78,7 @@ export function BecomeProForm({ bare = false } = {}) {
           <>
             <FormField
               id="bp-display"
-              label="Nom affiché"
+              label="Nom affiché (votre nom plus le grand public)"
               required
               error={errors.displayName}
               placeholder="Ex : Plomberie Makélékélé Services"
@@ -94,6 +89,7 @@ export function BecomeProForm({ bare = false } = {}) {
               <Select
                 id="bp-trade"
                 name="tradeId"
+                className="border border-gray-200 "
                 value={values.tradeId}
                 error={errors.tradeId}
                 onChange={(e) => setField('tradeId', e.target.value)}
@@ -104,31 +100,15 @@ export function BecomeProForm({ bare = false } = {}) {
                 ))}
               </Select>
             </FormField>
-            <FormField
-              id="bp-zones"
+            <MultiSelect
               label="Zone"
               required
+              hint="Sélectionnez au moins une zone."
               error={errors.zoneIds}
-              help="Sélectionnez au moins une zone."
-            >
-              <ul className="grid gap-1.5 rounded-xl border border-gray-200 bg-gray-50 p-3 sm:grid-cols-3">
-                {zones.map((z) => {
-                  const checked = values.zoneIds?.includes?.(z.id);
-                  return (
-                    <li key={z.id}>
-                      <Checkbox
-                        id={`bp-zone-${z.id}`}
-                        label={z.name}
-                        checked={checked}
-                        onChange={(e) =>
-                          setField('zoneIds', toggleZone(values.zoneIds || [], z.id, e.target.checked))
-                        }
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            </FormField>
+              options={zones.map((z) => ({ value: z.id, label: z.name }))}
+              value={values.zoneIds || []}
+              onChange={(ids) => setField('zoneIds', ids)}
+            />
             <Button type="button" onClick={goNext} size="lg" className="w-full sm:w-auto sm:px-8">
               Suivant
             </Button>

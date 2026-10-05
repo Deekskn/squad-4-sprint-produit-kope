@@ -30,6 +30,10 @@ export const env = {
     ? process.env.COOKIE_SECURE === 'true'
     : isProduction,
   UPLOAD_DIR: path.resolve(process.env.UPLOAD_DIR ?? 'uploads'),
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || process.env.SESSION_SECRET,
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || `${process.env.SESSION_SECRET}:refresh`,
+  ACCESS_TOKEN_TTL: Number(process.env.ACCESS_TOKEN_TTL) || 3600, // 1h
+  REFRESH_TOKEN_TTL: Number(process.env.REFRESH_TOKEN_TTL) || 86400, // 24h
   // Utilisés uniquement par `npm run seed:admin`
   ADMIN_PHONE: process.env.ADMIN_PHONE,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,

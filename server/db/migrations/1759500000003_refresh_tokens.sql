@@ -1,0 +1,16 @@
+-- Up Migration
+
+CREATE TABLE refresh_tokens (
+  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id     bigint   NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash  text     NOT NULL UNIQUE,          -- sha256 du refresh token
+  expires_at  timestamptz NOT NULL,
+  revoked_at  timestamptz,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX ON refresh_tokens (user_id);
+
+-- Down Migration
+
+DROP TABLE refresh_tokens;
