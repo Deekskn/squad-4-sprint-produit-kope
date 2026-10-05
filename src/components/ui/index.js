@@ -14,3 +14,11 @@ export { Modal } from './Modal.jsx';
 export { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './Dialog.jsx';
 export { FileUpload } from './FileUpload.jsx';
 export { DataState } from './DataState.jsx';
+export { Sheet } from './Sheet.jsx';
+
+export { Skeleton } from './Skeleton.jsx';
+
+export { EmptyState } from './EmptyState.jsx';
+
+export { FloatingCaption } from './FloatingCaption.jsx';
+

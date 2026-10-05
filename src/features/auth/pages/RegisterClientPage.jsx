@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button.jsx';
 import { FormField } from '@/components/ui/FormField.jsx';
 import { Input } from '@/components/ui/Input.jsx';
 import { Checkbox } from '@/components/ui/Checkbox.jsx';
-import { Card } from '@/components/ui/Card.jsx';
 import { useForm } from '@/components/form/useForm.js';
 import { registerClientSchema } from '@/components/form/validators.js';
 import { registerClient } from '../services/auth.service.js';

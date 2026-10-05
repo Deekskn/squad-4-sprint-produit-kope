@@ -6,12 +6,11 @@ import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { Button } from '@/components/ui/Button.jsx';
 import { FormField } from '@/components/ui/FormField.jsx';
 import { Input } from '@/components/ui/Input.jsx';
-import { Card } from '@/components/ui/Card.jsx';
 import { useForm } from '@/components/form/useForm.js';
 import { loginSchema } from '@/components/form/validators.js';
 import { login } from '../services/auth.service.js';
 import { ROLES, ROUTES } from '@/lib/constants.js';
-import { Eye, Lock, LockOpen } from 'lucide-react';
+import { Lock, LockOpen } from 'lucide-react';
 
 const INITIAL = { phone: '', password: '' };
 

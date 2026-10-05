@@ -2,37 +2,11 @@ import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { ROUTES, ROLES } from '@/lib/constants.js';
 import { Button } from '@/components/ui/Button.jsx';
-import { cn, initials } from '@/lib/utils.js';
+import { cn } from '@/lib/utils.js';
 import { useState } from 'react';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { User } from 'lucide-react';
-
-function avatarFor(user) {
-  if (!user) return '?';
-  if (user.role === ROLES.PRO) return initials(user.displayName || '', '');
-  return initials(user.firstName, user.lastName);
-}
-
-function displayNameFor(user) {
-  if (!user) return null;
-  if (user.role === ROLES.PRO) return user.displayName;
-  return [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || `#${user.id}`;
-}
-
-function roleLabel(role) {
-  return {
-    [ROLES.CLIENT]: 'Client',
-    [ROLES.PRO]: 'Professionnel',
-    [ROLES.ADMIN]: 'Administrateur',
-  }[role] || role;
-}
-
-function dashboardHref(role) {
-  if (role === ROLES.CLIENT) return ROUTES.DASHBOARD_CLIENT;
-  if (role === ROLES.PRO) return ROUTES.DASHBOARD_PRO;
-  if (role === ROLES.ADMIN) return ROUTES.ADMIN;
-  return ROUTES.HOME;
-}
+import { avatarFor, displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
 
 export function UserMenu({ onNavigate }) {
   const { user, loading, logout, hasRole } = useAuthContext();
@@ -126,7 +100,7 @@ export function UserMenu({ onNavigate }) {
                 }}
                 className={cn(
                   'w-full text-left rounded cursor-pointer  bg-gray-100 px-3 py-2 text-sm',
-                  'text-danger-600 hover:bg-rose-50',
+                  'text-danger-500 hover:bg-rose-50',
                 )}
               >
                 Se déconnecter

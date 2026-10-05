@@ -7,6 +7,7 @@ import { HomePage } from '@/pages/HomePage.jsx';
 import { HowItWorksPage } from '@/pages/HowItWorksPage.jsx';
 import { NotFoundPage } from '@/pages/NotFoundPage.jsx';
 import { ForbiddenPage } from '@/pages/ForbiddenPage.jsx';
+import { RouteErrorPage } from '@/pages/RouteErrorPage.jsx';
 import { AuthModalRedirect } from '@/features/auth/pages/AuthModalRedirect.jsx';
 import { SearchPage } from '@/features/search/pages/SearchPage.jsx';
 import { ProfessionalPublicPage } from '@/features/professionals/pages/ProfessionalPublicPage.jsx';
@@ -17,6 +18,7 @@ import { AdminDashboardPage } from '@/features/admin/pages/AdminDashboardPage.js
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <RouteErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
       { path: ROUTES.HOW_IT_WORKS, element: <HowItWorksPage /> },

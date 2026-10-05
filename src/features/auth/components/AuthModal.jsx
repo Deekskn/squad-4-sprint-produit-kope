@@ -4,14 +4,14 @@ import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { LoginForm } from '../pages/LoginPage.jsx';
 import { RegisterClientForm } from '../pages/RegisterClientPage.jsx';
 import { BecomeProForm } from './BecomeProForm.jsx';
-import { Button } from '@/components/ui/Button.jsx';
 import { ROLES } from '@/lib/constants.js';
 import { mockImage, LOGIN_IMAGE_PROMPT } from '@/mocks/images.js';
 import { Card } from '@/components/ui/Card.jsx';
+import { FloatingCaption } from '@/components/ui/FloatingCaption.jsx';
 import { User } from 'lucide-react';
 
 export function AuthModal() {
-  const { mode, close, open } = useAuthModal();
+  const { mode, close } = useAuthModal();
   const { user } = useAuthContext();
 
   const renderPro = () => {
@@ -45,13 +45,11 @@ export function AuthModal() {
                   loading="lazy"
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                 />
-                <div className="absolute  left-2 bottom-2 rounded-sm bg-white/92 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-                  <span className="flex size-9 items-center justify-center text-gray-800"><User size={24} strokeWidth={1.5} aria-hidden /></span>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900 leading-tight">Les mains qui font votre quartier</p>
-                    <p className="text-[11px] text-gray-500">Des professionnels, près de chez vous.</p>
-                  </div>
-                </div>
+                <FloatingCaption
+                  icon={User}
+                  title="Les mains qui font votre quartier"
+                  subtitle="Des professionnels, près de chez vous."
+                />
               </div>
 
             </Card>
