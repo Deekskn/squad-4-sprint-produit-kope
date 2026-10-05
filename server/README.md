@@ -53,14 +53,8 @@ throw ApiError.badRequest('Données invalides');
 
 Le middleware `errorHandler.js` intercepte ces erreurs centralisées et formate une réponse JSON standardisée.
 
-## Publication du profil (US-06 / RG-04)
-
-La vue PostgreSQL `published_professionals` est la source de vérité de la publication et des résultats de recherche. Un profil y figure si et seulement si son nom affiché, son métier, au moins une zone, son téléphone, une description d'au moins 30 caractères et au moins une photo sont renseignés. Un profil masqué par un administrateur en est exclu. Le statut et la checklist de « Mon profil » sont calculés à partir des mêmes critères.
-
-Après une installation ou une mise à jour du schéma, appliquez les migrations depuis la racine :
 
 ```sh
 npm run migrate:up
 ```
 
-Les tests des critères US-06 se trouvent dans `tests/us06-profile-publication.test.jsx` et s'exécutent avec `npm test -- --run tests/us06-profile-publication.test.jsx`.
