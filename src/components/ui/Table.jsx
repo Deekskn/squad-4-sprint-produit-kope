@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils.js';
 
 export function Table({ children }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+    <div className="overflow-hidden rounded-md border border-gray-200 bg-white">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">{children}</table>
       </div>

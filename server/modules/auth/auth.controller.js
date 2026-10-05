@@ -72,6 +72,11 @@ export async function me(req, res, next) {
     // compte supprimé depuis : on ferme la session
     return logout(req, res, next);
   }
+  // Le client n'a pas (ou plus) de Bearer valide mais sa session cookie est vivante :
+  // on réémet une nouvelle paire de tokens pour qu'elle remplace l'ancienne.
+  if (req.bearerExpired) {
+    return res.json({ user, ...(await issueTokens(user)) });
+  }
   res.json({ user });
 }
 

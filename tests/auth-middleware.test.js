@@ -19,9 +19,18 @@ describe('requireAuth', () => {
     expect(req.user).toEqual({ id: 7, role: 'client' });
   });
 
-  it('rejette un Bearer token invalide', () => {
-    const req = { headers: { authorization: 'Bearer abc.def.ghi' } };
-    expect(() => requireAuth(req, {}, () => {})).toThrow(/Session expirée/);
+  it('Bearer invalide + session valide : retombe sur la session (flag bearerExpired)', () => {
+    const req = { headers: { authorization: 'Bearer abc.def.ghi' }, session: { user: { id: 5, role: 'client' } } };
+    let called = false;
+    requireAuth(req, {}, () => { called = true; });
+    expect(called).toBe(true);
+    expect(req.user.id).toBe(5);
+    expect(req.bearerExpired).toBe(true);
+  });
+
+  it('Bearer invalide + sans session : 401 Connexion requise', () => {
+    const req = { headers: { authorization: 'Bearer abc.def.ghi' }, session: {} };
+    expect(() => requireAuth(req, {}, () => {})).toThrow(/Connexion requise/);
   });
 
   it('rejette sans session ni token', () => {

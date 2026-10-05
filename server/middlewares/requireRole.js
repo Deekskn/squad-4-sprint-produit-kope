@@ -16,11 +16,13 @@ export function requireRole(...roles) {
         user = { id: Number(payload.sub), role: payload.role };
         req.user = user;
       } catch {
-        throw ApiError.unauthorized('Session expirée, reconnectez-vous');
+        // Bearer expiré/invalide : on retombe sur la session cookie
       }
-    } else if (req.session?.user) {
+    }
+    if (!user && req.session?.user) {
       user = req.session.user;
       req.user = user;
+      req.bearerExpired = true;
     }
     if (!user) throw ApiError.unauthorized();
     if (!roles.includes(user.role)) throw ApiError.forbidden();

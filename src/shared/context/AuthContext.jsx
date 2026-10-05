@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
   const fetchMe = useCallback(async () => {
     try {
       const data = await authService.getCurrentUser();
-      setUser(data?.user ?? null);
+      setUser(data ?? null);
     } catch {
       setUser(null);
     } finally {
