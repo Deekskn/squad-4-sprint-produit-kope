@@ -29,4 +29,18 @@ export function createReview(professionalId, payload) {
   );
 }
 
-export default { listReviews, createReview };
+export function getMyReviews({ page = 1, pageSize = 20 } = {}) {
+  return callApi(
+    () => api.get('/reviews/mine', { page, pageSize }),
+    async () => ({ items: [], total: 0, page, pageSize, totalPages: 1 }),
+  );
+}
+
+export function getClientReviews(clientId, { page = 1, pageSize = 20 } = {}) {
+  return callApi(
+    () => api.get(`/clients/${clientId}/reviews`, { page, pageSize }),
+    async () => ({ items: [], total: 0, page, pageSize, totalPages: 1 }),
+  );
+}
+
+export default { listReviews, createReview, getMyReviews, getClientReviews };

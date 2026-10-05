@@ -1,7 +1,7 @@
 import { api } from '@/lib/api.js';
 import { callApi } from '@/lib/dataSource.js';
 import { getDemoUser, setDemoUser } from '@/mocks/appMock.js';
-import { setTokens, clearTokens } from '@/lib/authTokens.js';
+import { setTokens, clearTokens, getRefreshToken, getAccessToken } from '@/lib/authTokens.js';
 
 export function registerClient(payload) {
   return callApi(
@@ -55,7 +55,16 @@ export function login(payload) {
 
 export function logout() {
   return callApi(
-    () => api.postJson('/auth/logout', {}).finally(() => clearTokens()),
+    async () => {
+      try {
+        await api.postJson('/auth/logout', { refreshToken: getRefreshToken() });
+      } finally {
+        clearTokens();
+        // Le compte démo local nuit aussi à la déconnexion : on le purge.
+        setDemoUser(null);
+      }
+      return {};
+    },
     async () => { clearTokens(); setDemoUser(null);
       return {};
     },
@@ -63,6 +72,12 @@ export function logout() {
 }
 
 export function getCurrentUser() {
+  // En mode démo (login mock), l'utilisateur vit dans localStorage et il n'y a
+  // pas de jeton : on le restitue directement, sans appeler l'API.
+  const demoUser = getDemoUser();
+  if (demoUser && !getAccessToken()) {
+    return Promise.resolve(demoUser);
+  }
   return callApi(
     () => api.get('/auth/me').then((r) => { setTokens(r); return r?.user; }),
     async () => getDemoUser(),
@@ -84,6 +99,41 @@ export function becomeProfessional(payload) {
   );
 }
 
+export function updateAccount(payload) {
+  return callApi(
+    () => api.putJson('/auth/me', payload).then((r) => r?.user),
+    async () => {
+      const demo = getDemoUser();
+      if (demo) setDemoUser({ ...demo, ...payload });
+      return demo ? { ...demo, ...payload } : null;
+    },
+  );
+}
+
+export function changePassword(payload) {
+  return callApi(
+    () => api.putJson('/auth/password', payload),
+    async () => ({}),
+  );
+}
+
+export function uploadAvatar(file) {
+  const fd = new FormData();
+  fd.append('avatar', file);
+  return callApi(
+    () => api.postFormData('/auth/avatar', fd).then((r) => r.avatarUrl),
+    async () => {
+      if (file) {
+        const avatarUrl = URL.createObjectURL(file);
+        const demo = getDemoUser();
+        if (demo) setDemoUser({ ...demo, avatarUrl });
+        return avatarUrl;
+      }
+      return null;
+    },
+  );
+}
+
 export default {
   registerClient,
   registerProfessional,
@@ -91,4 +141,6 @@ export default {
   logout,
   getCurrentUser,
   becomeProfessional,
+  updateAccount,
+  changePassword,
 };

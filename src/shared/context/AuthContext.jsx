@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
   const fetchMe = useCallback(async () => {
     try {
       const data = await authService.getCurrentUser();
-      setUser(data?.user ?? null);
+      setUser(data ?? null);
     } catch {
       setUser(null);
     } finally {
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
       /* ignore network errors on logout */
     } finally {
       setUser(null);
-      redirect(ROUTES.HOME);
+      setInterval(() => redirect(ROUTES.HOME), 0);
     }
   }, []);
 

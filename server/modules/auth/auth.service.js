@@ -4,6 +4,7 @@ import { ApiError } from '../../utils/ApiError.js';
 import { normalizePhone } from '../../utils/phone.js';
 import * as repository from './auth.repository.js';
 import * as professionalsRepository from '../professionals/professionals.repository.js';
+import * as refreshTokensRepository from './refreshTokens.repository.js';
 
 const BCRYPT_ROUNDS = 10;
 const DUPLICATE_PHONE = 'Ce numéro est déjà utilisé';
@@ -72,4 +73,31 @@ export async function becomeProfessional(userId, { displayName, tradeId, zoneIds
 
 export function getCurrentUser(userId) {
   return repository.findById(userId);
+}
+
+/** Change le mot de passe du compte. Exige l'ancien pour prouver l'identité. */
+export async function changePassword(userId, { currentPassword, newPassword }) {
+  const passwordHash = await repository.getPasswordHash(userId);
+  if (!passwordHash) throw ApiError.notFound('Compte introuvable');
+
+  const matches = await bcrypt.compare(currentPassword ?? '', passwordHash);
+  if (!matches) {
+    throw ApiError.unauthorized('Mot de passe actuel incorrect');
+  }
+
+  const newHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  await repository.updatePasswordHash(userId, newHash);
+  // Sécurité : invalide toutes les refresh tokens émises (tous appareils).
+  await refreshTokensRepository.revokeAllForUser(userId);
+}
+
+export async function updateAccount(userId, { firstName, lastName, phone }) {
+  try {
+    return await repository.updateAccount(userId, { firstName, lastName, phone });
+  } catch (err) {
+    if (err.code === '23505') {
+      throw ApiError.conflict(DUPLICATE_PHONE, { phone: DUPLICATE_PHONE });
+    }
+    throw err;
+  }
 }

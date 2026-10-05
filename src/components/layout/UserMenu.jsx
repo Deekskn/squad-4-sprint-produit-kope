@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/Button.jsx';
 import { cn } from '@/lib/utils.js';
 import { useState } from 'react';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
-import { User } from 'lucide-react';
-import { avatarFor, displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
+import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
+import { displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
 
 export function UserMenu({ onNavigate }) {
   const { user, loading, logout, hasRole } = useAuthContext();
@@ -44,9 +44,7 @@ export function UserMenu({ onNavigate }) {
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-[4px] bg-primary-100 text-primary-800 text-sm font-semibold ring-1 ring-gray-300">
-          {avatarFor(user) || <User/>}
-        </span>
+        <UserAvatar user={user} name={displayNameFor(user)} className="h-8 w-8" />
         <span className="hidden text-left sm:block">
           <span className="block text-sm font-medium text-gray-800 leading-4">
             { displayNameFor(user)}

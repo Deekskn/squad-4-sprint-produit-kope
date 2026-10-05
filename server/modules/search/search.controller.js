@@ -13,7 +13,7 @@ export async function getPublishedDetail(req, res) {
 }
 
 export async function getCanReview(req, res) {
-  const viewer = req.session?.user || null;
+  const viewer = (req.user || req.session?.user || null);
   const id = Number(req.params.id);
   const canReview = await reviewsService.canReview(viewer, id);
   res.json({ canReview });

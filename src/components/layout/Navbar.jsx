@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { UserMenu } from './UserMenu.jsx';
-import { avatarFor, displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
+import { displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
+import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
 import { ROUTES } from '@/lib/constants.js';
 import { cn } from '@/lib/utils.js';
 import { Button } from '@/components/ui/Button.jsx';
@@ -21,6 +22,10 @@ export function Navbar() {
   const { user, loading, logout } = useAuthContext();
   const { open: openModal } = useAuthModal();
 
+  // Un utilisateur déjà pro (ou admin) ne peut/ne doit pas devenir prestataire
+  const showBecomePro = !user || (user.role !== 'professional' && user.role !== 'admin');
+  const navItems = showBecomePro ? NAV : NAV.filter((item) => item.to !== ROUTES.REGISTER_PRO);
+
   return (
     <header className={`sticky top-0 z-40 border-b  border-gray-100 bg-white/85 backdrop-blur`}>
       <div className="container-kop flex py-4 items-center justify-between gap-4">
@@ -35,7 +40,7 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center gap-2">
           <nav aria-label="Navigation principale" className="hidden items-center gap-6 lg:flex">
-          {NAV.map((item) =>
+          {navItems.map((item) =>
             item.to === ROUTES.REGISTER_PRO ? (
               <button
                 key={item.to}
@@ -103,7 +108,7 @@ export function Navbar() {
             </Link>
           </div>
           <nav aria-label="Navigation mobile" className="flex-1 space-y-1 overflow-y-auto p-4">
-            {NAV.map((item) =>
+            {navItems.map((item) =>
               item.to === ROUTES.REGISTER_PRO ? (
                 <button
                   key={item.to}
@@ -145,9 +150,7 @@ export function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-800 ring-1 ring-gray-300">
-                  {avatarFor(user)}
-                </span>
+                <UserAvatar user={user} name={displayNameFor(user)} className="h-9 w-9" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-gray-800">{displayNameFor(user)}</p>
                   <p className="text-xs text-gray-500">{roleLabel(user.role)}</p>

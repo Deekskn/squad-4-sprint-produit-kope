@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, LayoutDashboard, User, Image as ImageIcon, Settings, Star } from 'lucide-react';
 import { getMyProfile, setAvailability } from '../services/professionals.service.js';
+import { listReviews, getClientReviews } from '@/features/reviews/services/reviews.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { Skeleton } from '@/components/ui/Skeleton.jsx';
@@ -10,7 +11,95 @@ import { PublicationStatus } from '../components/PublicationStatus.jsx';
 import { AvailabilityToggle } from '../components/AvailabilityToggle.jsx';
 import { ProfileEditor } from '../components/ProfileEditor.jsx';
 import { PhotoManager } from '../components/PhotoManager.jsx';
+import { Card } from '@/components/ui/Card.jsx';
+import { initials } from '@/lib/utils.js';
+import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
+import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
 import { ROUTES } from '@/lib/constants.js';
+
+const NAV_ITEMS = [
+  { id: 'overview', label: 'Vue d\u2019ensemble', icon: LayoutDashboard },
+  { id: 'profil', label: 'Mon profil', icon: User },
+  { id: 'photos', label: 'Mes photos', icon: ImageIcon },
+  { id: 'avis', label: 'Mes avis', icon: Star },
+  { id: 'compte', label: 'Mon compte', icon: Settings },
+];
+
+function ProReviewsSection({ professionalId }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(null);
+  const [expandedData, setExpandedData] = useState({});
+
+  useEffect(() => {
+    if (!professionalId) return;
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    listReviews(professionalId)
+      .then((d) => { if (!cancelled) setData(d); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [professionalId]);
+
+  const toggleClient = (clientId) => {
+    if (expanded === clientId) {
+      setExpanded(null);
+      return;
+    }
+    setExpanded(clientId);
+    if (!expandedData[clientId]) {
+      getClientReviews(clientId)
+        .then((d) => setExpandedData((m) => ({ ...m, [clientId]: d.items || [] })))
+        .catch(() => {});
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-base font-bold text-gray-900">Avis reçus</h3>
+      {loading ? (
+        <div className="space-y-3">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </div>
+      ) : (data?.items || []).length === 0 ? (
+        <Card className="p-6"><p className="text-sm text-gray-500">Aucun avis pour le moment.</p></Card>
+      ) : (
+        (data.items || []).map((r) => (
+          <Card key={r.id} className="p-4 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-semibold text-gray-900">{r.authorName || 'Client'}</p>
+              <span className="text-sm font-bold text-amber-500">★ {r.rating}/5</span>
+            </div>
+            {r.comment && <p className="text-sm leading-6 text-gray-600">{r.comment}</p>}
+            <p className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</p>
+            {r.clientId != null && (
+              <button
+                type="button"
+                onClick={() => toggleClient(r.clientId)}
+                className="text-xs font-bold text-primary-500 hover:underline"
+              >
+                {expanded === r.clientId ? 'Masquer les avis de ce client' : 'Voir tous les avis de ce client'}
+              </button>
+            )}
+            {expanded === r.clientId && (
+              <ul className="mt-2 space-y-2 border-t border-gray-100 pt-2">
+                {(expandedData[r.clientId] ?? []).map((o) => (
+                  <li key={o.id} className="text-xs text-gray-600">
+                    Sur « {o.professionalName} » : <span className="font-semibold text-gray-900">★ {o.rating}/5</span> {o.comment ? `— ${o.comment}` : ''}
+                  </li>
+                ))}
+                {(expandedData[r.clientId] ?? []).length === 0 && <li className="text-xs text-gray-400">Aucun autre avis.</li>}
+              </ul>
+            )}
+          </Card>
+        ))
+      )}
+    </div>
+  );
+}
 
 export function ProProfilePage() {
   const { user } = useAuthContext();
@@ -19,6 +108,7 @@ export function ProProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [savingAvailability, setSavingAvailability] = useState(false);
+  const [active, setActive] = useState('overview');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,35 +168,90 @@ export function ProProfilePage() {
     );
   }
 
+  const displayName = user?.displayName || profile?.displayName || 'Professionnel';
+
   return (
-    <div className="container-kop page-padding mx-auto max-w-5xl space-y-6">
-      <header className="rounded-[32px] bg-kop-mint p-7 sm:p-9 flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-primary-800/70">Espace professionnel</p>
-          <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 leading-[1.1]">
-            Bonjour, {user?.displayName || profile?.displayName || 'Professionnel'}
-          </h1>
-          <p className="mt-2 max-w-lg text-sm text-gray-700/90 leading-6">
-            Gérez votre profil, vos réalisations et votre disponibilité. Les clients pourront alors vous trouver dans les recherches.
-          </p>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <Button as={Link} to={ROUTES.PROFESSIONAL(user?.id || profile?.userId || profile?.id || '0')} variant="secondary" size="md">
+    <div className="container-kop py-10 lg:py-16">
+      <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="space-y-6">
+          <Card className="p-5">
+            <div className="flex items-center gap-4">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-100 text-lg font-bold text-primary-800 ring-1 ring-primary-200">
+                {initials('', displayName) || 'P'}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-gray-900">{displayName}</p>
+                <p className="text-xs text-gray-500">{profile?.tradeName || 'Professionnel'}</p>
+              </div>
+            </div>
+          </Card>
+          <SidebarNav
+            items={NAV_ITEMS}
+            active={active}
+            onChange={setActive}
+            ariaLabel="Navigation de l'espace pro"
+          />
+          <Button as={Link} to={ROUTES.PROFESSIONAL(user?.id || profile?.userId || profile?.id || '0')} variant="secondary" size="md" className="w-full">
             Voir ma fiche publique <ChevronRight size={16} className="inline" aria-hidden />
           </Button>
-        </div>
-      </header>
+        </aside>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <PublicationStatus status={profile?.status} missing={profile?.missing || []} />
-        <AvailabilityToggle
-          isAvailable={profile?.isAvailable}
-          onChange={handleAvailabilityChange}
-          loading={savingAvailability}
-        />
+        <main className="space-y-6">
+          <header className="rounded-[24px] bg-kop-mint p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-800/70">Espace professionnel</p>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
+              Bonjour, {displayName}
+            </h1>
+            <p className="mt-2 max-w-lg text-sm text-gray-700/90 leading-6">
+              Gérez votre profil, vos réalisations et votre disponibilité.
+            </p>
+          </header>
+
+          {active === 'overview' && (
+            <div className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <PublicationStatus status={profile?.status} missing={profile?.missing || []} />
+                <AvailabilityToggle
+                  isAvailable={profile?.isAvailable}
+                  onChange={handleAvailabilityChange}
+                  loading={savingAvailability}
+                />
+              </div>
+              <Card className="p-6">
+                <h3 className="text-base font-bold text-gray-900">Vue d'ensemble de votre activité</h3>
+                <dl className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+                  <div>
+                    <dt className="text-gray-500">Photos</dt>
+                    <dd className="text-lg font-bold text-gray-900">{profile?.photos?.length ?? 0} / 10</dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-500">Zones</dt>
+                    <dd className="text-lg font-bold text-gray-900">{profile?.zones?.length ?? 0}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-500">Disponibilité</dt>
+                    <dd className={profile?.isAvailable ? 'text-lg font-bold text-emerald-600' : 'text-lg font-bold text-gray-400'}>
+                      {profile?.isAvailable ? 'Disponible' : 'Indisponible'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-500">Statut</dt>
+                    <dd className="text-lg font-bold text-gray-900 capitalize">{profile?.status ?? '—'}</dd>
+                  </div>
+                </dl>
+              </Card>
+            </div>
+          )}
+
+          {active === 'profil' && <ProfileEditor profile={profile} onUpdated={(p) => setProfile(p)} />}
+
+          {active === 'photos' && <PhotoManager photos={profile?.photos || []} onChange={updatePhotos} />}
+
+          {active === 'compte' && <AccountSettings user={user} />}
+
+          {active === 'avis' && <ProReviewsSection professionalId={profile?.id} />}
+        </main>
       </div>
-      <ProfileEditor profile={profile} onUpdated={(p) => setProfile(p)} />
-      <PhotoManager photos={profile?.photos || []} onChange={updatePhotos} />
     </div>
   );
 }
