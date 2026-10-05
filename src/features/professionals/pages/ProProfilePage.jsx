@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, LayoutDashboard, User, Image as ImageIcon, Settings } from 'lucide-react';
+import { ChevronRight, LayoutDashboard, User, Image as ImageIcon, Settings, Star } from 'lucide-react';
 import { getMyProfile, setAvailability } from '../services/professionals.service.js';
+import { listReviews, getClientReviews } from '@/features/reviews/services/reviews.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { Skeleton } from '@/components/ui/Skeleton.jsx';
@@ -20,8 +21,85 @@ const NAV_ITEMS = [
   { id: 'overview', label: 'Vue d\u2019ensemble', icon: LayoutDashboard },
   { id: 'profil', label: 'Mon profil', icon: User },
   { id: 'photos', label: 'Mes photos', icon: ImageIcon },
+  { id: 'avis', label: 'Mes avis', icon: Star },
   { id: 'compte', label: 'Mon compte', icon: Settings },
 ];
+
+function ProReviewsSection({ professionalId }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(null);
+  const [expandedData, setExpandedData] = useState({});
+
+  useEffect(() => {
+    if (!professionalId) return;
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    listReviews(professionalId)
+      .then((d) => { if (!cancelled) setData(d); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [professionalId]);
+
+  const toggleClient = (clientId) => {
+    if (expanded === clientId) {
+      setExpanded(null);
+      return;
+    }
+    setExpanded(clientId);
+    if (!expandedData[clientId]) {
+      getClientReviews(clientId)
+        .then((d) => setExpandedData((m) => ({ ...m, [clientId]: d.items || [] })))
+        .catch(() => {});
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-base font-bold text-gray-900">Avis reçus</h3>
+      {loading ? (
+        <div className="space-y-3">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </div>
+      ) : (data?.items || []).length === 0 ? (
+        <Card className="p-6"><p className="text-sm text-gray-500">Aucun avis pour le moment.</p></Card>
+      ) : (
+        (data.items || []).map((r) => (
+          <Card key={r.id} className="p-4 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-semibold text-gray-900">{r.authorName || 'Client'}</p>
+              <span className="text-sm font-bold text-amber-500">★ {r.rating}/5</span>
+            </div>
+            {r.comment && <p className="text-sm leading-6 text-gray-600">{r.comment}</p>}
+            <p className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</p>
+            {r.clientId != null && (
+              <button
+                type="button"
+                onClick={() => toggleClient(r.clientId)}
+                className="text-xs font-bold text-primary-500 hover:underline"
+              >
+                {expanded === r.clientId ? 'Masquer les avis de ce client' : 'Voir tous les avis de ce client'}
+              </button>
+            )}
+            {expanded === r.clientId && (
+              <ul className="mt-2 space-y-2 border-t border-gray-100 pt-2">
+                {(expandedData[r.clientId] ?? []).map((o) => (
+                  <li key={o.id} className="text-xs text-gray-600">
+                    Sur « {o.professionalName} » : <span className="font-semibold text-gray-900">★ {o.rating}/5</span> {o.comment ? `— ${o.comment}` : ''}
+                  </li>
+                ))}
+                {(expandedData[r.clientId] ?? []).length === 0 && <li className="text-xs text-gray-400">Aucun autre avis.</li>}
+              </ul>
+            )}
+          </Card>
+        ))
+      )}
+    </div>
+  );
+}
 
 export function ProProfilePage() {
   const { user } = useAuthContext();
@@ -170,6 +248,8 @@ export function ProProfilePage() {
           {active === 'photos' && <PhotoManager photos={profile?.photos || []} onChange={updatePhotos} />}
 
           {active === 'compte' && <AccountSettings user={user} />}
+
+          {active === 'avis' && <ProReviewsSection professionalId={profile?.id} />}
         </main>
       </div>
     </div>

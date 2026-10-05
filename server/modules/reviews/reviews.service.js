@@ -26,6 +26,16 @@ export async function createReview(clientId, professionalId, { rating, comment }
   }
 }
 
+export async function mine(clientId, pagination) {
+  const rows = await repository.listByClient(clientId, { limit: pagination.pageSize, offset: offsetOf(pagination) });
+  return paginate(rows, pagination);
+}
+
+export async function byClient(clientId, pagination) {
+  const rows = await repository.listByClient(clientId, { limit: pagination.pageSize, offset: offsetOf(pagination) });
+  return paginate(rows, pagination);
+}
+
 export async function listReviews(viewer, professionalId, pagination) {
   const isOwner = viewer?.role === 'professional' && viewer.id === professionalId;
   if (!isOwner && !(await professionalsRepository.existsPublished(professionalId))) {
