@@ -5,6 +5,8 @@
 import { useSyncExternalStore } from 'react';
 
 const forcedMocks = import.meta.env?.VITE_USE_MOCKS === 'true';
+// En production, le mode démo n'est autorisé que s'il est explicitement forcé.
+const isProd = import.meta.env?.PROD === true;
 
 let mockMode = forcedMocks === true;
 const listeners = new Set();
@@ -19,6 +21,7 @@ export function isMockMode() {
 
 export function enableMockMode() {
   if (mockMode) return;
+  if (isProd && !forcedMocks) return;
   mockMode = true;
   notify();
 }
@@ -55,6 +58,8 @@ export async function callApi(apiFn, mockFn) {
   try {
     return await apiFn();
   } catch (err) {
+    // En production sans flag explicite, pas de fallback : l'erreur remonte.
+    if (isProd && !forcedMocks) throw err;
     if (isUnavailable(err)) {
       enableMockMode();
       return mockFn();
