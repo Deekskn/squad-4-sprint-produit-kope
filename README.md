@@ -34,7 +34,6 @@ Application fullstack de mise en relation avec des artisans. Le projet utilise u
 ├── eslint.config.js     # Configuration Linter
 ├── vite.config.js       # Configuration Vite & plugins
 └── package.json         # Dépendances & scripts globaux
-```
 
 ---
 
