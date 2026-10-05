@@ -21,6 +21,10 @@ export function Navbar() {
   const { user, loading, logout } = useAuthContext();
   const { open: openModal } = useAuthModal();
 
+  // Un utilisateur déjà pro (ou admin) ne peut/ne doit pas devenir prestataire
+  const showBecomePro = !user || (user.role !== 'professional' && user.role !== 'admin');
+  const navItems = showBecomePro ? NAV : NAV.filter((item) => item.to !== ROUTES.REGISTER_PRO);
+
   return (
     <header className={`sticky top-0 z-40 border-b  border-gray-100 bg-white/85 backdrop-blur`}>
       <div className="container-kop flex py-4 items-center justify-between gap-4">
@@ -35,7 +39,7 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center gap-2">
           <nav aria-label="Navigation principale" className="hidden items-center gap-6 lg:flex">
-          {NAV.map((item) =>
+          {navItems.map((item) =>
             item.to === ROUTES.REGISTER_PRO ? (
               <button
                 key={item.to}
@@ -103,7 +107,7 @@ export function Navbar() {
             </Link>
           </div>
           <nav aria-label="Navigation mobile" className="flex-1 space-y-1 overflow-y-auto p-4">
-            {NAV.map((item) =>
+            {navItems.map((item) =>
               item.to === ROUTES.REGISTER_PRO ? (
                 <button
                   key={item.to}

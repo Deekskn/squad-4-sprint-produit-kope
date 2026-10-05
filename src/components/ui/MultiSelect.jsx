@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 
 const cx = (...parts) => parts.filter(Boolean).join(" ");
@@ -41,10 +41,6 @@ function FieldShell({ id, label, required, hint, error, className, children }) {
   );
 }
 
-const GAP = 6; 
-const EDGE = 8;
-const MAX_HEIGHT = 256;
-
 export function MultiSelect({
   label,
   hint,
@@ -67,6 +63,8 @@ export function MultiSelect({
   const listRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [placeAbove, setPlaceAbove] = useState(false);
+  const [maxH, setMaxH] = useState(256);
 
   const selected = new Set(value);
   const selectedLabels = options
@@ -93,52 +91,6 @@ export function MultiSelect({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open, onBlur]);
 
-    useLayoutEffect(() => {
-    if (!open) return;
-
-    const place = () => {
-      const trigger = triggerRef.current;
-      const list = listRef.current;
-      if (!trigger || !list) return;
-
-      const rect = trigger.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const viewportWidth = window.innerWidth;
- if (rect.bottom < 0 || rect.top > viewportHeight) {
-        setOpen(false);
-        return;
-      }
-
-      const wanted = Math.min(list.scrollHeight, MAX_HEIGHT);
-      const spaceBelow = viewportHeight - rect.bottom - GAP - EDGE;
-      const spaceAbove = rect.top - GAP - EDGE;
-      const placeAbove = spaceBelow < wanted && spaceAbove > spaceBelow;
-      const room = placeAbove ? spaceAbove : spaceBelow;
-
-      const width = Math.min(rect.width, viewportWidth - 2 * EDGE);
-      const left = Math.min(
-        Math.max(rect.left, EDGE),
-        viewportWidth - width - EDGE,
-      );
-
-      Object.assign(list.style, {
-        left: `${left}px`,
-        width: `${width}px`,
-        maxHeight: `${Math.max(Math.min(MAX_HEIGHT, room), 0)}px`,
-        top: placeAbove ? "auto" : `${rect.bottom + GAP}px`,
-        bottom: placeAbove ? `${viewportHeight - rect.top + GAP}px` : "auto",
-        visibility: "visible",
-      });
-      list.dataset.placement = placeAbove ? "top" : "bottom";
-    };
-
-    place();
-    window.addEventListener("resize", place);
-    window.addEventListener("scroll", place, true);return () => {
-      window.removeEventListener("resize", place);
-      window.removeEventListener("scroll", place, true);
-    };
-  }, [open, options.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -160,6 +112,14 @@ export function MultiSelect({
   const openList = () => {
     const firstSelected = options.findIndex((o) => selected.has(o.value));
     setActiveIndex(firstSelected >= 0 ? firstSelected : 0);
+    const rect = triggerRef.current?.getBoundingClientRect();
+    if (rect) {
+      const spaceBelow = window.innerHeight - rect.bottom - 16;
+      const spaceAbove = rect.top - 16;
+      const above = spaceAbove > spaceBelow && spaceBelow < 280;
+      setPlaceAbove(above);
+      setMaxH(Math.max(160, Math.min(256, Math.floor(above ? spaceAbove : spaceBelow))));
+    }
     setOpen(true);
   };
 
@@ -267,8 +227,11 @@ export function MultiSelect({
             role="listbox"
             aria-multiselectable="true"
             aria-label={label}
-            style={{ visibility: "hidden" }}
-            className="fixed z-50 overflow-auto rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
+            style={{ maxHeight: maxH }}
+            className={cx(
+              "absolute left-0 right-0 z-50 overflow-auto rounded-md border border-gray-200 bg-white p-1.5 shadow-lg",
+              placeAbove ? "bottom-full mb-1" : "top-full mt-1",
+            )}
           >
             {options.map((option, index) => {
               const isSelected = selected.has(option.value);
