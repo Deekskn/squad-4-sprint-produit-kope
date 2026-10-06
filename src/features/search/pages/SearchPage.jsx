@@ -68,9 +68,6 @@ export function SearchPage() {
                   </span>
                 )}
               </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Disponibles d'abord, puis note et date de mise à jour décroissantes.
-              </p>
             </div>
             <div className="w-full sm:w-auto">
               <label className="mb-1 block text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Tri</label>

@@ -8,9 +8,15 @@ import * as reviewsRepository from '../reviews/reviews.repository.js';
 // ⚠ La vraie règle de publication est la vue SQL `published_professionals` (RG-04).
 // Si RG-04 change, modifier la vue ET cette liste.
 const MISSING_ITEMS = [
-  { code: 'description', label: 'Ajoutez une description (30 caractères minimum)', isMissing: (p) => !p.description },
-  { code: 'yearsExperience', label: "Indiquez vos années d'expérience", isMissing: (p) => p.yearsExperience === null },
+  { code: 'displayName', label: 'Renseignez le nom affiché', isMissing: (p) => !p.displayName?.trim() },
+  { code: 'trade', label: 'Choisissez un métier', isMissing: (p) => !p.tradeId || !p.tradeName?.trim() },
   { code: 'zones', label: "Choisissez au moins une zone d'intervention", isMissing: (p) => p.zones.length === 0 },
+  { code: 'phone', label: 'Renseignez un numéro de téléphone', isMissing: (p) => !p.phone?.trim() },
+  {
+    code: 'description',
+    label: 'Ajoutez une description (30 caractères minimum)',
+    isMissing: (p) => [...(p.description ?? '').trim()].length < 30,
+  },
   { code: 'photos', label: 'Ajoutez au moins une photo de réalisation', isMissing: (p) => p.photoCount === 0 },
 ];
 

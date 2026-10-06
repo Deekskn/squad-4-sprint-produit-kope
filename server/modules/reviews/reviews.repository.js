@@ -31,8 +31,6 @@ export async function getSummary(professionalId, db = pool) {
 export async function listByProfessional(professionalId, { limit, offset }, db = pool) {
   const { rows } = await db.query(
     `SELECT r.id, r.rating, r.comment, r.created_at AS "createdAt",
-            u.first_name || ' ' || UPPER(LEFT(u.last_name, 1)) || '.' AS "authorName",
-            r.client_id AS "clientId",
             COUNT(*) OVER()::int AS total
        FROM reviews r
        JOIN users u ON u.id = r.client_id

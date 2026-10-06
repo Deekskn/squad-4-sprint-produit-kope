@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { Phone, MessageCircle, MapPin, Send } from 'lucide-react';
@@ -17,8 +18,8 @@ import { ROLES, ROUTES } from '@/lib/constants.js';
 export function ProfessionalPublicPage() {
   const { id } = useParams();
   const { user } = useAuthContext();
-  const { open: openAuthModal } = useAuthModal();
-  const [contactOpen, setContactOpen] = useState(false);
+  const [reviewSubmittedFor, setReviewSubmittedFor] = useState(null);
+  const [reviewsVersion, setReviewsVersion] = useState(0);
   const detail = useAsyncData(() => getPublishedDetail(id), [id]);
   const canReviewState = useAsyncData(() => canReview(id), [id, user?.id]);
 
@@ -34,16 +35,15 @@ export function ProfessionalPublicPage() {
 
   const { profile, photos, rating } = detail.data;
   const whatsappUrl = toWhatsappUrl(profile.whatsapp || profile.phone);
-  const canLeaveReview = user?.role === ROLES.CLIENT && canReviewState.data === true;
-  const isSelf = String(user?.id) === String(profile.id);
-  const canContact = Boolean(user) && !isSelf && user?.role !== ROLES.ADMIN;
+  const canLeaveReview =
+    reviewSubmittedFor !== id && user?.role === ROLES.CLIENT && canReviewState.data === true;
 
-  const onContactClick = () => {
-    if (!user) {
-      openAuthModal('login');
-      return;
-    }
-    setContactOpen(true);
+  const refreshAfterReview = () => {
+    setReviewSubmittedFor(id);
+    setReviewsVersion((version) => version + 1);
+    detail.reload().catch(() => {
+      // useAsyncData stores the error for the page's DataState.
+    });
   };
 
   return (
@@ -101,8 +101,8 @@ export function ProfessionalPublicPage() {
       <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <RatingSummary rating={rating} />
         <div className="space-y-4">
-          {canLeaveReview && <ReviewForm professionalId={profile.id} onSuccess={() => canReviewState.reload?.()} />}
-          <ReviewList professionalId={profile.id} />
+          {canLeaveReview && <ReviewForm professionalId={profile.id} onSuccess={refreshAfterReview} />}
+          <ReviewList key={reviewsVersion} professionalId={profile.id} />
         </div>
       </section>
 
