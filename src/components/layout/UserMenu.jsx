@@ -1,17 +1,31 @@
 import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
-import { ROUTES, ROLES } from '@/lib/constants.js';
+import { ROUTES, ROLES, PROFILE_STATUS } from '@/lib/constants.js';
 import { Button } from '@/components/ui/Button.jsx';
 import { cn } from '@/lib/utils.js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
 import { displayNameFor, roleLabel, dashboardHref } from './userMenuUtils.js';
+import { getMyProfile } from '@/features/professionals/services/professionals.service.js';
 
 export function UserMenu({ onNavigate }) {
   const { user, loading, logout, hasRole } = useAuthContext();
   const { open: openModal } = useAuthModal();
   const [open, setOpen] = useState(false);
+  const [proStatus, setProStatus] = useState(null);
+  const isPro = Boolean(user) && hasRole(ROLES.PRO);
+
+  // La fiche n'existe que si le profil est publié : on ne propose le lien qu'une fois
+  // le statut connu (chargé à l'ouverture du menu, une seule fois).
+  useEffect(() => {
+    if (!open || !isPro || proStatus !== null) return undefined;
+    let cancelled = false;
+    getMyProfile()
+      .then((p) => { if (!cancelled) setProStatus(p?.status ?? null); })
+      .catch(() => { if (!cancelled) setProStatus('error'); });
+    return () => { cancelled = true; };
+  }, [open, isPro, proStatus]);
 
   const close = () => {
     setOpen(false);
@@ -78,7 +92,7 @@ export function UserMenu({ onNavigate }) {
                   {hasRole(ROLES.PRO) ? 'Mon profil' : hasRole(ROLES.ADMIN) ? 'Administration' : 'Mon espace'}
                 </Link>
               )}
-              {hasRole(ROLES.PRO) && (
+              {isPro && proStatus === PROFILE_STATUS.PUBLISHED && (
                 <Link
                   to={ROUTES.PROFESSIONAL(user.id)}
                   role="menuitem"

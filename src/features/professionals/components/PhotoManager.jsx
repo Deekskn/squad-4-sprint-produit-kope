@@ -9,6 +9,8 @@ import { MAX_PHOTOS, ALLOWED_MIME, MAX_FILE_SIZE_BYTES } from '@/lib/constants.j
 import { addPhoto, deletePhoto } from '@/features/photos/services/photos.service.js';
 import { cn } from '@/lib/utils.js';
 
+const MIN_SLOTS = 3;
+
 export function PhotoManager({ photos = [], onChange }) {
   const { toast } = useNotification();
   const [submitting, setSubmitting] = useState(false);
@@ -120,13 +122,16 @@ export function PhotoManager({ photos = [], onChange }) {
           );
         })}
 
-        {!full && (
-          <UploaderSlot
-            submitting={submitting}
-            onAdd={handleAdd}
-            remaining={remaining}
-          />
-        )}
+        {!full &&
+          Array.from({ length: Math.max(MIN_SLOTS - photos.length, 1) }, (_, index) => (
+            <UploaderSlot
+              key={`slot-${index}`}
+              slotNumber={photos.length + index + 1}
+              submitting={submitting}
+              onAdd={handleAdd}
+              remaining={remaining}
+            />
+          ))}
       </div>
 
       <Modal
@@ -150,13 +155,13 @@ export function PhotoManager({ photos = [], onChange }) {
   );
 }
 
-function UploaderSlot({ onAdd, submitting, remaining }) {
+function UploaderSlot({ onAdd, submitting, remaining, slotNumber }) {
   const [file, setFile] = useState(null);
   const [caption, setCaption] = useState('');
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 rounded-xl ring-1 ring-gray-200 bg-gray-50/60 p-1.5">
       <FileUpload
-        label={submitting ? 'Ajout en cours...' : 'Ajouter une photo'}
+        label={submitting ? 'Ajout en cours...' : slotNumber ? `Emplacement ${slotNumber}` : 'Ajouter une photo'}
         hint={`${remaining} emplacement${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''} · JPG/PNG · 5 Mo`}
         value={file}
         onChange={setFile}
