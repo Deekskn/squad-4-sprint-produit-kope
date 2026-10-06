@@ -23,7 +23,7 @@ export function HowItWorksSection() {
                 <span className="text-9xl font-extrabold text-gray-900/70 tracking-tight">{s.n}</span>
               </div>
             </Card>
-            <ul className={`mx-3 flex w-auto flex-col gap-y-0 opacity-25 md:mx-0 md:w-auto md:flex-row ${index === (STEPS.length - 1) ? 'hidden' : ''}`}  >
+            <ul className={`mx-4 flex w-auto flex-col gap-y-0 opacity-25 md:mx-0 md:w-auto md:flex-row ${index === (STEPS.length - 1) ? 'hidden' : ''}`}  >
               {Array.from({ length: 4 }).map((_, i) => (
                 <li key={i} className="h-1 w-full border-t md:h-88 md:w-1 md:border-t-0 md:border-l" ></li>
               ))}
