@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button.jsx';
 import { Card } from '@/components/ui/Card.jsx';
 import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
+import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
 import { EmptyState } from '@/components/ui/EmptyState.jsx';
 import { getMyReviews } from '@/features/reviews/services/reviews.service.js';
 import { updateAccount, uploadAvatar } from '@/features/auth/services/auth.service.js';
@@ -294,15 +295,7 @@ export function ClientDashboardPage() {
           <div className="pt-(--tabs-height) lg:pt-0">
             {active === 'profil' && <ProfilSection user={user} />}
             {active === 'avis' && <ActiviteSection />}
-            {active === 'contacts' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mes contacts</h2>
-                <EmptyState
-                  title="Aucun contact pour le moment"
-                  description="Les professionnels que vous aurez contactés apparaîtront ici."
-                />
-              </div>
-            )}
+            {active === 'contacts' && <ContactsSection />}
           </div>
         </div>
 

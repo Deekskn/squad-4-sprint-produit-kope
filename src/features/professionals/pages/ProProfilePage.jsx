@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, LayoutDashboard, User, Image as ImageIcon, Settings, Star } from 'lucide-react';
+import { ChevronRight, LayoutDashboard, User, Image as ImageIcon, Phone, Star } from 'lucide-react';
 import { getMyProfile, setAvailability } from '../services/professionals.service.js';
 import { listReviews, getClientReviews } from '@/features/reviews/services/reviews.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
@@ -14,15 +14,15 @@ import { PhotoManager } from '../components/PhotoManager.jsx';
 import { Card } from '@/components/ui/Card.jsx';
 import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
 import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
-import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
+import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
 import { ROUTES } from '@/lib/constants.js';
 
 const NAV_ITEMS = [
-  { id: 'overview', label: 'Vue d\u2019ensemble', icon: LayoutDashboard },
+  { id: 'overview', label: 'Vue d’ensemble', icon: LayoutDashboard },
   { id: 'profil', label: 'Mon profil', icon: User },
   { id: 'photos', label: 'Mes photos', icon: ImageIcon },
+  { id: 'contacts', label: 'Mes contacts', icon: Phone },
   { id: 'avis', label: 'Mes avis', icon: Star },
-  { id: 'compte', label: 'Mon compte', icon: Settings },
 ];
 
 function ProReviewsSection({ professionalId }) {
@@ -201,16 +201,6 @@ export function ProProfilePage() {
         </aside>
 
         <main className="space-y-6">
-          <header className="rounded-[24px] bg-kop-mint p-6 sm:p-8">
-            <p className="text-xs font-bold uppercase tracking-wider text-primary-800/70">Espace professionnel</p>
-            <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
-              Bonjour, {displayName}
-            </h1>
-            <p className="mt-2 max-w-lg text-sm text-gray-700/90 leading-6">
-              Gérez votre profil, vos réalisations et votre disponibilité.
-            </p>
-          </header>
-
           {active === 'overview' && (
             <div className="space-y-5">
               <div className="grid gap-5 sm:grid-cols-2">
@@ -247,11 +237,13 @@ export function ProProfilePage() {
             </div>
           )}
 
-          {active === 'profil' && <ProfileEditor profile={profile} onUpdated={(p) => setProfile(p)} />}
+          {active === 'profil' && (
+            <ProfileEditor profile={profile} user={user} onUpdated={(p) => setProfile(p)} />
+          )}
 
           {active === 'photos' && <PhotoManager photos={profile?.photos || []} onChange={updatePhotos} />}
 
-          {active === 'compte' && <AccountSettings user={user} />}
+          {active === 'contacts' && <ContactsSection />}
 
           {active === 'avis' && <ProReviewsSection professionalId={profile?.id} />}
         </main>

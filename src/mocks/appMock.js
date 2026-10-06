@@ -126,6 +126,55 @@ export function getProDetailMock(id) {
   };
 }
 
+// ---------- Contacts mock ----------
+
+/**
+ * Mes contacts en mode démo : un client m'a contacté, j'ai contacté un pro.
+ * `outgoing` = true si c'est moi qui ai envoyé le message.
+ */
+export function mockMyContacts({ page = 1, pageSize = 20 } = {}) {
+  const items = [
+    {
+      id: 9001,
+      message: 'Bonjour, je recherche un devis pour une rénovation de salle de bain.',
+      status: 'new',
+      outgoing: false,
+      createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      userId: 42,
+      role: 'client',
+      phone: '+242061234567',
+      avatarUrl: null,
+      firstName: 'Abel',
+      lastName: 'Bouanga',
+      displayName: 'Abel Bouanga',
+      tradeName: null,
+    },
+    {
+      id: 9002,
+      message: 'Bonjour, êtes-vous disponible la semaine prochaine pour un chantier ?',
+      status: 'seen',
+      outgoing: true,
+      createdAt: new Date(Date.now() - 9 * 86400000).toISOString(),
+      userId: 7,
+      role: 'professional',
+      phone: '+242069876543',
+      avatarUrl: null,
+      firstName: null,
+      lastName: null,
+      displayName: 'Atelier Kengo',
+      tradeName: 'Menuiserie',
+    },
+  ];
+  const start = (page - 1) * pageSize;
+  return {
+    items: items.slice(start, start + pageSize),
+    total: items.length,
+    page,
+    pageSize,
+    totalPages: Math.ceil(items.length / pageSize),
+  };
+}
+
 // ---------- Session mock (persistée en localStorage pour survivre au reload) ----------
 
 const SESSION_KEY = 'kop_demo_user';

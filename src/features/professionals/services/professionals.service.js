@@ -1,6 +1,6 @@
 import { api } from '@/lib/api.js';
 import { callApi } from '@/lib/dataSource.js';
-import { getProDetailMock, MOCK_PROS } from '@/mocks/appMock.js';
+import { getProDetailMock, MOCK_PROS, MOCK_TRADES } from '@/mocks/appMock.js';
 
 function ownProfileFromMock() {
   const p = MOCK_PROS[0];
@@ -35,12 +35,19 @@ export function updateMyProfile(payload) {
     () => api.putJson('/me/profile', payload).then((r) => r.profile),
     async () => {
       const p = MOCK_PROS[0];
+      const trade = MOCK_TRADES.find((t) => String(t.id) === String(payload.tradeId));
       Object.assign(p, {
+        displayName: payload.displayName ?? p.displayName,
+        tradeId: payload.tradeId ?? p.tradeId,
+        tradeName: trade ? trade.name : p.tradeName,
         description: payload.description ?? p.description,
         yearsExperience: payload.yearsExperience ?? p.yearsExperience,
         whatsapp: payload.whatsapp ?? p.whatsapp,
       });
-      return { ...ownProfileFromMock(), ...payload };
+      if (Array.isArray(payload.zoneIds) && payload.zoneIds.length) {
+        p.zones = payload.zoneIds.map((id) => p.zones.find((z) => Number(z.id) === Number(id)) || { id, name: `Zone ${id}` });
+      }
+      return { ...ownProfileFromMock(), ...p };
     },
   );
 }

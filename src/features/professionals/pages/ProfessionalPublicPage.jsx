@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Phone, MessageCircle, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { Phone, MessageCircle, MapPin, Send } from 'lucide-react';
 import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getPublishedDetail, canReview } from '../services/professionals.service.js';
 import { PhotoGallery } from '../components/PhotoGallery.jsx';
@@ -9,6 +10,8 @@ import { DataState } from '@/components/ui/DataState.jsx';
 import { Badge } from '@/components/ui/Badge.jsx';
 import { Button } from '@/components/ui/Button.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
+import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
+import { ContactDialog } from '@/features/contacts/components/ContactDialog.jsx';
 import { formatPhoneFR, toWhatsappUrl } from '@/lib/utils.js';
 import { ROLES, ROUTES } from '@/lib/constants.js';
 
@@ -75,6 +78,11 @@ export function ProfessionalPublicPage() {
                 <MessageCircle size={16} aria-hidden /> WhatsApp
               </Button>
             )}
+            {canContact && (
+              <Button variant="secondary" size="lg" onClick={onContactClick}>
+                <Send size={16} aria-hidden /> Contacter
+              </Button>
+            )}
             <span className="self-center text-sm font-semibold text-gray-700">
               {formatPhoneFR(profile.phone)}
             </span>
@@ -101,6 +109,13 @@ export function ProfessionalPublicPage() {
       <p className="text-sm text-gray-500">
         <Link to={ROUTES.SEARCH} className="link-underline text-primary-700">← Retour aux résultats</Link>
       </p>
+
+      <ContactDialog
+        open={contactOpen}
+        onOpenChange={setContactOpen}
+        toUserId={profile.id}
+        recipientName={profile.displayName}
+      />
     </div>
   );
 }
