@@ -26,12 +26,17 @@ export async function replaceZones(professionalId, zoneIds, db = pool) {
   );
 }
 
-export async function updateProfile(userId, { description, yearsExperience, whatsapp }, db = pool) {
+export async function tradeExists(tradeId, db = pool) {
+  const { rowCount } = await db.query('SELECT 1 FROM trades WHERE id = $1', [tradeId]);
+  return rowCount > 0;
+}
+
+export async function updateProfile(userId, { displayName, tradeId, description, yearsExperience, whatsapp }, db = pool) {
   await db.query(
     `UPDATE professionals
-        SET description = $2, years_experience = $3, whatsapp = $4, updated_at = now()
+        SET display_name = $2, trade_id = $3, description = $4, years_experience = $5, whatsapp = $6, updated_at = now()
       WHERE user_id = $1`,
-    [userId, description, yearsExperience, whatsapp],
+    [userId, displayName, tradeId, description, yearsExperience, whatsapp],
   );
 }
 
