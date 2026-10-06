@@ -103,7 +103,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
   if (home) {
     // Home banner variant (wider, horizontal)
     return (
-      <form onSubmit={onSubmit} className="bg-[#F5F6F6] rounded-[16px] p-2 border border-[#CDD8D3]/60 flex items-center  " noValidate>
+      <form onSubmit={onSubmit} className="bg-[#F5F6F6] rounded-[16px] p-2 border border-[#CDD8D3]/60 flex flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0" noValidate>
         <FormField  required error={error?.trade} id="sf-trade-h" hideLabel className="flex-1">
           <Select
             bordered={false}
@@ -119,7 +119,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
             ))}
           </Select>
         </FormField>
-          <span className='opacity-20'>|</span>
+          <span className='hidden opacity-20 md:inline'>|</span>
         <FormField  id="sf-zone-h" hideLabel className="flex-1">
           <Select bordered={false} id="sf-zone-h" name="zone" defaultValue={zone}>
             <option value="">Quelle Quatier ?</option>
