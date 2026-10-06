@@ -12,14 +12,15 @@ import { EmptyState } from '@/components/ui/EmptyState.jsx';
 import { getMyReviews } from '@/features/reviews/services/reviews.service.js';
 import { updateAccount, uploadAvatar } from '@/features/auth/services/auth.service.js';
 import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
+import { BottomNav } from '@/components/ui/BottomNav.jsx';
 
 const NAV_ITEMS = [
-  { id: 'profil', label: 'Mon profil', icon: User },
-  { id: 'avis', label: 'Mes avis', icon: Star },
-  { id: 'contacts', label: 'Mes contacts', icon: Phone },
+  { id: 'profil', label: 'Mon profil', shortLabel: 'Profil', icon: User },
+  { id: 'avis', label: 'Mes avis', shortLabel: 'Avis', icon: Star },
+  { id: 'contacts', label: 'Mes contacts', shortLabel: 'Contacts', icon: Phone },
 ];
 
-function Sidebar({ active, onChange, orientation }) {
+function Sidebar({ active, onChange }) {
   return (
     <aside>
       <SidebarNav
@@ -27,7 +28,6 @@ function Sidebar({ active, onChange, orientation }) {
         active={active}
         onChange={onChange}
         ariaLabel="Navigation du profil"
-        orientation={orientation}
       />
     </aside>
   );
@@ -289,10 +289,7 @@ export function ClientDashboardPage() {
           </Button>
         </div>
         <div className="lg:col-start-2 lg:row-start-1">
-          <div className="fixed inset-x-0 top-(--header-height)  z-30 w-screen bg-white/85 backdrop-blur-sm lg:hidden overflow-x-auto">
-            <Sidebar active={active} onChange={setActive} orientation="horizontal" />
-          </div>
-          <div className="pt-(--tabs-height) lg:pt-0">
+          <div>
             {active === 'profil' && <ProfilSection user={user} />}
             {active === 'avis' && <ActiviteSection />}
             {active === 'contacts' && <ContactsSection />}
@@ -300,6 +297,12 @@ export function ClientDashboardPage() {
         </div>
 
       </div>
+      <BottomNav
+        items={NAV_ITEMS}
+        active={active}
+        onChange={setActive}
+        ariaLabel="Navigation du profil (mobile)"
+      />
     </div>
   );
 }

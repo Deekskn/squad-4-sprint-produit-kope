@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { User, Star } from 'lucide-react';
 import { Select } from '../src/components/ui/Select.jsx';
 import { Table, TableRow, TableEmpty } from '../src/components/ui/Table.jsx';
 import { Skeleton } from '../src/components/ui/Skeleton.jsx';
 import { FloatingCaption } from '../src/components/ui/FloatingCaption.jsx';
+import { BottomNav } from '../src/components/ui/BottomNav.jsx';
 
 describe('Select', () => {
   it('a une bordure par défaut', () => {
@@ -61,5 +63,40 @@ describe('FloatingCaption', () => {
   it('aligne à droite quand align=right', () => {
     const html = renderToStaticMarkup(<FloatingCaption title="T" align="right" />);
     expect(html).toContain('right-2');
+  });
+});
+
+describe('BottomNav', () => {
+  const items = [
+    { id: 'profil', label: 'Mon profil', shortLabel: 'Profil', icon: User },
+    { id: 'avis', label: 'Mes avis', icon: Star },
+  ];
+
+  it('est fixée en bas et masquée en desktop', () => {
+    const html = renderToStaticMarkup(
+      <BottomNav items={items} active="profil" onChange={() => {}} ariaLabel="Navigation" />,
+    );
+    expect(html).toContain('fixed');
+    expect(html).toContain('bottom-0');
+    expect(html).toContain('lg:hidden');
+    expect(html).toContain('aria-label="Navigation"');
+  });
+
+  it('utilise le libellé court pour les petits écrans', () => {
+    const html = renderToStaticMarkup(
+      <BottomNav items={items} active="profil" onChange={() => {}} />,
+    );
+    expect(html).toContain('Profil');
+    expect(html).not.toContain('Mon profil');
+    expect(html).toContain('Mes avis');
+  });
+
+  it('marque l onglet actif via aria-selected', () => {
+    const html = renderToStaticMarkup(
+      <BottomNav items={items} active="avis" onChange={() => {}} />,
+    );
+    const parts = html.split('aria-selected=');
+    expect(parts[1]?.startsWith('"false"')).toBe(true);
+    expect(parts[2]?.startsWith('"true"')).toBe(true);
   });
 });

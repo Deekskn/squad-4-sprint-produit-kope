@@ -14,15 +14,16 @@ import { PhotoManager } from '../components/PhotoManager.jsx';
 import { Card } from '@/components/ui/Card.jsx';
 import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
 import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
+import { BottomNav } from '@/components/ui/BottomNav.jsx';
 import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
 import { ROUTES, PROFILE_STATUS } from '@/lib/constants.js';
 
 const NAV_ITEMS = [
-  { id: 'overview', label: 'Vue d’ensemble', icon: LayoutDashboard },
-  { id: 'profil', label: 'Mon profil', icon: User },
-  { id: 'photos', label: 'Mes photos', icon: ImageIcon },
-  { id: 'contacts', label: 'Mes contacts', icon: Phone },
-  { id: 'avis', label: 'Mes avis', icon: Star },
+  { id: 'overview', label: 'Vue d’ensemble', shortLabel: 'Aperçu', icon: LayoutDashboard },
+  { id: 'profil', label: 'Mon profil', shortLabel: 'Profil', icon: User },
+  { id: 'photos', label: 'Mes photos', shortLabel: 'Photos', icon: ImageIcon },
+  { id: 'contacts', label: 'Mes contacts', shortLabel: 'Contacts', icon: Phone },
+  { id: 'avis', label: 'Mes avis', shortLabel: 'Avis', icon: Star },
 ];
 
 function ProReviewsSection({ professionalId }) {
@@ -189,12 +190,14 @@ export function ProProfilePage() {
               <p className="mt-1 text-sm font-semibold text-gray-900 capitalize">{profile?.status ?? '—'}</p>
             </div>
           </Card>
-          <SidebarNav
-            items={NAV_ITEMS}
-            active={active}
-            onChange={setActive}
-            ariaLabel="Navigation de l'espace pro"
-          />
+          <div className="hidden lg:block">
+            <SidebarNav
+              items={NAV_ITEMS}
+              active={active}
+              onChange={setActive}
+              ariaLabel="Navigation de l'espace pro"
+            />
+          </div>
           {profile?.status === PROFILE_STATUS.PUBLISHED && (
             <Button as={Link} to={ROUTES.PROFESSIONAL(user?.id || profile?.userId || profile?.id || '0')} variant="secondary" size="md" className="w-full">
               Voir ma fiche publique <ChevronRight size={16} className="inline" aria-hidden />
@@ -250,6 +253,12 @@ export function ProProfilePage() {
           {active === 'avis' && <ProReviewsSection professionalId={profile?.id} />}
         </main>
       </div>
+      <BottomNav
+        items={NAV_ITEMS}
+        active={active}
+        onChange={setActive}
+        ariaLabel="Navigation de l'espace pro (mobile)"
+      />
     </div>
   );
 }
