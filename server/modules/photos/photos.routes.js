@@ -8,13 +8,22 @@ import * as controller from './photos.controller.js';
 
 const router = Router();
 
-// US-05 : multipart/form-data avec le champ fichier "photo" et un champ texte "caption" (facultatif)
+// US-05 : multipart/form-data avec le champ fichier "photo" + texte "title" et "description" (modal d'ajout)
 router.post(
   '/me/photos',
   requireRole('professional'),
   upload.single('photo'),
   validate(addPhotoSchema),
   controller.add,
+);
+
+// Modification du titre / de la description (bouton "Modifier" de la grille de photos)
+router.put(
+  '/me/photos/:id',
+  requireRole('professional'),
+  validate(idParamSchema, 'params'),
+  validate(addPhotoSchema),
+  controller.update,
 );
 
 router.delete(

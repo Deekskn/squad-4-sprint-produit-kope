@@ -69,11 +69,16 @@ export function ContactDialog({ open, onOpenChange, toUserId, recipientName }) {
             required
             as="textarea"
             error={error}
-            help={`Entre 10 et ${MESSAGE_MAX} caractères`}
+            help={`10 à ${MESSAGE_MAX} caractères : décrivez votre besoin, vos disponibilités, votre zone...`}
+            counter={
+              <span className={message.length < 10 || message.length > MESSAGE_MAX ? 'text-danger-500 font-semibold' : ''}>
+                {message.length}/{MESSAGE_MAX}
+              </span>
+            }
           >
             <Textarea
               id="contact-message"
-              rows={5}
+              rows={3}
               maxLength={MESSAGE_MAX}
               placeholder="Décrivez votre besoin, vos disponibilités, votre zone..."
               value={message}

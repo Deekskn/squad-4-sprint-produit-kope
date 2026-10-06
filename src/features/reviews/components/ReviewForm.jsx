@@ -54,14 +54,17 @@ export function ReviewForm({ professionalId, onSuccess }) {
         <FormField
           id="rv-comment"
           label="Votre commentaire"
-          help={
-            <>Facultatif · <span className={comment.length > MAX ? 'text-danger-500 font-bold' : ''}>{comment.length}/{MAX}</span></>
+          help={`Facultatif · 0 à ${MAX} caractères`}
+          counter={
+            <span className={comment.length > MAX ? 'text-danger-500 font-semibold' : ''}>
+              {comment.length}/{MAX}
+            </span>
           }
           as="textarea"
         >
           <Textarea
             id="rv-comment"
-            rows={5}
+            rows={3}
             placeholder="Parlez de votre expérience avec ce professionnel..."
             value={comment}
             onChange={(e) => setComment(e.target.value.slice(0, MAX + 10))}

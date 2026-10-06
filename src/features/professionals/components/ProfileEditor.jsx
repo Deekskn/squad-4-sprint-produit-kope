@@ -195,8 +195,14 @@ export function ProfileEditor({ profile, user, onUpdated }) {
                 required
                 error={errors.displayName}
                 placeholder="Ex : Plomberie Makélékélé Services"
+                help="1 à 100 caractères"
+                counter={
+                  <span className={values.displayName?.length > 100 ? 'text-danger-500 font-semibold' : ''}>
+                    {(values.displayName || '').length}/100
+                  </span>
+                }
                 value={values.displayName}
-                onChange={(e) => setField('displayName', e.target.value)}
+                onChange={(e) => setField('displayName', e.target.value.slice(0, 100))}
               />
             </div>
           </Section>
@@ -229,13 +235,16 @@ export function ProfileEditor({ profile, user, onUpdated }) {
               required
               as="textarea"
               error={errors.description}
-              help={
-                <>Entre <b>{DESC_MIN}</b> et <b>{DESC_MAX}</b> caractères · <span className={descLen < DESC_MIN || descLen > DESC_MAX ? 'text-danger-500 font-semibold' : ''}>{descLen}/{DESC_MAX}</span></>
+              help={`${DESC_MIN} à ${DESC_MAX} caractères : décrivez le contexte, la prestation, le résultat.`}
+              counter={
+                <span className={descLen < DESC_MIN || descLen > DESC_MAX ? 'text-danger-500 font-semibold' : ''}>
+                  {descLen}/{DESC_MAX}
+                </span>
               }
             >
               <Textarea
                 id="pe-desc"
-                rows={5}
+                rows={3}
                 placeholder="Présentez votre activité, vos services, vos horaires, vos garanties..."
                 value={values.description}
                 onChange={(e) => setField('description', e.target.value.slice(0, DESC_MAX + 10))}

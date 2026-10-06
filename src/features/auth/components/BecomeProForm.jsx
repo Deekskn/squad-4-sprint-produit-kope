@@ -82,8 +82,14 @@ export function BecomeProForm({ bare = false } = {}) {
               required
               error={errors.displayName}
               placeholder="Ex : Plomberie Makélékélé Services"
+              help="1 à 100 caractères"
+              counter={
+                <span className={(values.displayName || '').length > 100 ? 'text-danger-500 font-semibold' : ''}>
+                  {(values.displayName || '').length}/100
+                </span>
+              }
               value={values.displayName}
-              onChange={(e) => setField('displayName', e.target.value)}
+              onChange={(e) => setField('displayName', e.target.value.slice(0, 100))}
             />
             <FormField id="bp-trade" label="Métier" required error={errors.tradeId} as="select">
               <Select
@@ -139,14 +145,19 @@ export function BecomeProForm({ bare = false } = {}) {
               label="Description"
               required
               error={errors.description}
-              help="30 caractères minimum, 500 maximum"
+              help="30 à 500 caractères : décrivez vos services, votre secteur, votre expérience."
+              counter={
+                <span className={(values.description || '').length < 30 || (values.description || '').length > 500 ? 'text-danger-500 font-semibold' : ''}>
+                  {(values.description || '').length}/500
+                </span>
+              }
               as="textarea"
             >
               <Textarea
                 id="bp-description"
-                rows={5}
+                rows={3}
                 value={values.description}
-                onChange={(e) => setField('description', e.target.value)}
+                onChange={(e) => setField('description', e.target.value.slice(0, 500))}
                 placeholder="Décrivez vos services, votre secteur, votre expérience..."
               />
             </FormField>

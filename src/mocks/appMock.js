@@ -58,6 +58,11 @@ function makePro(i) {
       url: IMAGES[(i + k) % IMAGES.length],
       thumbUrl: IMAGES[(i + k) % IMAGES.length],
       caption: k === 0 ? 'Chantier récent' : 'Réalisation',
+      title: k === 0 ? 'Chantier récent' : 'Réalisation',
+      description:
+        k === 0
+          ? 'Intervention complète réalisée en une journée, avec nettoyage du chantier et contrôle final.'
+          : 'Prestation réalisée dans les règles de l\'art, client satisfait et recommandation reçue.',
       createdAt: new Date(Date.now() - (i + k) * 86400000).toISOString(),
     })),
   };

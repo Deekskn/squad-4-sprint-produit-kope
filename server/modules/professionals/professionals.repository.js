@@ -31,12 +31,33 @@ export async function tradeExists(tradeId, db = pool) {
   return rowCount > 0;
 }
 
-export async function updateProfile(userId, { displayName, tradeId, description, yearsExperience, whatsapp }, db = pool) {
+const PROFILE_COLUMNS = {
+  displayName: 'display_name',
+  tradeId: 'trade_id',
+  description: 'description',
+  yearsExperience: 'years_experience',
+  whatsapp: 'whatsapp',
+};
+
+/**
+ * Mise à jour partielle : seules les clés présentes (≠ undefined) sont écrites.
+ * `becomeProfessional` n'envoie que description/années/whatsapp après la création
+ * du profil — sans ça, display_name/trade_id passeraient à NULL (contrainte NOT NULL).
+ * `null` reste une valeur explicite (ex : whatsapp vidé).
+ */
+export async function updateProfile(userId, fields, db = pool) {
+  const sets = [];
+  const values = [userId];
+  for (const [key, value] of Object.entries(fields)) {
+    const column = PROFILE_COLUMNS[key];
+    if (!column || value === undefined) continue;
+    values.push(value);
+    sets.push(`${column} = $${values.length}`);
+  }
+  if (!sets.length) return;
   await db.query(
-    `UPDATE professionals
-        SET display_name = $2, trade_id = $3, description = $4, years_experience = $5, whatsapp = $6, updated_at = now()
-      WHERE user_id = $1`,
-    [userId, displayName, tradeId, description, yearsExperience, whatsapp],
+    `UPDATE professionals SET ${sets.join(', ')}, updated_at = now() WHERE user_id = $1`,
+    values,
   );
 }
 

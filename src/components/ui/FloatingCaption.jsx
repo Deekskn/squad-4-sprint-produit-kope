@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils.js';
 
 /** Overlay translucide posé sur une image (coin bas-gauche ou bas-droite). */
-export function FloatingCaption({ title, subtitle, icon: Icon, align = 'left', wide = false, className }) {
+export function FloatingCaption({ title, subtitle, subtitleClassName, icon: Icon, align = 'left', wide = false, className }) {
   return (
     <div
       className={cn(
@@ -16,9 +16,11 @@ export function FloatingCaption({ title, subtitle, icon: Icon, align = 'left', w
           <Icon size={24} strokeWidth={1.5} aria-hidden />
         </span>
       )}
-      <div>
+      <div className="min-w-0">
         <p className="text-[12px] font-semibold leading-tight text-gray-900">{title}</p>
-        {subtitle && <p className="text-[11px] text-gray-500">{subtitle}</p>}
+        {subtitle && (
+          <p className={cn('text-[11px] leading-snug text-gray-500', subtitleClassName)}>{subtitle}</p>
+        )}
       </div>
     </div>
   );
