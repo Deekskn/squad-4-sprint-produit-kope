@@ -1,11 +1,7 @@
 import path from 'node:path';
-
-// Node >= 20.12 : charge le fichier .env sans dépendance (dotenv inutile).
-// Les variables déjà définies dans le système ne sont pas écrasées.
 try {
   process.loadEnvFile();
 } catch {
-  // pas de fichier .env : on utilise les variables du système
 }
 
 const required = ['DATABASE_URL', 'SESSION_SECRET'];
@@ -24,13 +20,10 @@ export const env = {
   PORT: Number(process.env.PORT) || 3000,
   DATABASE_URL: process.env.DATABASE_URL,
   SESSION_SECRET: process.env.SESSION_SECRET,
-  // Cookie de session "secure" = envoyé uniquement en HTTPS. Mettre COOKIE_SECURE=false
-  // pour tester `npm start` en local sans HTTPS.
   COOKIE_SECURE: process.env.COOKIE_SECURE
     ? process.env.COOKIE_SECURE === 'true'
     : isProduction,
   UPLOAD_DIR: path.resolve(process.env.UPLOAD_DIR ?? 'uploads'),
-  // Utilisés uniquement par `npm run seed:admin`
-  ADMIN_PHONE: process.env.ADMIN_PHONE,
+ ADMIN_PHONE: process.env.ADMIN_PHONE,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
 };

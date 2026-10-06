@@ -1,11 +1,4 @@
 import { pool } from '../../db/pool.js';
-
-/**
- * Profils publiés (vue published_professionals = règle RG-04) d'un métier,
- * éventuellement filtrés par zone, classés selon RG-11 :
- * disponibles d'abord, puis meilleure note moyenne, puis mis à jour le plus récemment.
- * Les avis masqués sont exclus de la moyenne.
- */
 export async function searchPublished({ tradeId, zoneId, limit, offset }, db = pool) {
   const { rows } = await db.query(
     `SELECT p.user_id AS id,

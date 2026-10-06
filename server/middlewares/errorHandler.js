@@ -1,19 +1,14 @@
-// Erreurs Postgres courantes -> réponse HTTP propre
 const PG_ERRORS = {
-  '23505': [409, 'Cette valeur existe déjà'],               // unique_violation
-  '23503': [400, 'Référence invalide (métier, zone…)'],    // foreign_key_violation
-  '23514': [400, 'Données invalides'],                      // check_violation
+  '23505': [409, 'Cette valeur existe déjà'],               
+  '23503': [400, 'Référence invalide (métier, zone…)'],    
+  '23514': [400, 'Données invalides'],                      
 };
-
-// Les 4 paramètres sont obligatoires : c'est ce qui fait reconnaître un middleware d'erreur à Express.
-
 export function errorHandler(err, req, res, next) {
   if (res.headersSent) return next(err);
 
   let status = err.status ?? 500;
   let message = err.message;
   let errors = err.errors;
-
   if (err.code === 'LIMIT_FILE_SIZE') {
     status = 400;
     message = 'La photo dépasse 5 Mo';
@@ -28,12 +23,10 @@ export function errorHandler(err, req, res, next) {
   } else if (PG_ERRORS[err.code]) {
     [status, message] = PG_ERRORS[err.code];
   }
-
   if (status >= 500) {
     console.error(err);
     message = 'Erreur interne du serveur';
     errors = undefined;
   }
-
   res.status(status).json({ message, ...(errors && { errors }) });
 }
