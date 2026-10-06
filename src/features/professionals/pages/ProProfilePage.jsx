@@ -15,7 +15,7 @@ import { Card } from '@/components/ui/Card.jsx';
 import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
 import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
 import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
-import { ROUTES } from '@/lib/constants.js';
+import { ROUTES, PROFILE_STATUS } from '@/lib/constants.js';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Vue d’ensemble', icon: LayoutDashboard },
@@ -195,9 +195,11 @@ export function ProProfilePage() {
             onChange={setActive}
             ariaLabel="Navigation de l'espace pro"
           />
-          <Button as={Link} to={ROUTES.PROFESSIONAL(user?.id || profile?.userId || profile?.id || '0')} variant="secondary" size="md" className="w-full">
-            Voir ma fiche publique <ChevronRight size={16} className="inline" aria-hidden />
-          </Button>
+          {profile?.status === PROFILE_STATUS.PUBLISHED && (
+            <Button as={Link} to={ROUTES.PROFESSIONAL(user?.id || profile?.userId || profile?.id || '0')} variant="secondary" size="md" className="w-full">
+              Voir ma fiche publique <ChevronRight size={16} className="inline" aria-hidden />
+            </Button>
+          )}
         </aside>
 
         <main className="space-y-6">

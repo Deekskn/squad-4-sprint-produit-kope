@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useState } from 'react';
 import { Phone, MessageCircle, MapPin, Send } from 'lucide-react';
 import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getPublishedDetail, canReview } from '../services/professionals.service.js';
@@ -10,7 +9,6 @@ import { DataState } from '@/components/ui/DataState.jsx';
 import { Badge } from '@/components/ui/Badge.jsx';
 import { Button } from '@/components/ui/Button.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
-import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { ContactDialog } from '@/features/contacts/components/ContactDialog.jsx';
 import { formatPhoneFR, toWhatsappUrl } from '@/lib/utils.js';
 import { ROLES, ROUTES } from '@/lib/constants.js';
@@ -20,6 +18,7 @@ export function ProfessionalPublicPage() {
   const { user } = useAuthContext();
   const [reviewSubmittedFor, setReviewSubmittedFor] = useState(null);
   const [reviewsVersion, setReviewsVersion] = useState(0);
+  const [contactOpen, setContactOpen] = useState(false);
   const detail = useAsyncData(() => getPublishedDetail(id), [id]);
   const canReviewState = useAsyncData(() => canReview(id), [id, user?.id]);
 
@@ -37,6 +36,11 @@ export function ProfessionalPublicPage() {
   const whatsappUrl = toWhatsappUrl(profile.whatsapp || profile.phone);
   const canLeaveReview =
     reviewSubmittedFor !== id && user?.role === ROLES.CLIENT && canReviewState.data === true;
+
+  // Un connecté (hors admin, hors soi-même) peut envoyer une demande de contact.
+  const isSelf = user?.id != null && String(user.id) === String(profile.id);
+  const canContact = Boolean(user) && user.role !== ROLES.ADMIN && !isSelf;
+  const onContactClick = () => setContactOpen(true);
 
   const refreshAfterReview = () => {
     setReviewSubmittedFor(id);
@@ -110,12 +114,14 @@ export function ProfessionalPublicPage() {
         <Link to={ROUTES.SEARCH} className="link-underline text-primary-700">← Retour aux résultats</Link>
       </p>
 
-      <ContactDialog
-        open={contactOpen}
-        onOpenChange={setContactOpen}
-        toUserId={profile.id}
-        recipientName={profile.displayName}
-      />
+      {canContact && (
+        <ContactDialog
+          open={contactOpen}
+          onOpenChange={setContactOpen}
+          toUserId={profile.id}
+          recipientName={profile.displayName}
+        />
+      )}
     </div>
   );
 }
