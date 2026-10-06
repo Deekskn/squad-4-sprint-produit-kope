@@ -1,8 +1,6 @@
 import pg from 'pg';
 import { env } from '../config/env.js';
 
-// Par défaut, pg renvoie les bigint (id, COUNT) sous forme de chaînes.
-// On les convertit en nombres (sûr tant qu'on reste sous 2^53).
 pg.types.setTypeParser(20, Number);
 
 export const pool = new pg.Pool({
