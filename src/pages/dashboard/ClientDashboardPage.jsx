@@ -18,16 +18,37 @@ const NAV_ITEMS = [
   { id: 'contacts', label: 'Mes contacts', icon: Phone },
 ];
 
-function Sidebar({ active, onChange }) {
+function Sidebar({ active, onChange, orientation }) {
   return (
-    <aside className="space-y-6">
+    <aside>
       <SidebarNav
         items={NAV_ITEMS}
         active={active}
         onChange={onChange}
         ariaLabel="Navigation du profil"
+        orientation={orientation}
       />
     </aside>
+  );
+}
+
+function BecomeProCard() {
+  const { open: openModal } = useAuthModal();
+  return (
+    <Card className="border border-primary-100 p-5 bg-linear-to-br from-white to-primary-50">
+      <h3 className="text-xl font-extrabold text-gray-900">Devenez prestataire</h3>
+      <p className="mt-2 text-sm leading-6 text-gray-600">
+        Présentez vos réalisations et recevez des demandes.
+      </p>
+      <Button
+        variant="primary"
+        size="md"
+        className="mt-4 w-full"
+        onClick={() => openModal('register-pro')}
+      >
+        Devenir prestataire
+      </Button>
+    </Card>
   );
 }
 
@@ -43,7 +64,7 @@ function ProfilSection({ user }) {
   const [avatar, setAvatar] = useState(user?.avatarUrl ?? null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
+  const { logout } = useAuthContext();
   const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || '—';
 
   const save = async (e) => {
@@ -84,9 +105,11 @@ function ProfilSection({ user }) {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mon profil</h2>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => openModal('change-password')}>
-            Changer le mot de passe
-          </Button>
+          <div className="hidden sm:block">
+            <Button variant="outline" size="sm" onClick={() => openModal('change-password')}>
+              Changer le mot de passe
+            </Button>
+          </div>
           <Button variant="outline" size="sm" onClick={() => setEditing((v) => !v)}>
             <Pencil size={16} aria-hidden className="inline" /> {editing ? 'Annuler' : 'Modifier'}
           </Button>
@@ -173,6 +196,24 @@ function ProfilSection({ user }) {
         )}
       </Card>
 
+      <div className="lg:hidden">
+        <BecomeProCard />
+      </div>
+
+      <div className="sm:hidden space-y-4">
+        <Button variant="outline" size="md" className="w-full" onClick={() => openModal('change-password')}>
+          Changer le mot de passe
+        </Button>
+        <Button
+          variant="outline"
+          size="md"
+          className="w-full lg:col-start-1 lg:row-start-3"
+          onClick={logout}
+        >
+          Se déconnecter
+        </Button>
+      </div>
+
     </div>
   );
 }
@@ -228,43 +269,43 @@ function ActiviteSection() {
 }
 
 export function ClientDashboardPage() {
-  const { user } = useAuthContext();
-  const { open: openModal } = useAuthModal();
+  const { user, logout } = useAuthContext();
   const [active, setActive] = useState('profil');
 
   return (
     <div className="container-kop py-10 lg:py-16">
-      <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-x-8">
+        <div className="hidden lg:sticky lg:top-(--header-height) lg:col-start-1 lg:row-start-1 lg:block lg:self-start lg:space-y-6">
           <Sidebar active={active} onChange={setActive} />
-          <Card className="border border-primary-100 p-5 bg-gradient-to-br from-white to-primary-50">
-            <h3 className="text-xl font-extrabold text-gray-900">Devenez prestataire</h3>
-            <p className="mt-2 text-sm leading-6 text-gray-600">
-              Présentez vos réalisations et recevez des demandes.
-            </p>
-            <Button
-              variant="primary"
-              size="md"
-              className="mt-4 w-full"
-              onClick={() => openModal('register-pro')}
-            >
-              Devenir prestataire
-            </Button>
-          </Card>
+          <BecomeProCard />
+          <Button
+            variant="outline"
+            size="md"
+            className="hidden w-full md:inline-flex"
+            onClick={logout}
+          >
+            Se déconnecter
+          </Button>
         </div>
-        <main>
-          {active === 'profil' && <ProfilSection user={user} />}
-          {active === 'avis' && <ActiviteSection />}
-          {active === 'contacts' && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mes contacts</h2>
-              <EmptyState
-                title="Aucun contact pour le moment"
-                description="Les professionnels que vous aurez contactés apparaîtront ici."
-              />
-            </div>
-          )}
-        </main>
+        <div className="lg:col-start-2 lg:row-start-1">
+          <div className="fixed inset-x-0 top-(--header-height)  z-30 w-screen bg-white/85 backdrop-blur-sm lg:hidden overflow-x-auto">
+            <Sidebar active={active} onChange={setActive} orientation="horizontal" />
+          </div>
+          <div className="pt-(--tabs-height) lg:pt-0">
+            {active === 'profil' && <ProfilSection user={user} />}
+            {active === 'avis' && <ActiviteSection />}
+            {active === 'contacts' && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mes contacts</h2>
+                <EmptyState
+                  title="Aucun contact pour le moment"
+                  description="Les professionnels que vous aurez contactés apparaîtront ici."
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { Inbox } from 'lucide-react';
 
 export function EmptyState({ icon: Icon = Inbox, title, description, action }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white/60 px-6 py-12 text-center">
+    <div className="flex flex-col items-center justify-center rounded-md  border border-dashed border-gray-200 bg-white/60 px-6 py-28 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
         <Icon size={22} aria-hidden />
       </span>
