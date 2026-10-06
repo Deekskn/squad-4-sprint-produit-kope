@@ -16,10 +16,6 @@ import { createContact } from '../services/contacts.service.js';
 
 const MESSAGE_MAX = 500;
 
-/**
- * Prise de contact depuis la fiche publique d'un professionnel.
- * Un client comme un professionnel peut envoyer un message.
- */
 export function ContactDialog({ open, onOpenChange, toUserId, recipientName }) {
   const { toast } = useNotification();
   const [message, setMessage] = useState('');

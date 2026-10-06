@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { phoneSchema, zoneIdsSchema, requiredText, idSchema } from '../../utils/commonSchemas.js';
 
-/** US-04 : nom affiché, métier, description 30-500, expérience 0-60, WhatsApp (vide = numéro du compte), zones. */
+/** US-04 */
 export const updateProfileSchema = z.object({
   displayName: requiredText(100, 'Le nom affiché est obligatoire'),
   tradeId: idSchema('Choisissez un métier'),

@@ -19,10 +19,7 @@ function currentUser(req) {
   return req.user ?? req.session?.user ?? null;
 }
 
-/**
- * Ouvre une session pour l'utilisateur. regenerate() change l'identifiant de session
- * à la connexion (protection contre la fixation de session).
- */
+
 function startSession(req, user) {
   return new Promise((resolve, reject) => { 
     req.session.regenerate((err) => {
@@ -75,15 +72,13 @@ export async function me(req, res, next) {
     // compte supprimé depuis : on ferme la session
     return logout(req, res, next);
   }
-  // Le client n'a pas (ou plus) de Bearer valide mais sa session cookie est vivante :
-  // on réémet une nouvelle paire de tokens pour qu'elle remplace l'ancienne.
+
   if (req.bearerExpired) {
     return res.json({ user, ...(await issueTokens(user)) });
   }
   res.json({ user });
 }
 
-/** POST /auth/refresh : échange un refresh token valide contre une nouvelle paire. */
 export async function refresh(req, res) {
   const { refreshToken } = req.body ?? {};
   if (!refreshToken) throw ApiError.unauthorized('Refresh token manquant');
@@ -98,7 +93,6 @@ export async function refresh(req, res) {
   if (!stored) throw ApiError.unauthorized('Refresh token révoqué ou expiré');
   const user = await service.getCurrentUser(payload.sub);
   if (!user) throw ApiError.unauthorized('Compte introuvable');
-  // Rotation : l'ancien refresh token est révoqué, un nouveau est émis
   await refreshTokens.revoke(refreshToken);
   res.json({ user, ...(await issueTokens(user)) });
 }

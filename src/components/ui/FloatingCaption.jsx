@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils.js';
 
-/** Overlay translucide posé sur une image (coin bas-gauche ou bas-droite). */
 export function FloatingCaption({ title, subtitle, subtitleClassName, icon: Icon, align = 'left', wide = false, className }) {
   return (
     <div

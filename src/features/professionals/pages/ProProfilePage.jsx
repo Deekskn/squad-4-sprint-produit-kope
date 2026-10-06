@@ -35,7 +35,6 @@ function ProReviewsSection({ professionalId }) {
   useEffect(() => {
     if (!professionalId) return;
     let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     listReviews(professionalId)
       .then((d) => { if (!cancelled) setData(d); })
@@ -124,7 +123,6 @@ export function ProProfilePage() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
@@ -143,7 +141,6 @@ export function ProProfilePage() {
 
   const updatePhotos = (photos) => {
     setProfile((p) => ({ ...(p || {}), photos }));
-    // Rechargement pour recalculer le statut et la checklist
     load();
   };
 

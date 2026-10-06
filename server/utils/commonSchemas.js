@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { normalizePhone } from './phone.js';
 
-/** Texte obligatoire, sans espaces autour. */
 export const requiredText = (max) =>
   z
     .string({ error: 'Ce champ est obligatoire' })
@@ -9,11 +8,11 @@ export const requiredText = (max) =>
     .min(1, 'Ce champ est obligatoire')
     .max(max, `${max} caractères maximum`);
 
-/** Identifiant numérique (accepte "3" venant d'une URL ou d'un formulaire). */
+/** Identifiant numérique  */
 export const idSchema = (message = 'Identifiant invalide') =>
   z.coerce.number({ error: message }).int(message).positive(message);
 
-/** Numéro de téléphone, normalisé en +242XXXXXXXXX (voir utils/phone.js). */
+/** Numéro de téléphone  */
 export const phoneSchema = z
   .string({ error: 'Le numéro de téléphone est obligatoire' })
   .trim()
@@ -26,7 +25,6 @@ export const phoneSchema = z
     return normalized;
   });
 
-// bcrypt ignore tout ce qui dépasse 72 octets : on borne explicitement
 export const passwordSchema = z
   .string({ error: 'Le mot de passe est obligatoire' })
   .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
@@ -36,7 +34,7 @@ export const consentSchema = z
   .boolean({ error: 'Le consentement est obligatoire' })
   .refine((value) => value === true, 'Le consentement est obligatoire');
 
-/** Liste de zones : au moins une, sans doublon. */
+/** Liste de zones */
 export const zoneIdsSchema = z
   .array(idSchema('Zone invalide'), { error: 'Choisissez au moins une zone' })
   .min(1, 'Choisissez au moins une zone')

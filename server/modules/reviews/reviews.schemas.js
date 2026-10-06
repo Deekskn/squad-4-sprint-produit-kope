@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-/** US-14 CA2 : note entière de 1 à 5 (obligatoire), commentaire de 300 caractères max (facultatif). */
+/** US-14 CA2 */
 export const createReviewSchema = z.object({
   rating: z
     .number({ error: 'La note est obligatoire' })

@@ -30,7 +30,6 @@ function extractInitial(profile) {
   };
 }
 
-/** Bloc de section : même composant pour la lecture et l'édition. */
 function Section({ title, description, children }) {
   return (
     <Card className="p-5">

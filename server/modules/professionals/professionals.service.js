@@ -4,9 +4,6 @@ import * as repository from './professionals.repository.js';
 import * as photosService from '../photos/photos.service.js';
 import * as reviewsRepository from '../reviews/reviews.repository.js';
 
-// Checklist affichée au professionnel (US-06 CA2).
-// ⚠ La vraie règle de publication est la vue SQL `published_professionals` (RG-04).
-// Si RG-04 change, modifier la vue ET cette liste.
 const MISSING_ITEMS = [
   { code: 'displayName', label: 'Renseignez le nom affiché', isMissing: (p) => !p.displayName?.trim() },
   { code: 'trade', label: 'Choisissez un métier', isMissing: (p) => !p.tradeId || !p.tradeName?.trim() },
@@ -20,7 +17,7 @@ const MISSING_ITEMS = [
   { code: 'photos', label: 'Ajoutez au moins une photo de réalisation', isMissing: (p) => p.photoCount === 0 },
 ];
 
-/** US-04 / US-06 : mon profil, avec son statut (incomplete | published | hidden) et ce qu'il manque. */
+/** US-04 */
 export async function getOwnProfile(userId) {
   const profile = await repository.findOwnProfile(userId);
   if (!profile) throw ApiError.notFound('Profil introuvable');
@@ -39,7 +36,7 @@ export async function getOwnProfile(userId) {
   return { ...rest, photos, status, missing };
 }
 
-/** US-04 : tout est enregistré ou rien (transaction). Visible tout de suite sur la fiche (CA3). */
+/** US-04 */
 export async function updateOwnProfile(userId, { displayName, tradeId, description, yearsExperience, whatsapp, zoneIds }) {
   if (!(await repository.tradeExists(tradeId))) {
     throw ApiError.badRequest('Choisissez un métier valide', { tradeId: 'Choisissez un métier' });
@@ -61,7 +58,7 @@ export function setAvailability(userId, isAvailable) {
   return repository.setAvailability(userId, isAvailable);
 }
 
-/** Fiche publique (US-07 CA3, US-15) : profil publié + photos + rating. */
+/** Fiche publique */
 export async function getPublishedDetail(id) {
   const profile = await repository.findPublishedDetail(id);
   if (!profile) throw ApiError.notFound('Profil introuvable');

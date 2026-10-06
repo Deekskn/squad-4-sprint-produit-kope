@@ -1,6 +1,3 @@
-// Crée des comptes clients aléatoires (démo locale / tests).
-// Tous partagent le mot de passe SEED_CLIENT_PASSWORD (défaut : "Password123!").
-// Usage : `npm run seed:clients` (optionnel : SEED_CLIENTS_COUNT=30).
 import bcrypt from 'bcryptjs';
 import { pool } from '../pool.js';
 import { normalizePhone } from '../../utils/phone.js';

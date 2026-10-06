@@ -30,10 +30,6 @@ export async function createContact(senderId, { toUserId, message }) {
   }
 }
 
-/**
- * Mes contacts, tous rôles confondus (clients comme professionnels).
- * La lecture marque les demandes reçues comme vues.
- */
 export async function listContacts(userId, pagination) {
   await repository.markIncomingAsSeen(userId);
   const rows = await repository.listForUser(userId, {

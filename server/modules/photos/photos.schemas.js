@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-/** US-05 : titre + description de la réalisation, demandés par le modal d'ajout. */
+/** US-05 */
 export const addPhotoSchema = z.object({
   title: z
     .string({ error: 'Le titre est obligatoire' })

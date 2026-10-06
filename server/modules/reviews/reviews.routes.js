@@ -8,7 +8,7 @@ import * as controller from './reviews.controller.js';
 
 const router = Router();
 
-// US-15 : public
+// US-15 
 router.get(
   '/professionals/:id/reviews',
   validate(idParamSchema, 'params'),
@@ -16,7 +16,7 @@ router.get(
   controller.list,
 );
 
-// Avis que l'utilisateur courant a laissés
+// Avis 
 router.get(
   '/reviews/mine',
   requireAuth,
@@ -24,7 +24,7 @@ router.get(
   controller.mine,
 );
 
-// Tous les avis laissés par un client (transparence pour les pros et l'admin)
+// avis client
 router.get(
   '/clients/:id/reviews',
   requireAuth,
@@ -33,7 +33,7 @@ router.get(
   controller.byClient,
 );
 
-// US-14 : réservé aux clients (un professionnel ne peut pas laisser d'avis, CA5)
+// US-14 
 router.post(
   '/professionals/:id/reviews',
   requireRole('client'),

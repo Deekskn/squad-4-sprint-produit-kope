@@ -1,8 +1,6 @@
-// Rate limiting simple en mémoire (fenêtre glissante par IP + clé de route).
-// Suffisant pour une instance unique ; derrière plusieurs instances, passer à Redis.
 const buckets = new Map();
 
-// Nettoyage périodique pour éviter une fuite mémoire
+// Nettoyage 
 setInterval(() => {
   const now = Date.now();
   for (const [key, hits] of buckets) {

@@ -1,11 +1,6 @@
 import { cn } from '@/lib/utils.js';
 import { FloatingCaption } from '@/components/ui/FloatingCaption.jsx';
 
-/**
- * Section "image + liste" en deux colonnes (TrustSection de la Home,
- * parcours client/pro de la page Comment ça marche).
- * items = [{ icon: Icon, title, body }]
- */
 export function SplitShowcase({ eyebrow, title, intro, imageSrc, imageAlt, caption, captionAlign = 'left', items, reverse = false, bg = 'bg-kop-mint', sectionClassName }) {
   const visual = (
     <div className="relative rounded-[16px] overflow-hidden">

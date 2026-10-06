@@ -1,15 +1,7 @@
 import { z } from 'zod';
 import { ApiError } from '../utils/ApiError.js';
 
-/**
- * Valide req[source] avec un schéma Zod. Le résultat nettoyé (types convertis, valeurs
- * par défaut, numéros normalisés) est dans req.validated[source].
- *
- * Express 5 : req.query est en lecture seule, on ne peut donc pas le réécrire,
- * d'où req.validated.
- *
- * En cas d'erreur : 400 { message, errors: { champ: "premier message" } }
- */
+
 export function validate(schema, source = 'body') {
   return (req, res, next) => {
     const result = schema.safeParse(req[source]);

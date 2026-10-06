@@ -10,8 +10,6 @@ const BCRYPT_ROUNDS = 10;
 const DUPLICATE_PHONE = 'Ce numéro est déjà utilisé';
 const INVALID_CREDENTIALS = 'Numéro ou mot de passe incorrect';
 
-// Comparé quand le numéro n'existe pas, pour que la réponse prenne le même temps
-// que pour un vrai compte (on ne révèle pas quels numéros sont inscrits).
 const DUMMY_HASH = bcrypt.hashSync('mot-de-passe-factice', BCRYPT_ROUNDS);
 
 async function insertUser(data, db) {
@@ -31,7 +29,7 @@ export async function registerClient({ firstName, lastName, phone, password }) {
   return insertUser({ role: 'client', phone, passwordHash, firstName, lastName });
 }
 
-/** US-02 : le profil est créé "Incomplet" (non publié tant que RG-04 n'est pas satisfaite). */
+/** US-02 */
 export async function registerProfessional({ displayName, phone, password, tradeId, zoneIds }) {
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
@@ -43,7 +41,7 @@ export async function registerProfessional({ displayName, phone, password, trade
   });
 }
 
-/** US-03 : message identique que le numéro ou le mot de passe soit faux (CA2). */
+/** US-03 */
 export async function login({ phone, password }) {
   const normalized = normalizePhone(phone);
   const user = normalized ? await repository.findByPhone(normalized) : null;
@@ -55,7 +53,7 @@ export async function login({ phone, password }) {
   return publicUser;
 }
 
-/** Convertit un compte client existant en compte professionnel : mise a jour du role et creation du profil pro. */
+/** Convertit un compte client existant en compte professionnel */
 export async function becomeProfessional(userId, { displayName, tradeId, zoneIds, yearsExperience, description }) {
   return withTransaction(async (tx) => {
     const user = await repository.findById(userId, tx);
@@ -78,7 +76,6 @@ export function getCurrentUser(userId) {
   return repository.findById(userId);
 }
 
-/** Change le mot de passe du compte. Exige l'ancien pour prouver l'identité. */
 export async function changePassword(userId, { currentPassword, newPassword }) {
   const passwordHash = await repository.getPasswordHash(userId);
   if (!passwordHash) throw ApiError.notFound('Compte introuvable');
@@ -90,7 +87,6 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
 
   const newHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
   await repository.updatePasswordHash(userId, newHash);
-  // Sécurité : invalide toutes les refresh tokens émises (tous appareils).
   await refreshTokensRepository.revokeAllForUser(userId);
 }
 

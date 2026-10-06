@@ -12,14 +12,14 @@ export async function listReviews(pagination) {
   return paginate(rows, pagination);
 }
 
-/** US-16 CA2 : profil masqué = absent des recherches, fiche introuvable, statut "Masqué" chez le professionnel. */
+/** profil masqué = absent des recherches. */
 export async function setProfessionalHidden(id, hidden) {
   const updated = await repository.setProfessionalHidden(id, hidden);
   if (!updated) throw ApiError.notFound('Profil introuvable');
   return { id, hidden };
 }
 
-/** US-16 CA3 : avis masqué = non affiché et exclu de la note moyenne (calculée à la lecture). */
+/** avis masqué = non affiché et exclu des calculs. */
 export async function setReviewHidden(id, hidden) {
   const updated = await repository.setReviewHidden(id, hidden);
   if (!updated) throw ApiError.notFound('Avis introuvable');

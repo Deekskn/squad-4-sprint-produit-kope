@@ -7,7 +7,7 @@ import * as controller from './admin.controller.js';
 
 const router = Router();
 
-// Tout ce qui est sous /admin est réservé à l'administrateur (US-16)
+// Tout ce qui est sous /admin est réservé à l'administrateur 
 router.use('/admin', requireRole('admin'));
 
 router.get('/admin/professionals', validate(paginationSchema, 'query'), controller.listProfessionals);

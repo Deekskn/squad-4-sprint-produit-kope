@@ -23,7 +23,7 @@ export function AdminProfessionalsTable() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [confirm, setConfirm] = useState(null); // {item, action:'hide'|'show', loading}
+  const [confirm, setConfirm] = useState(null); 
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -38,7 +38,6 @@ export function AdminProfessionalsTable() {
   }, [page, search]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

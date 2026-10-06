@@ -15,7 +15,7 @@ export async function processImage(buffer) {
     const { format } = await sharp(buffer).metadata();
     if (format !== 'jpeg' && format !== 'png') throw new Error('format non supporté');
 
-    const base = sharp(buffer).rotate().flatten({ background: '#ffffff' }); // PNG transparent -> fond blanc
+    const base = sharp(buffer).rotate().flatten({ background: '#ffffff' }); 
     const [main, thumb] = await Promise.all([
       base.clone().resize({ width: MAIN_WIDTH, withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer(),
       base.clone().resize({ width: THUMB_WIDTH, withoutEnlargement: true }).jpeg({ quality: 78 }).toBuffer(),
@@ -46,7 +46,7 @@ export async function save({ filePath, thumbPath }, { main, thumb }) {
       await fs.writeFile(absolute(thumbPath), thumb);
     }
   } catch (err) {
-    await remove({ filePath, thumbPath }).catch(() => {}); // ne laisse pas de fichier orphelin
+    await remove({ filePath, thumbPath }).catch(() => {}); 
     throw err;
   }
 }

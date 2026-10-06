@@ -15,7 +15,6 @@ router.post(
   controller.create,
 );
 
-// Mes contacts, tous rôles confondus.
 router.get(
   '/contacts',
   requireRole('client', 'professional'),

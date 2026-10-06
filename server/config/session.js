@@ -5,11 +5,10 @@ import { env } from "./env.js";
 
 export const SESSION_COOKIE = "sid";
 
-const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; // US-03 CA4
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; 
 
 const PgStore = connectPgSimple(session);
 
-// Les sessions sont stockées dans la table "session" de Postgres (pas de Redis).
 export const sessionMiddleware = session({
   store: new PgStore({ pool, tableName: "session" }),
   name: SESSION_COOKIE,

@@ -1,4 +1,3 @@
-// JWT minimal (HS256) sans dépendance externe — Node crypto.
 import crypto from 'node:crypto';
 
 function base64url(input) {

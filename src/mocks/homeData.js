@@ -1,4 +1,3 @@
-// Mock/demo content for the HomePage (sample professionals, categories, FAQ).
 import { Wrench, Zap, Palette } from 'lucide-react';
 import what1 from '@/assets/what1.png';
 import what2 from '@/assets/what2.png';

@@ -60,17 +60,12 @@ function ContactRow({ contact }) {
   );
 }
 
-/**
- * Section « Mes contacts » partagée par le dashboard client et le dashboard pro :
- * un contact peut être un client ou un autre professionnel.
- */
 export function ContactsSection() {
   const [items, setItems] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getMyContacts()
       .then((data) => { if (!cancelled) setItems(data.items || []); })

@@ -8,7 +8,7 @@ import * as controller from './photos.controller.js';
 
 const router = Router();
 
-// US-05 : multipart/form-data avec le champ fichier "photo" + texte "title" et "description" (modal d'ajout)
+// US-05
 router.post(
   '/me/photos',
   requireRole('professional'),
@@ -17,7 +17,7 @@ router.post(
   controller.add,
 );
 
-// Modification du titre / de la description (bouton "Modifier" de la grille de photos)
+// Modification du titre
 router.put(
   '/me/photos/:id',
   requireRole('professional'),

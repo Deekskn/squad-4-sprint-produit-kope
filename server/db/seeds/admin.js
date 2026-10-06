@@ -1,5 +1,3 @@
-// Crée le compte administrateur directement en base (US-16 CA4 : pas d'inscription admin).
-// Usage : renseigner ADMIN_PHONE et ADMIN_PASSWORD dans .env puis `npm run seed:admin`.
 import bcrypt from 'bcryptjs';
 import { env } from '../../config/env.js';
 import { pool } from '../pool.js';

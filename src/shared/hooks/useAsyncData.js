@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/refs, react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from 'react';
 
 export function useAsyncData(loader, deps = []) {
@@ -26,7 +25,7 @@ export function useAsyncData(loader, deps = []) {
 
   useEffect(() => {
     load().catch(() => {
-      /* error already stored */
+      
     });
   }, deps);
 

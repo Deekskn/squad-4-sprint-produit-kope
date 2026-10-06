@@ -73,7 +73,6 @@ export function PhotoManager({ photos = [], onChange }) {
       setEditing(null);
       return { ok: true };
     } catch (err) {
-      // Erreurs de champ renvoyées par le serveur (titre / description) : affichées dans le modal.
       const fieldErrors = err?.errors
         ? Object.fromEntries(Object.entries(err.errors).filter(([k]) => ['title', 'description'].includes(k)))
         : {};
@@ -88,7 +87,6 @@ export function PhotoManager({ photos = [], onChange }) {
     }
   };
 
-  /** Bouton "Modifier" : titre + description uniquement (l'image reste la même). */
   const handleUpdate = async ({ title, description }) => {
     if (!editing) return { ok: false };
     setSubmitting(true);
@@ -246,7 +244,7 @@ export function PhotoManager({ photos = [], onChange }) {
   );
 }
 
-/** Carte "emplacement" cliquable : même style (Card, bordure, image 100 % de la hauteur) que les photos. */
+/** Carte */
 function AddPhotoSlot({ slotNumber, slotCount, onClick }) {
   return (
     <button type="button" onClick={onClick} className="group h-full text-left focus-ring" aria-label={`Ajouter une photo — emplacement ${slotNumber}`}>
@@ -272,8 +270,6 @@ function AddPhotoSlot({ slotNumber, slotCount, onClick }) {
   );
 }
 
-/** Modal : image + titre + description à l'ajout, titre + description à la modification.
- *  Remonté via `key` (voir l'appel) pour réinitialiser titre/description à chaque ouverture. */
 function PhotoFormModal({ open, photo, onClose, onSubmit, submitting, remaining }) {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState(photo?.title || photo?.caption || '');

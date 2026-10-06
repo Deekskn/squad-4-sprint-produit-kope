@@ -1,11 +1,6 @@
-// Pont entre les services API et les données mock.
-// - VITE_USE_MOCKS=true : toujours les mocks (démo sans backend)
-// - sinon : essaie l'API, bascule en mode démo sur erreur réseau / 5xx,
-//   puis toutes les requêtes suivantes utilisent les mocks.
 import { useSyncExternalStore } from 'react';
 
 const forcedMocks = import.meta.env?.VITE_USE_MOCKS === 'true';
-// En production, le mode démo n'est autorisé que s'il est explicitement forcé.
 const isProd = import.meta.env?.PROD === true;
 
 let mockMode = forcedMocks === true;
@@ -49,10 +44,6 @@ function isUnavailable(err) {
   return false;
 }
 
-/**
- * Exécute apiFn, puis mockFn si le backend est indisponible.
- * Les erreurs métier (400, 401, 403, 404, 409) sont relancées telles quelles.
- */
 export async function callApi(apiFn, mockFn) {
   if (mockMode) return mockFn();
   try {
