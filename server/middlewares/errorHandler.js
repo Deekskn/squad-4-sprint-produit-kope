@@ -1,36 +1,15 @@
-// Erreurs Postgres courantes -> réponse HTTP propre
 const PG_ERRORS = {
-  '23505': [409, 'Cette valeur existe déjà'],               // unique_violation
-  '23503': [400, 'Référence invalide (métier, zone…)'],    // foreign_key_violation
-  '23514': [400, 'Données invalides'],                      // check_violation
+  '23505': [409, 'Cette valeur existe déjà'],               
+  '23503': [400, 'Référence invalide (métier, zone…)'],    
+  '23514': [400, 'Données invalides'],                      
 };
-
-// Les 4 paramètres sont obligatoires : c'est ce qui fait reconnaître un middleware d'erreur à Express.
-
-// Erreurs de connexion/pool : la DB est indisponible -> 503 explicite
-const DB_UNAVAILABLE = [
-  'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', '57P01', '57P02', '57P03', '08006', '08001',
-];
-
 export function errorHandler(err, req, res, next) {
   if (res.headersSent) return next(err);
 
   let status = err.status ?? 500;
   let message = err.message;
   let errors = err.errors;
-
-  if (
-    DB_UNAVAILABLE.includes(err.code) ||
-    err.code === 'ETIMEDOUT' ||
-    err.message === 'timeout expired' ||
-    err.message?.includes('Connection terminated') ||
-    err.message?.includes('Connection timeout') ||
-    err.message?.includes('timeout of')
-  ) {
-    status = 503;
-    message = 'Base de données indisponible, réessayez plus tard';
-    errors = undefined;
-  } else if (err.code === 'LIMIT_FILE_SIZE') {
+  if (err.code === 'LIMIT_FILE_SIZE') {
     status = 400;
     message = 'La photo dépasse 5 Mo';
     errors = { photo: message };
@@ -44,7 +23,6 @@ export function errorHandler(err, req, res, next) {
   } else if (PG_ERRORS[err.code]) {
     [status, message] = PG_ERRORS[err.code];
   }
-
   if (status >= 500) {
     console.error(err);
     if (status !== 503) {
@@ -52,6 +30,5 @@ export function errorHandler(err, req, res, next) {
       errors = undefined;
     }
   }
-
   res.status(status).json({ message, ...(errors && { errors }) });
 }

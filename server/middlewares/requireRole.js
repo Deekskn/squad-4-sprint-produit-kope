@@ -1,11 +1,4 @@
 import { ApiError } from '../utils/ApiError.js';
-import { verifyToken } from '../utils/tokens.js';
-import { env } from '../config/env.js';
-
-/**
- * Exige un des rôles donnés : requireRole('professional'), requireRole('client', 'admin').
- * Bearer token ou session. 401 si non connecté, 403 si le rôle ne correspond pas (US-03 CA5).
- */
 export function requireRole(...roles) {
   return (req, res, next) => {
     let user = null;

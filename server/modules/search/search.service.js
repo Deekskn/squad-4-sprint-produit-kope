@@ -1,9 +1,7 @@
 import { offsetOf, paginate } from '../../utils/pagination.js';
 import { uploadUrl } from '../../utils/uploads.js';
 import * as repository from './search.repository.js';
-
-const PAGE_SIZE = 10; // US-07 CA5
-
+const PAGE_SIZE = 10; 
 function toCard(row) {
   return {
     id: row.id,
@@ -12,20 +10,19 @@ function toCard(row) {
     zones: row.zones,
     yearsExperience: row.yearsExperience,
     isAvailable: row.isAvailable,
-    rating: { average: row.ratingAverage, count: row.ratingCount }, // average = null s'il n'y a pas d'avis
+    rating: { average: row.ratingAverage, count: row.ratingCount }, 
     coverUrl: uploadUrl(row.coverThumb),
   };
 }
-
-export async function search({ trade, zone, page }) {
+export async function search({ trade, zone, q, page }) {
   const pagination = { page, pageSize: PAGE_SIZE };
   const rows = await repository.searchPublished({
-    tradeId: trade,
+    tradeId: trade ?? null,
     zoneId: zone ?? null,
+    keyword: q ?? null,
     limit: PAGE_SIZE,
     offset: offsetOf(pagination),
   });
-
   const result = paginate(rows, pagination);
   return { ...result, items: result.items.map(toCard) };
 }
