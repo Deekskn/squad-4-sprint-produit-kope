@@ -20,7 +20,7 @@ export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const { trades, zones } = useReferenceData();
   const { trade, zone, page, q } = Object.fromEntries(params.entries());
-  const { results, loading, error } = useSearch({ trade, zone, page });
+  const { results, loading, error } = useSearch({ trade, zone, q, page });
   const [sort, setSort] = useState(params.get('sort') || 'recommended');
 
   const summary = useMemo(() => {
@@ -48,12 +48,10 @@ export function SearchPage() {
   return (
     <div className="container-kop page-padding">
       <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:items-start">
-        {/* LEFT COLUMN - sidebar filters */}
         <aside className="lg:sticky lg:top-[92px] space-y-4">
           <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} />
         </aside>
 
-        {/* RIGHT COLUMN - results */}
         <section className="space-y-5 min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>

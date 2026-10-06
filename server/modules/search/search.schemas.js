@@ -2,7 +2,14 @@ import { z } from 'zod';
 import { idSchema } from '../../utils/commonSchemas.js';
 const emptyToUndefined = (value) => (value === '' ? undefined : value);
 export const searchQuerySchema = z.object({
-  trade: idSchema('Choisissez un métier'),                              
-  zone: z.preprocess(emptyToUndefined, idSchema('Zone invalide').optional()), 
+  trade: z.preprocess(emptyToUndefined, idSchema('Métier invalide').optional()),
+  zone: z.preprocess(emptyToUndefined, idSchema('Zone invalide').optional()),
+  q: z.preprocess(
+    (value) => (typeof value === 'string' && value.trim() ? value : undefined),
+    z.string().trim().max(100, '100 caractères maximum').optional(),
+  ),
   page: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).default(1)),
+}).refine(({ trade, zone, q }) => trade || zone || q, {
+  message: 'Indiquez un métier, une zone ou un mot-clé',
+  path: ['trade'],
 });

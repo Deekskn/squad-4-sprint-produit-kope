@@ -46,7 +46,6 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
   }
 
   if (dense) {
-    // Sidebar variant (search page)
     return (
       <form
         onSubmit={onSubmit}
@@ -67,13 +66,12 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
             onChange={(e) => setKeyword(e.target.value)}
           />
         </div>
-        <FormField label="Quel métier ?" required error={error?.trade} id="sf-trade-sb">
+        <FormField label="Quel métier ?" error={error?.trade} id="sf-trade-sb">
           <Select
             id="sf-trade-sb"
             name="trade"
             defaultValue={trade}
             error={error?.trade}
-            required
           >
             <option value="">Sélectionner un métier</option>
             {trades.map((t) => (
@@ -99,16 +97,14 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
   }
 
   if (home) {
-    // Home banner variant (wider, horizontal)
     return (
       <form onSubmit={onSubmit} className="bg-[#F5F6F6] rounded-[16px] p-2 border border-[#CDD8D3]/60 flex items-center  " noValidate>
-        <FormField  required error={error?.trade} id="sf-trade-h" hideLabel className="flex-1">
+        <FormField error={error?.trade} id="sf-trade-h" hideLabel className="flex-1">
           <Select
             id="sf-trade-h"
             name="trade"
             defaultValue={trade}
             error={error?.trade}
-            required
           >
             <option value="">Quel métier ?</option>
             {trades.map((t) => (
@@ -132,11 +128,10 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
     );
   }
 
-  // default : legacy
   return (
     <form onSubmit={onSubmit} className={cn('space-y-4', className)} noValidate>
-      <FormField label="Métier" required error={error?.trade} id="sf-trade-d">
-        <Select id="sf-trade-d" name="trade" defaultValue={trade} error={error?.trade} required>
+      <FormField label="Métier" error={error?.trade} id="sf-trade-d">
+        <Select id="sf-trade-d" name="trade" defaultValue={trade} error={error?.trade}>
           <option value="">Choisissez un métier</option>
           {trades.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>

@@ -14,11 +14,12 @@ function toCard(row) {
     coverUrl: uploadUrl(row.coverThumb),
   };
 }
-export async function search({ trade, zone, page }) {
+export async function search({ trade, zone, q, page }) {
   const pagination = { page, pageSize: PAGE_SIZE };
   const rows = await repository.searchPublished({
-    tradeId: trade,
+    tradeId: trade ?? null,
     zoneId: zone ?? null,
+    keyword: q ?? null,
     limit: PAGE_SIZE,
     offset: offsetOf(pagination),
   });
