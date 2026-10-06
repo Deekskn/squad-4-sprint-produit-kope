@@ -1,20 +1,30 @@
+import { Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge.jsx';
+import { Card } from '@/components/ui/Card.jsx';
 import { cn } from '@/lib/utils.js';
 
 export function AvailabilityToggle({ isAvailable = true, onChange, loading }) {
   const on = Boolean(isAvailable);
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-900">Disponibilité</p>
-        <p className="text-xs text-gray-500 mt-0.5">
-          Les clients voient immédiatement votre statut sur la fiche et les résultats de recherche.
-        </p>
-      </div>
-      <div className="flex items-center gap-3">
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-gray-100 bg-gray-50/70 px-5 py-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary-50 text-primary-500">
+            <Clock size={18} aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-gray-900">Disponibilité</p>
+            <p className="truncate text-xs text-gray-500">Statut visible sur votre fiche et en recherche</p>
+          </div>
+        </div>
         <Badge variant={on ? 'success' : 'warning'} size="md">
           {on ? 'Disponible' : 'Indisponible'}
         </Badge>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+        <p className="text-sm leading-6 text-gray-600">
+          Les clients voient immédiatement votre statut et peuvent vous contacter.
+        </p>
         <button
           type="button"
           role="switch"
@@ -36,6 +46,6 @@ export function AvailabilityToggle({ isAvailable = true, onChange, loading }) {
           />
         </button>
       </div>
-    </div>
+    </Card>
   );
 }
