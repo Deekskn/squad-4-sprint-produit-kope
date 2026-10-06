@@ -12,7 +12,7 @@ import { AvailabilityToggle } from '../components/AvailabilityToggle.jsx';
 import { ProfileEditor } from '../components/ProfileEditor.jsx';
 import { PhotoManager } from '../components/PhotoManager.jsx';
 import { Card } from '@/components/ui/Card.jsx';
-import { initials } from '@/lib/utils.js';
+import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
 import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
 import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
 import { ROUTES } from '@/lib/constants.js';
@@ -174,15 +174,19 @@ export function ProProfilePage() {
     <div className="container-kop py-10 lg:py-16">
       <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="space-y-6">
-          <Card className="p-5">
-            <div className="flex items-center gap-4">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-100 text-lg font-bold text-primary-800 ring-1 ring-primary-200">
-                {initials('', displayName) || 'P'}
-              </span>
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-gray-900">{displayName}</p>
-                <p className="text-xs text-gray-500">{profile?.tradeName || 'Professionnel'}</p>
+          <Card className="p-0 overflow-hidden">
+            <div className="p-5 pb-4 bg-gradient-to-r from-primary-50 to-kop-mint/60">
+              <div className="flex items-center gap-4">
+                <UserAvatar user={user} name={displayName} className="h-14 w-14" />
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-gray-900">{displayName}</p>
+                  <p className="text-xs text-gray-500">{profile?.tradeName || 'Professionnel'}</p>
+                </div>
               </div>
+            </div>
+            <div className="px-5 py-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Statut</p>
+              <p className="mt-1 text-sm font-semibold text-gray-900 capitalize">{profile?.status ?? '—'}</p>
             </div>
           </Card>
           <SidebarNav

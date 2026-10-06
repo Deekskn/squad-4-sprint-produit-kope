@@ -28,7 +28,7 @@ export function Navbar() {
 
   return (
     <header className={`sticky top-0 z-40 border-b  border-gray-100 bg-white/85 backdrop-blur`}>
-      <div className="container-kop flex py-4 items-center justify-between gap-4">
+      <div className="container-kop flex h-(--header-height) items-center justify-between gap-4">
         <Link to={ROUTES.HOME} className="flex items-center gap-2 focus-ring rounded-xl p-1 -ml-1 shrink-0 text-primary-500">
           <span aria-hidden className="flex items-center gap-1.5">
             <Drill size={20} />

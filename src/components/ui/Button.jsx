@@ -3,7 +3,7 @@ import { Spinner } from './Spinner.jsx';
 
 const VARIANTS = {
   primary:
-    'bg-primary-500 text-white hover:bg-primary-600 focus-visible:bg-primary-600 disabled:bg-primary-300 disabled:text-white/80 shadow-[0_1px_2px_rgba(16,24,40,0.06)]',
+    'bg-primary-500 text-white hover:bg-primary-600 focus-visible:bg-primary-600 disabled:bg-primary-300 disabled:text-white/80',
   ghost:
     'bg-transparent text-gray-700 hover:bg-gray-100 disabled:text-gray-400',
   danger:
@@ -16,6 +16,8 @@ const VARIANTS = {
     'bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400',
   mint:
     'bg-mint-50 text-primary-700 border border-mint-200 hover:bg-mint-100 disabled:opacity-60',
+  dark:
+    'bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-white/80',
 };
 
 const SIZES = {

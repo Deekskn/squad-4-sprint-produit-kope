@@ -58,6 +58,9 @@
   --radius-xl: 28px;
   --radius-2xl: 36px;
 
+  --header-height: 72px;
+  --tabs-height: 68px;
+
   --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.04);
   --shadow-soft: 0 8px 32px -18px rgb(45 92 74 / 0.25);
   --shadow-pop: 0 14px 40px -18px rgb(45 92 74 / 0.35);
