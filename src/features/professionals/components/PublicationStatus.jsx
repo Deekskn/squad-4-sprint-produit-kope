@@ -1,5 +1,6 @@
-import { TriangleAlert } from 'lucide-react';
+import { BadgeCheck, TriangleAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge.jsx';
+import { Card } from '@/components/ui/Card.jsx';
 import { PROFILE_STATUS, PROFILE_STATUS_LABELS, RG04_CHECKLIST } from '@/lib/constants.js';
 
 const VARIANT = {
@@ -14,14 +15,17 @@ function MissingChecklist({ missing }) {
     label: m.label || RG04_CHECKLIST.find((r) => r.code === m.code)?.label || m.code,
   }));
   return (
-    <ul className="mt-3 space-y-1.5 text-sm">
-      {items.map((it, i) => (
-        <li key={i} className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-amber-800 ring-1 ring-amber-200/60">
-          <TriangleAlert size={16} className="mt-0.5" aria-hidden />
-          <span>{it.label}</span>
-        </li>
-      ))}
-    </ul>
+    <div className="mt-4">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">À compléter</p>
+      <ul className="mt-2 space-y-1.5 text-sm">
+        {items.map((it, i) => (
+          <li key={i} className="flex items-start gap-2 rounded-sm border border-amber-200/70 bg-amber-50 px-3 py-2 text-amber-800">
+            <TriangleAlert size={15} className="mt-0.5 shrink-0" aria-hidden />
+            <span>{it.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -34,13 +38,25 @@ export function PublicationStatus({ status = PROFILE_STATUS.INCOMPLETE, missing 
     [PROFILE_STATUS.HIDDEN]: 'Votre profil a été masqué par un administrateur. Contactez le support pour plus d\'informations.',
   }[status] || '';
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-wrap items-center gap-3">
-        <p className="text-sm font-medium text-gray-500">Statut de publication</p>
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-gray-100 bg-gray-50/70 px-5 py-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary-50 text-primary-500">
+            <BadgeCheck size={18} aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-gray-900">Statut de publication</p>
+            <p className="truncate text-xs text-gray-500">Visibilité de votre fiche dans les recherches</p>
+          </div>
+        </div>
         <Badge variant={variant} size="md">{label}</Badge>
       </div>
-      {desc && <p className="mt-2 text-sm text-gray-600">{desc}</p>}
-      <MissingChecklist missing={missing} />
-    </div>
+      {(desc || missing?.length > 0) && (
+        <div className="p-5">
+          {desc && <p className="text-sm leading-6 text-gray-600">{desc}</p>}
+          <MissingChecklist missing={missing} />
+        </div>
+      )}
+    </Card>
   );
 }
