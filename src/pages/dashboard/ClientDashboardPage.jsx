@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { User, Star, Pencil, Camera } from 'lucide-react';
+import { User, Star, Pencil, Camera, Phone } from 'lucide-react';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
@@ -11,27 +11,16 @@ import { EmptyState } from '@/components/ui/EmptyState.jsx';
 import { getMyReviews } from '@/features/reviews/services/reviews.service.js';
 import { updateAccount, uploadAvatar } from '@/features/auth/services/auth.service.js';
 import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
-import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
 
 const NAV_ITEMS = [
   { id: 'profil', label: 'Mon profil', icon: User },
-  { id: 'activite', label: 'Mon activité', icon: Star },
+  { id: 'avis', label: 'Mes avis', icon: Star },
+  { id: 'contacts', label: 'Mes contacts', icon: Phone },
 ];
 
-function Sidebar({ user, active, onChange }) {
+function Sidebar({ active, onChange }) {
   return (
     <aside className="space-y-6">
-      <Card className="p-5">
-        <div className="flex items-center gap-4">
-          <UserAvatar user={user} className="h-14 w-14" />
-          <div className="min-w-0">
-            <p className="truncate font-semibold text-gray-900">
-              {[user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || 'Client'}
-            </p>
-            <p className="text-xs text-gray-500">Client</p>
-          </div>
-        </div>
-      </Card>
       <SidebarNav
         items={NAV_ITEMS}
         active={active}
@@ -45,6 +34,7 @@ function Sidebar({ user, active, onChange }) {
 function ProfilSection({ user }) {
   const { refresh } = useAuthContext();
   const { toast } = useNotification();
+  const { open: openModal } = useAuthModal();
   const [editing, setEditing] = useState(false);
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
@@ -52,6 +42,7 @@ function ProfilSection({ user }) {
   const [saving, setSaving] = useState(false);
   const [avatar, setAvatar] = useState(user?.avatarUrl ?? null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || '—';
 
@@ -74,10 +65,12 @@ function ProfilSection({ user }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadProgress(0);
     try {
-      const url = await uploadAvatar(file);
+      const url = await uploadAvatar(file, setUploadProgress);
       if (url) setAvatar(url);
       await refresh();
+      setUploadProgress(100);
       toast({ message: 'Photo de profil mise à jour.', type: 'success' });
     } catch (err) {
       toast({ message: err?.message || 'Erreur lors du téléversement.', type: 'error' });
@@ -90,9 +83,14 @@ function ProfilSection({ user }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mon profil</h2>
-        <Button variant="outline" size="sm" onClick={() => setEditing((v) => !v)}>
-          <Pencil size={16} aria-hidden className="inline" /> {editing ? 'Annuler' : 'Modifier'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => openModal('change-password')}>
+            Changer le mot de passe
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setEditing((v) => !v)}>
+            <Pencil size={16} aria-hidden className="inline" /> {editing ? 'Annuler' : 'Modifier'}
+          </Button>
+        </div>
       </div>
 
       <Card className="overflow-hidden">
@@ -116,7 +114,13 @@ function ProfilSection({ user }) {
             <p className="text-lg font-semibold text-gray-900">{name}</p>
             <p className="text-sm text-gray-500">{user?.phone || 'Aucun numéro'}</p>
             {editing && (
-              <p className="mt-1 text-[12px] font-semibold text-primary-600">{uploading ? 'Téléversement…' : 'Clique sur la photo pour la changer'}</p>
+              uploading ? (
+                <div className="mt-2 w-40 overflow-hidden rounded-full bg-gray-200">
+                  <div className="h-2 rounded-full bg-primary-500 transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
+                </div>
+              ) : (
+                <p className="mt-1 text-[12px] font-semibold text-primary-600">Clique sur la photo pour la changer</p>
+              )
             )}
           </div>
         </div>
@@ -169,7 +173,6 @@ function ProfilSection({ user }) {
         )}
       </Card>
 
-      <AccountSettings user={user} passwordOnly />
     </div>
   );
 }
@@ -193,7 +196,7 @@ function ActiviteSection() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mon activité</h2>
+      <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mes avis</h2>
       {loading ? (
         <div className="space-y-3">
           <Skeleton className="h-16 w-full" />
@@ -233,19 +236,34 @@ export function ClientDashboardPage() {
     <div className="container-kop py-10 lg:py-16">
       <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
         <div className="space-y-6">
-          <Sidebar user={user} active={active} onChange={setActive} />
-          <Button
-            variant="secondary"
-            size="md"
-            className="w-full"
-            onClick={() => openModal('register-pro')}
-          >
-            Devenir pro
-          </Button>
+          <Sidebar active={active} onChange={setActive} />
+          <Card className="border border-primary-100 p-5 bg-gradient-to-br from-white to-primary-50">
+            <h3 className="text-xl font-extrabold text-gray-900">Devenez prestataire</h3>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              Présentez vos réalisations et recevez des demandes.
+            </p>
+            <Button
+              variant="primary"
+              size="md"
+              className="mt-4 w-full"
+              onClick={() => openModal('register-pro')}
+            >
+              Devenir prestataire
+            </Button>
+          </Card>
         </div>
         <main>
           {active === 'profil' && <ProfilSection user={user} />}
-          {active === 'activite' && <ActiviteSection />}
+          {active === 'avis' && <ActiviteSection />}
+          {active === 'contacts' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mes contacts</h2>
+              <EmptyState
+                title="Aucun contact pour le moment"
+                description="Les professionnels que vous aurez contactés apparaîtront ici."
+              />
+            </div>
+          )}
         </main>
       </div>
     </div>

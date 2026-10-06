@@ -5,6 +5,7 @@ import { updateAccount, changePassword } from '../services/auth.service.js';
 import { Button } from '@/components/ui/Button.jsx';
 import { FormField } from '@/components/ui/FormField.jsx';
 import { Input } from '@/components/ui/Input.jsx';
+import { PasswordInput } from '@/components/ui/PasswordInput.jsx';
 import { Card } from '@/components/ui/Card.jsx';
 
 export function AccountSettings({ user, passwordOnly = false }) {
@@ -99,14 +100,30 @@ export function AccountSettings({ user, passwordOnly = false }) {
       <Card className="p-6">
         <h3 className="text-base font-bold text-gray-900">Changer le mot de passe</h3>
         <form onSubmit={submitPassword} className="mt-4 space-y-4 max-w-md">
-          <FormField label="Mot de passe actuel" id="acc-current">
-            <Input id="acc-current" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+          <FormField label="Mot de passe actuel" id="acc-current" as="input">
+            <PasswordInput
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Votre mot de passe actuel"
+              required
+            />
           </FormField>
-          <FormField label="Nouveau mot de passe" id="acc-new" help="Au moins 8 caractères.">
-            <Input id="acc-new" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} />
+          <FormField label="Nouveau mot de passe" id="acc-new" help="Au moins 8 caractères." as="input">
+            <PasswordInput
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="8 caractères minimum"
+              required
+              minLength={8}
+            />
           </FormField>
-          <FormField label="Confirmer le nouveau mot de passe" id="acc-confirm">
-            <Input id="acc-confirm" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+          <FormField label="Confirmer le nouveau mot de passe" id="acc-confirm" as="input">
+            <PasswordInput
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirmez le nouveau mot de passe"
+              required
+            />
           </FormField>
           <Button type="submit" loading={savingPassword} variant="primary">Mettre à jour</Button>
         </form>
