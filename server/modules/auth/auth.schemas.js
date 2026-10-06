@@ -49,3 +49,16 @@ export const loginSchema = z.object({
   phone: z.string({ error: 'Champ obligatoire' }).trim().min(1, 'Champ obligatoire'),
   password: z.string({ error: 'Champ obligatoire' }).min(1, 'Champ obligatoire'),
 });
+
+/** Mise à jour des informations personnelles (client) */
+export const updateAccountSchema = z.object({
+  firstName: requiredText(100).optional(),
+  lastName: requiredText(100).optional(),
+  phone: phoneSchema.optional(),
+});
+
+/** Changement de mot de passe : exige l'ancien pour autoriser le nouveau */
+export const changePasswordSchema = z.object({
+  currentPassword: z.string({ error: 'Champ obligatoire' }).min(1, 'Champ obligatoire'),
+  newPassword: passwordSchema,
+});

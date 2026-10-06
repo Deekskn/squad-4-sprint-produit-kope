@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge, Button, Input, Pagination, Modal, DataState } from '@/components/ui/index.js';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui/Table.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listPros, setProHidden } from '../services/admin.service.js';
 import { PROFILE_STATUS, PROFILE_STATUS_LABELS, ROUTES } from '@/lib/constants.js';
@@ -77,82 +78,74 @@ export function AdminProfessionalsTable() {
 
       <DataState loading={loading} error={error}>
         <>
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
-                  <tr>
-                    <th className="px-4 py-3">Professionnel</th>
-                    <th className="px-4 py-3">Métier</th>
-                    <th className="px-4 py-3">Statut</th>
-                    <th className="px-4 py-3">Inscrit le</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {(data?.items || []).length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="px-4 py-8 text-center text-sm text-gray-500">
-                        Aucun résultat.
-                      </td>
-                    </tr>
-                  ) : (
-                    (data?.items || []).map((p) => {
-                      const id = p.userId || p.id;
-                      const name = p.displayName || [p.firstName, p.lastName].filter(Boolean).join(' ') || `#${id}`;
-                      return (
-                        <tr key={id} className="align-top">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-800 ring-1 ring-primary-200">
-                                {initials(p.firstName || '', p.lastName || p.displayName || '')}
-                              </span>
-                              <div>
-                                <p className="font-semibold text-gray-900">{name}</p>
-                                {p.phone && <p className="text-xs text-gray-500">{p.phone}</p>}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-gray-700">{p.trade || '—'}</td>
-                          <td className="px-4 py-3">
-                            <Badge variant={statusVariant(p.status)}>
-                              {PROFILE_STATUS_LABELS[p.status] || p.status || '—'}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3 text-gray-600">
-                            {p.createdAt ? formatDateFr(p.createdAt) : '—'}
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-end gap-2">
-                              <Button
-                                as={Link}
-                                to={ROUTES.PROFESSIONAL(id)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                size="xs"
-                                variant="ghost"
-                              >
-                                Fiche
-                              </Button>
-                              {p.status === PROFILE_STATUS.HIDDEN ? (
-                                <Button size="xs" variant="outline" onClick={() => setConfirm({ item: p, action: 'show' })}>
-                                  Réactiver
-                                </Button>
-                              ) : (
-                                <Button size="xs" variant="danger-outline" onClick={() => setConfirm({ item: p, action: 'hide' })}>
-                                  Masquer
-                                </Button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Professionnel</TableHead>
+                <TableHead>Métier</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Inscrit le</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(data?.items || []).length === 0 ? (
+                <TableEmpty colSpan={5}>Aucun résultat.</TableEmpty>
+              ) : (
+                (data?.items || []).map((p) => {
+                  const id = p.userId || p.id;
+                  const name = p.displayName || [p.firstName, p.lastName].filter(Boolean).join(' ') || `#${id}`;
+                  return (
+                    <TableRow key={id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-800 ring-1 ring-primary-200">
+                            {initials(p.firstName || '', p.lastName || p.displayName || '')}
+                          </span>
+                          <div>
+                            <p className="font-semibold text-gray-900">{name}</p>
+                            {p.phone && <p className="text-xs text-gray-500">{p.phone}</p>}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-700">{p.trade || '—'}</TableCell>
+                      <TableCell>
+                        <Badge variant={statusVariant(p.status)}>
+                          {PROFILE_STATUS_LABELS[p.status] || p.status || '—'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {p.createdAt ? formatDateFr(p.createdAt) : '—'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            as={Link}
+                            to={ROUTES.PROFESSIONAL(id)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            size="xs"
+                            variant="ghost"
+                          >
+                            Fiche
+                          </Button>
+                          {p.status === PROFILE_STATUS.HIDDEN ? (
+                            <Button size="xs" variant="outline" onClick={() => setConfirm({ item: p, action: 'show' })}>
+                              Réactiver
+                            </Button>
+                          ) : (
+                            <Button size="xs" variant="danger-outline" onClick={() => setConfirm({ item: p, action: 'hide' })}>
+                              Masquer
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
           {(data?.total ?? 0) > PAGE_SIZE && (
             <Pagination
               page={Number(data?.page || page)}

@@ -25,8 +25,10 @@ export function errorHandler(err, req, res, next) {
   }
   if (status >= 500) {
     console.error(err);
-    message = 'Erreur interne du serveur';
-    errors = undefined;
+    if (status !== 503) {
+      message = 'Erreur interne du serveur';
+      errors = undefined;
+    }
   }
   res.status(status).json({ message, ...(errors && { errors }) });
 }

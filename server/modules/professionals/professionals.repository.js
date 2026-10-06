@@ -26,17 +26,46 @@ export async function replaceZones(professionalId, zoneIds, db = pool) {
   );
 }
 
-export async function updateProfile(userId, { description, yearsExperience, whatsapp }, db = pool) {
+export async function tradeExists(tradeId, db = pool) {
+  const { rowCount } = await db.query('SELECT 1 FROM trades WHERE id = $1', [tradeId]);
+  return rowCount > 0;
+}
+
+const PROFILE_COLUMNS = {
+  displayName: 'display_name',
+  tradeId: 'trade_id',
+  description: 'description',
+  yearsExperience: 'years_experience',
+  whatsapp: 'whatsapp',
+};
+
+/**
+ * Mise à jour partielle : seules les clés présentes (≠ undefined) sont écrites.
+ * `becomeProfessional` n'envoie que description/années/whatsapp après la création
+ * du profil — sans ça, display_name/trade_id passeraient à NULL (contrainte NOT NULL).
+ * `null` reste une valeur explicite (ex : whatsapp vidé).
+ */
+export async function updateProfile(userId, fields, db = pool) {
+  const sets = [];
+  const values = [userId];
+  for (const [key, value] of Object.entries(fields)) {
+    const column = PROFILE_COLUMNS[key];
+    if (!column || value === undefined) continue;
+    values.push(value);
+    sets.push(`${column} = $${values.length}`);
+  }
+  if (!sets.length) return;
   await db.query(
-    `UPDATE professionals
-        SET description = $2, years_experience = $3, whatsapp = $4, updated_at = now()
-      WHERE user_id = $1`,
-    [userId, description, yearsExperience, whatsapp],
+    `UPDATE professionals SET ${sets.join(', ')}, updated_at = now() WHERE user_id = $1`,
+    values,
   );
 }
 
 export async function setAvailability(userId, isAvailable, db = pool) {
-  await db.query('UPDATE professionals SET is_available = $2 WHERE user_id = $1', [userId, isAvailable]);
+  await db.query(
+    'UPDATE professionals SET is_available = $2, updated_at = now() WHERE user_id = $1',
+    [userId, isAvailable],
+  );
 }
 
 /** Profil du propriétaire, quel que soit son statut. */
@@ -84,8 +113,7 @@ export async function findPublishedDetail(id, db = pool) {
        FROM published_professionals p
        JOIN users u ON u.id = p.user_id
        JOIN trades t ON t.id = p.trade_id
-      WHERE p.user_id = $1
-        AND NOT p.is_hidden`,
+      WHERE p.user_id = $1`,
     [id],
   );
   return rows[0] ?? null;

@@ -52,3 +52,9 @@ throw ApiError.badRequest('Données invalides');
 ```
 
 Le middleware `errorHandler.js` intercepte ces erreurs centralisées et formate une réponse JSON standardisée.
+
+
+```sh
+npm run migrate:up
+```
+

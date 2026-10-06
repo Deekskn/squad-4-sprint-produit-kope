@@ -31,7 +31,10 @@ export async function getSummary(professionalId, db = pool) {
 export async function listByProfessional(professionalId, { limit, offset }, db = pool) {
   const { rows } = await db.query(
     `SELECT r.id, r.rating, r.comment, r.created_at AS "createdAt",
-            u.first_name || ' ' || UPPER(LEFT(u.last_name, 1)) || '.' AS "authorName",
+            json_build_object(
+              'firstName', u.first_name,
+              'lastName', COALESCE(UPPER(LEFT(u.last_name, 1)), '')
+            ) AS client,
             COUNT(*) OVER()::int AS total
        FROM reviews r
        JOIN users u ON u.id = r.client_id
@@ -39,6 +42,23 @@ export async function listByProfessional(professionalId, { limit, offset }, db =
       ORDER BY r.created_at DESC, r.id DESC
       LIMIT $2 OFFSET $3`,
     [professionalId, limit, offset],
+  );
+  return rows;
+}
+
+/** Tous les avis laissés par un client, toutes cibles confondues (transparence des avis). */
+export async function listByClient(clientId, { limit = 20, offset = 0 } = {}, db = pool) {
+  const { rows } = await db.query(
+    `SELECT r.id, r.rating, r.comment, r.created_at AS "createdAt",
+            r.professional_id AS "professionalId",
+            p.display_name AS "professionalName",
+            COUNT(*) OVER()::int AS total
+       FROM reviews r
+       JOIN professionals p ON p.user_id = r.professional_id
+      WHERE r.client_id = $1 AND NOT r.is_hidden
+      ORDER BY r.created_at DESC, r.id DESC
+      LIMIT $2 OFFSET $3`,
+    [clientId, limit, offset],
   );
   return rows;
 }

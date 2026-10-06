@@ -6,7 +6,7 @@ import { FormField } from '@/components/ui/FormField.jsx';
 import { Select } from '@/components/ui/Select.jsx';
 import { Input } from '@/components/ui/Input.jsx';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
-import { Spinner } from '@/components/ui/Spinner.jsx';
+import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/lib/constants.js';
 import { cn } from '@/lib/utils.js';
 
@@ -39,8 +39,10 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-5">
-        <Spinner />
+      <div className="space-y-3 py-2" aria-busy="true">
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-11 w-40" />
       </div>
     );
   }
@@ -101,6 +103,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
       <form onSubmit={onSubmit} className="bg-[#F5F6F6] rounded-[16px] p-2 border border-[#CDD8D3]/60 flex items-center  " noValidate>
         <FormField error={error?.trade} id="sf-trade-h" hideLabel className="flex-1">
           <Select
+            bordered={false}
             id="sf-trade-h"
             name="trade"
             defaultValue={trade}
@@ -114,7 +117,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
         </FormField>
           <span className='opacity-20'>|</span>
         <FormField  id="sf-zone-h" hideLabel className="flex-1">
-          <Select id="sf-zone-h" name="zone" defaultValue={zone}>
+          <Select bordered={false} id="sf-zone-h" name="zone" defaultValue={zone}>
             <option value="">Quelle Quatier ?</option>
             {zones.map((z) => (
               <option key={z.id} value={z.id}>{z.name}</option>

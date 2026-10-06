@@ -27,3 +27,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Runtime uploads and files from the retired backend/ layout
+/uploads/
+/backend/

@@ -10,15 +10,15 @@ import User2 from '@/assets/user2.png';
 
 
 export const CATEGORIES = [
-  { id: 'plomberie', image: what1, name: 'Plomberie', sub: 'Fuites & Installations', icon: Wrench, prompt: 'a photo of an african plumber working on bathroom sink pipe, professional, bright daylight, waist up, realistic' },
-  { id: 'electricite', image: what2, name: 'Électricité', sub: 'Dépannage & Équipements', icon: Zap, prompt: 'professional african electrician working on electrical panel with wires, daylight, realistic' },
-  { id: 'peinture', image: what3, name: 'Peinture', sub: 'Murs & Finitions', icon: Palette, prompt: 'african house painter rolling paint on white wall, professional, daylight, realistic' },
+  { id: 'plomberie', image: what1, name: 'Plomberie', sub: 'Fuites & Installations', icon: Wrench, tradeId: 1 },
+  { id: 'electricite', image: what2, name: 'Électricité', sub: 'Dépannage & Équipements', icon: Zap, tradeId: 2 },
+  { id: 'maconnerie', image: what3, name: 'Maçonnerie', sub: 'Gros œuvre & Finitions', icon: Palette, tradeId: 3 },
 ];
 
 export const FEATURED = [
-  { id: 'sample-1', image: user1, displayName: 'Julien Morel', trade: 'Plombier', zones: ['Hauts-Pavés', 'Centre-ville'], years: 12, rating: 4.9, count: 12, available: true, prompt: 'portrait of professional african plumber man 35s with tools, crossed arms, friendly smile, workshop background' },
-  { id: 'sample-2', image: User2, displayName: 'Thomas Rivière', trade: 'Électricien', zones: ['Camps-Ville', 'Île de Nantes'], years: 9, rating: 4.8, count: 9, available: true, prompt: 'portrait of african electrician man with multimeter, studio shot, confident smile' },
-  { id: 'sample-3', image: what3, displayName: 'Sarah Le Goff', trade: 'Maçonne', zones: ['Chantenay', 'Centre-ville'], years: 8, rating: 4.7, count: 6, available: true, prompt: 'portrait of professional african mason woman 30s holding trowel, construction site daylight' },
+  { id: 'sample-1', image: user1, displayName: 'Julien Mganga', trade: 'Plombier', zones: ['Brazzaville', 'Poto-Poto'], years: 12, rating: 4.9, count: 12, available: true },
+  { id: 'sample-2', image: User2, displayName: 'Thomas Poaty', trade: 'Électricien', zones: ['Brazzaville', 'Moungalie'], years: 9, rating: 4.8, count: 9, available: true },
+  { id: 'sample-3', image: what3, displayName: 'Sarah Ondze', trade: 'Maçonne', zones: ['Brazzaville', 'Moukondo'], years: 8, rating: 4.7, count: 6, available: true },
 ];
 
 export const STEPS = [

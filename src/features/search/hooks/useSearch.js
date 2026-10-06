@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '@/lib/api.js';
+import { callApi } from '@/lib/dataSource.js';
+import { searchMock } from '@/mocks/appMock.js';
+import { cached } from '@/lib/cache.js';
 import { PAGE_SIZE } from '@/lib/constants.js';
 
 export async function searchProfessionals({ trade, zone, q, page }) {
@@ -8,7 +11,13 @@ export async function searchProfessionals({ trade, zone, q, page }) {
   if (zone) params.zone = String(zone);
   if (q) params.q = q;
   if (page) params.page = String(page);
-  return api.get('/professionals', params);
+  return callApi(
+    () =>
+      cached(`search:${trade ?? ''}:${zone ?? ''}:${page ?? 1}`, 30_000, () =>
+        api.get('/professionals', params),
+      ),
+    async () => searchMock({ trade, zone, page: page || 1, pageSize: PAGE_SIZE }),
+  );
 }
 
 export function useSearch({ trade, zone, q, page }) {

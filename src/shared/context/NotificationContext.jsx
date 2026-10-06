@@ -1,15 +1,15 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, CheckCircle2, XCircle, Info, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils.js';
 
 const NotificationContext = createContext(null);
 let uid = 0;
 
-const TYPE_STYLES = {
-  success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-  error: 'bg-rose-50 border-rose-200 text-rose-800',
-  info: 'bg-sky-50 border-sky-200 text-sky-800',
-  warning: 'bg-amber-50 border-amber-200 text-amber-800',
+const TYPE_ICONS = {
+  success: <CheckCircle2 size={16} aria-hidden className="mt-0.5 shrink-0 text-emerald-600" />,
+  error: <XCircle size={16} aria-hidden className="mt-0.5 shrink-0 text-rose-600" />,
+  info: <Info size={16} aria-hidden className="mt-0.5 shrink-0 text-sky-600" />,
+  warning: <AlertTriangle size={16} aria-hidden className="mt-0.5 shrink-0 text-amber-600" />,
 };
 
 export function NotificationProvider({ children }) {
@@ -39,19 +39,21 @@ export function NotificationProvider({ children }) {
       <div
         aria-live="polite"
         aria-atomic="true"
-        className="pointer-events-none fixed inset-x-0 top-4 z-[100] flex flex-col items-center gap-2 px-4 sm:right-4 sm:items-end sm:px-0"
+        className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4 sm:right-4 sm:items-end sm:px-0"
       >
         {toasts.map((t) => (
           <div
             key={t.id}
             role="status"
             className={cn(
-              'pointer-events-auto w-full max-w-sm animate-[slideDown_.2s_ease-out] rounded-lg border px-4 py-3 text-sm shadow-lg backdrop-blur',
-              TYPE_STYLES[t.type] || TYPE_STYLES.info,
+              'pointer-events-auto w-full max-w-sm animate-[slideUp_.2s_ease-out] rounded-md border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 shadow-md',
             )}
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="leading-5">{t.message}</p>
+              <div className="flex items-start gap-2.5">
+                {TYPE_ICONS[t.type] || TYPE_ICONS.info}
+                <p className="leading-5">{t.message}</p>
+              </div>
               <button
                 type="button"
                 onClick={() => remove(t.id)}

@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
-import { Spinner } from '@/components/ui/Spinner.jsx';
+import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/lib/constants.js';
 
 export function ProtectedRoute({ children }) {
@@ -9,8 +9,10 @@ export function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Spinner size="lg" />
+      <div className="container-kop space-y-4 py-16" aria-busy="true">
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }

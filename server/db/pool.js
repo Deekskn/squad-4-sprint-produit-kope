@@ -1,11 +1,16 @@
 import pg from 'pg';
 import { env } from '../config/env.js';
 
-// Par défaut, pg renvoie les bigint (id, COUNT) sous forme de chaînes.
-// On les convertit en nombres (sûr tant qu'on reste sous 2^53).
 pg.types.setTypeParser(20, Number);
 
-export const pool = new pg.Pool({ connectionString: env.DATABASE_URL });
+export const pool = new pg.Pool({
+  connectionString: env.DATABASE_URL,
+  max: Number(process.env.PG_POOL_MAX) || 10,
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 10000,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 5000,
+});
 
 pool.on('error', (err) => {
   console.error('Erreur inattendue du pool Postgres', err);

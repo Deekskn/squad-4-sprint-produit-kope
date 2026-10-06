@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Phone, MessageCircle, MapPin } from 'lucide-react';
+import { Phone, MessageCircle, MapPin, Send } from 'lucide-react';
 import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getPublishedDetail, canReview } from '../services/professionals.service.js';
 import { PhotoGallery } from '../components/PhotoGallery.jsx';
@@ -8,12 +9,16 @@ import { DataState } from '@/components/ui/DataState.jsx';
 import { Badge } from '@/components/ui/Badge.jsx';
 import { Button } from '@/components/ui/Button.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
+import { ContactDialog } from '@/features/contacts/components/ContactDialog.jsx';
 import { formatPhoneFR, toWhatsappUrl } from '@/lib/utils.js';
 import { ROLES, ROUTES } from '@/lib/constants.js';
 
 export function ProfessionalPublicPage() {
   const { id } = useParams();
   const { user } = useAuthContext();
+  const [reviewSubmittedFor, setReviewSubmittedFor] = useState(null);
+  const [reviewsVersion, setReviewsVersion] = useState(0);
+  const [contactOpen, setContactOpen] = useState(false);
   const detail = useAsyncData(() => getPublishedDetail(id), [id]);
   const canReviewState = useAsyncData(() => canReview(id), [id, user?.id]);
 
@@ -29,7 +34,21 @@ export function ProfessionalPublicPage() {
 
   const { profile, photos, rating } = detail.data;
   const whatsappUrl = toWhatsappUrl(profile.whatsapp || profile.phone);
-  const canLeaveReview = user?.role === ROLES.CLIENT && canReviewState.data === true;
+  const canLeaveReview =
+    reviewSubmittedFor !== id && user?.role === ROLES.CLIENT && canReviewState.data === true;
+
+  // Un connecté (hors admin, hors soi-même) peut envoyer une demande de contact.
+  const isSelf = user?.id != null && String(user.id) === String(profile.id);
+  const canContact = Boolean(user) && user.role !== ROLES.ADMIN && !isSelf;
+  const onContactClick = () => setContactOpen(true);
+
+  const refreshAfterReview = () => {
+    setReviewSubmittedFor(id);
+    setReviewsVersion((version) => version + 1);
+    detail.reload().catch(() => {
+      // useAsyncData stores the error for the page's DataState.
+    });
+  };
 
   return (
     <div className="container-kop page-padding space-y-10">
@@ -63,6 +82,11 @@ export function ProfessionalPublicPage() {
                 <MessageCircle size={16} aria-hidden /> WhatsApp
               </Button>
             )}
+            {canContact && (
+              <Button variant="secondary" size="lg" onClick={onContactClick}>
+                <Send size={16} aria-hidden /> Contacter
+              </Button>
+            )}
             <span className="self-center text-sm font-semibold text-gray-700">
               {formatPhoneFR(profile.phone)}
             </span>
@@ -81,14 +105,23 @@ export function ProfessionalPublicPage() {
       <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <RatingSummary rating={rating} />
         <div className="space-y-4">
-          {canLeaveReview && <ReviewForm professionalId={profile.id} onSuccess={() => canReviewState.reload?.()} />}
-          <ReviewList professionalId={profile.id} />
+          {canLeaveReview && <ReviewForm professionalId={profile.id} onSuccess={refreshAfterReview} />}
+          <ReviewList key={reviewsVersion} professionalId={profile.id} />
         </div>
       </section>
 
       <p className="text-sm text-gray-500">
         <Link to={ROUTES.SEARCH} className="link-underline text-primary-700">← Retour aux résultats</Link>
       </p>
+
+      {canContact && (
+        <ContactDialog
+          open={contactOpen}
+          onOpenChange={setContactOpen}
+          toUserId={profile.id}
+          recipientName={profile.displayName}
+        />
+      )}
     </div>
   );
 }

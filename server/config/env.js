@@ -26,4 +26,8 @@ export const env = {
   UPLOAD_DIR: path.resolve(process.env.UPLOAD_DIR ?? 'uploads'),
  ADMIN_PHONE: process.env.ADMIN_PHONE,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  CLOUDINARY_FOLDER: process.env.CLOUDINARY_FOLDER ?? 'kope',
 };

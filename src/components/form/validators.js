@@ -73,6 +73,8 @@ export const registerProfessionalSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
+  displayName: requiredText(100, 'Le nom affiché est obligatoire'),
+  tradeId: idSchema('Choisissez un métier'),
   description: z
     .string({ error: 'La description est obligatoire' })
     .trim()
@@ -120,13 +122,16 @@ export const createReviewSchema = z.object({
   ),
 });
 
-export const createContactRequestSchema = z.object({
+export const createContactSchema = z.object({
+  toUserId: z.coerce
+    .number({ error: 'Choisissez un interlocuteur' })
+    .int('Identifiant invalide')
+    .positive('Identifiant invalide'),
   message: z
     .string({ error: 'Le message est obligatoire' })
     .trim()
     .min(10, 'Le message doit contenir au moins 10 caractères')
     .max(500, 'Le message ne doit pas dépasser 500 caractères'),
-  isUrgent: z.boolean().default(false),
 });
 
 export const becomeProfessionalSchema = z.object({
@@ -149,10 +154,12 @@ export const becomeProfessionalSchema = z.object({
 });
 
 export const addPhotoSchema = z.object({
-  caption: z.preprocess(
-    (v) => (v === '' || v == null ? null : String(v).trim().slice(0, 100)),
-    z.string().nullish(),
-  ),
+  title: requiredText(100, 'Le titre est obligatoire').refine((v) => v.length >= 3, 'Le titre doit contenir au moins 3 caractères'),
+  description: z
+    .string({ error: 'La description est obligatoire' })
+    .trim()
+    .min(10, 'La description doit contenir au moins 10 caractères')
+    .max(500, 'La description ne doit pas dépasser 500 caractères'),
 });
 
 export function validateFrontend(schema, values) {
