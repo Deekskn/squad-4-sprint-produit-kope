@@ -109,7 +109,7 @@ export function BecomeProForm({ bare = false } = {}) {
               value={values.zoneIds || []}
               onChange={(ids) => setField('zoneIds', ids)}
             />
-            <Button type="button" onClick={goNext} size="lg" className="w-full sm:w-auto sm:px-8">
+            <Button type="button" onClick={goNext} size="lg" className="w-full">
               Suivant
             </Button>
           </>
@@ -120,8 +120,7 @@ export function BecomeProForm({ bare = false } = {}) {
               id="bp-years"
               label="Années d'expérience"
               required
-              error={errors.yearsExperience}
-              help="Entre 0 et 60 ans"
+              help="Indiquez vos années d'expérience"
               as="input"
             >
               <Input
@@ -132,6 +131,7 @@ export function BecomeProForm({ bare = false } = {}) {
                 value={values.yearsExperience}
                 onChange={(e) => setField('yearsExperience', e.target.value)}
                 placeholder="Ex : 5"
+                error={errors.yearsExperience}
               />
             </FormField>
             <FormField
@@ -150,11 +150,11 @@ export function BecomeProForm({ bare = false } = {}) {
                 placeholder="Décrivez vos services, votre secteur, votre expérience..."
               />
             </FormField>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button type="button" variant="secondary" size="lg" onClick={() => setStep(1)}>
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="secondary" size="lg" onClick={() => setStep(1)} className="w-1/2">
                 Précédent
               </Button>
-              <Button type="submit" loading={submitting} size="lg" className="sm:px-8">
+              <Button type="submit" loading={submitting} size="lg" className="w-1/2">
                 Valider
               </Button>
             </div>

@@ -4,6 +4,7 @@ import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { LoginForm } from '../pages/LoginPage.jsx';
 import { RegisterClientForm } from '../pages/RegisterClientPage.jsx';
 import { BecomeProForm } from './BecomeProForm.jsx';
+import { ChangePasswordForm } from './ChangePasswordForm.jsx';
 import { ROLES } from '@/lib/constants.js';
 import { mockImage, LOGIN_IMAGE_PROMPT } from '@/mocks/images.js';
 import { Card } from '@/components/ui/Card.jsx';
@@ -57,10 +58,11 @@ export function AuthModal() {
 
             </Card>
           </aside>
-          <div className="min-w-0 h-full grid place-content-center">
+          <div className="min-w-0 h-full grid place-content-center px-4 py-10 sm:px-6 sm:py-4">
             {mode === 'login' && <LoginForm bare />}
             {mode === 'register-client' && <RegisterClientForm bare />}
             {mode === 'register-pro' &&  renderPro() }
+            {mode === 'change-password' && <ChangePasswordForm bare />}
           </div>
         </div>
       </DialogContent>

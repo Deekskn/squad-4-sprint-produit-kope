@@ -117,13 +117,40 @@ export function changePassword(payload) {
   );
 }
 
-export function uploadAvatar(file) {
+export function uploadAvatar(file, onProgress) {
   const fd = new FormData();
   fd.append('avatar', file);
   return callApi(
-    () => api.postFormData('/auth/avatar', fd).then((r) => r.avatarUrl),
+    () =>
+      new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/auth/avatar');
+        xhr.withCredentials = true;
+        const token = getAccessToken();
+        if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && onProgress) {
+            onProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        };
+        xhr.onload = () => {
+          try {
+            const payload = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(payload?.avatarUrl ?? null);
+            } else {
+              reject(new Error(payload?.message || `Erreur ${xhr.status}`));
+            }
+          } catch {
+            reject(new Error('Réponse invalide'));
+          }
+        };
+        xhr.onerror = () => reject(new TypeError('Échec réseau'));
+        xhr.send(fd);
+      }),
     async () => {
       if (file) {
+        if (onProgress) onProgress(100);
         const avatarUrl = URL.createObjectURL(file);
         const demo = getDemoUser();
         if (demo) setDemoUser({ ...demo, avatarUrl });
