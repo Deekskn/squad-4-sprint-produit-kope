@@ -57,6 +57,13 @@ export async function addPhoto(professionalId, file, { title, description }) {
   return toDto(photo);
 }
 
+/** Modification du titre / de la description (US-05, bouton "Modifier"). */
+export async function updatePhoto(professionalId, photoId, { title, description }) {
+  const updated = await repository.update(photoId, professionalId, { title, description });
+  if (!updated) throw ApiError.notFound('Photo introuvable');
+  return toDto(updated);
+}
+
 /** US-05 CA4 : la photo disparaît aussi de la fiche publique (même table). */
 export async function removePhoto(professionalId, photoId) {
   const removed = await withTransaction((tx) => repository.remove(photoId, professionalId, tx)); // filtre par propriétaire

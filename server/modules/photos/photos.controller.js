@@ -5,6 +5,15 @@ export async function add(req, res) {
   res.status(201).json({ photo });
 }
 
+export async function update(req, res) {
+  const photo = await service.updatePhoto(
+    req.session.user.id,
+    req.validated.params.id,
+    req.validated.body,
+  );
+  res.json({ photo });
+}
+
 export async function remove(req, res) {
   await service.removePhoto(req.session.user.id, req.validated.params.id);
   res.status(204).end();

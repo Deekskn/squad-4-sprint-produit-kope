@@ -17,6 +17,15 @@ router.post(
   controller.add,
 );
 
+// Modification du titre / de la description (bouton "Modifier" de la grille de photos)
+router.put(
+  '/me/photos/:id',
+  requireRole('professional'),
+  validate(idParamSchema, 'params'),
+  validate(addPhotoSchema),
+  controller.update,
+);
+
 router.delete(
   '/me/photos/:id',
   requireRole('professional'),

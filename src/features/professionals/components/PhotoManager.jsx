@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, Pencil, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { Input } from '@/components/ui/Input.jsx';
 import { Textarea } from '@/components/ui/Textarea.jsx';
@@ -18,7 +18,7 @@ import { Card } from '@/components/ui/Card.jsx';
 import { FloatingCaption } from '@/components/ui/FloatingCaption.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { MAX_PHOTOS, ALLOWED_MIME, MAX_FILE_SIZE_BYTES } from '@/lib/constants.js';
-import { addPhoto, deletePhoto } from '@/features/photos/services/photos.service.js';
+import { addPhoto, updatePhoto, deletePhoto } from '@/features/photos/services/photos.service.js';
 import { addPhotoSchema, validateFrontend } from '@/components/form/validators.js';
 import { cn } from '@/lib/utils.js';
 
@@ -29,7 +29,22 @@ export function PhotoManager({ photos = [], onChange }) {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmPhoto, setConfirmPhoto] = useState(null);
-  const [addOpen, setAddOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+
+  const openAdd = () => {
+    setEditing(null);
+    setFormOpen(true);
+  };
+  const openEdit = (photo) => {
+    setEditing(photo);
+    setFormOpen(true);
+  };
+  const closeForm = () => {
+    if (submitting) return;
+    setFormOpen(false);
+    setEditing(null);
+  };
 
   const remaining = Math.max(0, MAX_PHOTOS - photos.length);
   const full = remaining <= 0;
@@ -54,7 +69,8 @@ export function PhotoManager({ photos = [], onChange }) {
       const created = await addPhoto(file, { title, description });
       onChange?.([...photos, created]);
       toast({ message: 'Photo ajoutée avec succès.', type: 'success' });
-      setAddOpen(false);
+      setFormOpen(false);
+      setEditing(null);
       return { ok: true };
     } catch (err) {
       // Erreurs de champ renvoyées par le serveur (titre / description) : affichées dans le modal.
@@ -71,6 +87,31 @@ export function PhotoManager({ photos = [], onChange }) {
       setSubmitting(false);
     }
   };
+
+  /** Bouton "Modifier" : titre + description uniquement (l'image reste la même). */
+  const handleUpdate = async ({ title, description }) => {
+    if (!editing) return { ok: false };
+    setSubmitting(true);
+    try {
+      const updated = await updatePhoto(editing.id, { title, description });
+      onChange?.(photos.map((p) => (p.id === updated.id ? updated : p)));
+      toast({ message: 'Photo mise à jour.', type: 'success' });
+      setFormOpen(false);
+      setEditing(null);
+      return { ok: true };
+    } catch (err) {
+      const fieldErrors = err?.errors
+        ? Object.fromEntries(Object.entries(err.errors).filter(([k]) => ['title', 'description'].includes(k)))
+        : {};
+      if (Object.keys(fieldErrors).length) return { ok: false, errors: fieldErrors };
+      toast({ message: err?.message || 'Erreur lors de la mise à jour de la photo.', type: 'error' });
+      return { ok: false };
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitForm = (file, fields) => (editing ? handleUpdate(fields) : handleAdd(file, fields));
 
   const confirmDelete = async () => {
     if (!confirmPhoto) return;
@@ -89,8 +130,8 @@ export function PhotoManager({ photos = [], onChange }) {
   };
 
   return (
-    <Card className="p-5 sm:p-6">
-      <div className="mb-4 flex items-end justify-between gap-3">
+    <>
+      <div className="mb-8 flex items-end justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Photos de réalisations</h2>
           <p className="text-sm text-gray-500">
@@ -100,7 +141,7 @@ export function PhotoManager({ photos = [], onChange }) {
         <span
           className={cn(
             'rounded-full px-3 py-1 text-xs font-semibold',
-            full ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200' : 'bg-primary-50 text-primary-700 ring-1 ring-primary-200',
+            full ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200' : 'bg-primary-50 text-primary-700 ring-1 ',
           )}
         >
           {photos.length}/{MAX_PHOTOS}
@@ -112,38 +153,55 @@ export function PhotoManager({ photos = [], onChange }) {
           const isDeleting = deletingId === p.id;
           const title = p.title || p.caption;
           return (
-            <figure
+            <Card
               key={p.id}
-              className={cn(
-                'group relative overflow-hidden rounded-xl ring-1 ring-gray-200 bg-gray-100',
-                isDeleting && 'opacity-60',
-              )}
+              className={cn('relative overflow-hidden', isDeleting && 'opacity-60')}
             >
-              <img
-                src={p.thumbUrl || p.url}
-                alt={title || ''}
-                loading="lazy"
-                className="aspect-[4/3] w-full object-cover"
-              />
-              <figcaption className="bg-white/90 px-3 py-2 text-xs text-gray-700 ring-1 ring-gray-100 min-h-[42px]">
-                <p className="font-semibold text-gray-900">{title || <span className="text-gray-400 italic">Sans titre</span>}</p>
-                {p.description && <p className="mt-0.5 line-clamp-2 text-gray-500">{p.description}</p>}
-              </figcaption>
-              <button
-                type="button"
-                onClick={() => setConfirmPhoto(p)}
-                disabled={isDeleting}
-                className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/95 text-rose-600 shadow-md transition hover:bg-rose-50 focus-ring disabled:opacity-50"
-                aria-label="Supprimer cette photo"
-              >
-                <X size={16} aria-hidden />
-              </button>
-              {isDeleting && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 text-xs font-semibold text-white">
-                  Suppression...
-                </div>
-              )}
-            </figure>
+              <div className="relative h-80 w-full overflow-hidden bg-gray-100">
+                <img
+                  src={p.thumbUrl || p.url}
+                  alt={title || ''}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                {(title || p.description) && (
+                  <FloatingCaption
+                    wide
+                    title={title || 'Photo de réalisation'}
+                    subtitle={p.description}
+                    subtitleClassName="line-clamp-2"
+                    className="pointer-events-none"
+                  />
+                )}
+                {isDeleting && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 text-xs font-semibold text-white">
+                    Suppression...
+                  </div>
+                )}
+              </div>
+              <div className="absolute right-2 top-2 flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => openEdit(p)}
+                  disabled={isDeleting}
+                  title="Modifier"
+                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/95 text-gray-700 shadow-md transition hover:bg-gray-100 focus-ring disabled:opacity-50"
+                  aria-label="Modifier cette photo"
+                >
+                  <Pencil size={16} aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmPhoto(p)}
+                  disabled={isDeleting}
+                  title="Supprimer"
+                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/95 text-rose-600 shadow-md transition hover:bg-rose-50 focus-ring disabled:opacity-50"
+                  aria-label="Supprimer cette photo"
+                >
+                  <Trash size={16} aria-hidden />
+                </button>
+              </div>
+            </Card>
           );
         })}
 
@@ -151,16 +209,18 @@ export function PhotoManager({ photos = [], onChange }) {
           <AddPhotoSlot
             key={`slot-${index}`}
             slotNumber={photos.length + index + 1}
-            remaining={remaining}
-            onClick={() => setAddOpen(true)}
+            slotCount={slotCount}
+            onClick={openAdd}
           />
         ))}
       </div>
 
-      <AddPhotoModal
-        open={addOpen}
-        onClose={() => !submitting && setAddOpen(false)}
-        onSubmit={handleAdd}
+      <PhotoFormModal
+        key={editing ? `edit-${editing.id}` : 'add'}
+        open={formOpen}
+        photo={editing}
+        onClose={closeForm}
+        onSubmit={submitForm}
         submitting={submitting}
         remaining={remaining}
       />
@@ -182,17 +242,16 @@ export function PhotoManager({ photos = [], onChange }) {
           </>
         }
       />
-    </Card>
+    </>
   );
 }
 
-/** Carte "emplacement" cliquable : même style que les cartes de la home. */
-function AddPhotoSlot({ slotNumber, remaining, onClick }) {
-  const remainingLabel = `${remaining} emplacement${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''}`;
+/** Carte "emplacement" cliquable : même style (Card, bordure, image 100 % de la hauteur) que les photos. */
+function AddPhotoSlot({ slotNumber, slotCount, onClick }) {
   return (
     <button type="button" onClick={onClick} className="group h-full text-left focus-ring" aria-label={`Ajouter une photo — emplacement ${slotNumber}`}>
       <Card className="relative flex h-full flex-col overflow-hidden">
-        <span className="relative block aspect-[4/3] w-full overflow-hidden bg-gray-100">
+        <span className="relative block h-80 w-full overflow-hidden bg-gray-100">
           <span className="absolute inset-3 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-white/80 text-center transition group-hover:border-primary-400 group-hover:bg-white">
             <span className="flex size-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
               <ImagePlus size={20} aria-hidden />
@@ -204,7 +263,7 @@ function AddPhotoSlot({ slotNumber, remaining, onClick }) {
             wide
             icon={ImagePlus}
             title={`Emplacement ${slotNumber}`}
-            subtitle={`${remainingLabel} · cliquez pour ouvrir le formulaire`}
+            subtitle={`${slotCount} emplacement${slotCount > 1 ? 's' : ''} vide${slotCount > 1 ? 's' : ''} · cliquez pour ouvrir le formulaire`}
             className="pointer-events-none"
           />
         </span>
@@ -213,11 +272,12 @@ function AddPhotoSlot({ slotNumber, remaining, onClick }) {
   );
 }
 
-/** Modal : image + titre + description de la réalisation. */
-function AddPhotoModal({ open, onClose, onSubmit, submitting, remaining }) {
+/** Modal : image + titre + description à l'ajout, titre + description à la modification.
+ *  Remonté via `key` (voir l'appel) pour réinitialiser titre/description à chaque ouverture. */
+function PhotoFormModal({ open, photo, onClose, onSubmit, submitting, remaining }) {
   const [file, setFile] = useState(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(photo?.title || photo?.caption || '');
+  const [description, setDescription] = useState(photo?.description || '');
   const [errors, setErrors] = useState({});
 
   const reset = () => {
@@ -240,12 +300,15 @@ function AddPhotoModal({ open, onClose, onSubmit, submitting, remaining }) {
       setErrors(check.errors);
       return;
     }
-    if (!file) {
+    if (!photo && !file) {
       setErrors({ file: 'Choisissez une image' });
       return;
     }
     setErrors({});
-    const res = await onSubmit(file, { title: check.data.title, description: check.data.description });
+    const res = await onSubmit(photo ? null : file, {
+      title: check.data.title,
+      description: check.data.description,
+    });
     if (res?.ok) reset();
     else if (res?.errors) setErrors((prev) => ({ ...prev, ...res.errors }));
   };
@@ -254,30 +317,49 @@ function AddPhotoModal({ open, onClose, onSubmit, submitting, remaining }) {
     <Dialog open={open} onOpenChange={(o) => { if (!o) close(); }}>
       <DialogContent className="max-w-lg p-6" onClose={close}>
         <DialogHeader>
-          <DialogTitle>Ajouter une photo</DialogTitle>
+          <DialogTitle>{photo ? 'Modifier la photo' : 'Ajouter une photo'}</DialogTitle>
           <DialogDescription>
-            Image, titre et description de votre réalisation · {remaining} emplacement
-            {remaining > 1 ? 's' : ''} restant{remaining > 1 ? 's' : ''}.
+            {photo ? (
+              'Modifiez le titre et la description de cette réalisation. L\'image reste inchangée.'
+            ) : (
+              <>
+                Image, titre et description de votre réalisation · {remaining} emplacement
+                {remaining > 1 ? 's' : ''} restant{remaining > 1 ? 's' : ''}.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={submit} noValidate className="space-y-4">
-          <div>
-            <FileUpload
-              label={file ? "Changer l'image" : 'Choisir une image'}
-              hint="JPG ou PNG · 5 Mo maximum"
-              value={file}
-              onChange={(next) => {
-                setFile(next);
-                if (next) setErrors((prev) => ({ ...prev, file: undefined }));
-              }}
-              capture="environment"
-              disabled={submitting}
-            />
-            {errors.file && <p role="alert" className="mt-1 text-xs text-danger-500">{errors.file}</p>}
-          </div>
+          {!photo && (
+            <div>
+              <FileUpload
+                label={file ? "Changer l'image" : 'Choisir une image'}
+                hint="JPG ou PNG · 5 Mo maximum"
+                value={file}
+                onChange={(next) => {
+                  setFile(next);
+                  if (next) setErrors((prev) => ({ ...prev, file: undefined }));
+                }}
+                capture="environment"
+                disabled={submitting}
+              />
+              {errors.file && <p role="alert" className="mt-1 text-xs text-danger-500">{errors.file}</p>}
+            </div>
+          )}
 
-          <FormField id="ap-title" label="Titre" required error={errors.title}>
+          <FormField
+            id="ap-title"
+            label="Titre"
+            required
+            error={errors.title}
+            help="3 à 100 caractères"
+            counter={
+              <span className={title.length < 3 || title.length > 100 ? 'text-danger-500 font-semibold' : ''}>
+                {title.length}/100
+              </span>
+            }
+          >
             <Input
               id="ap-title"
               placeholder="Ex : Réparation d'une fuite cuisine"
@@ -295,10 +377,15 @@ function AddPhotoModal({ open, onClose, onSubmit, submitting, remaining }) {
             as="textarea"
             error={errors.description}
             help="10 à 500 caractères : décrivez le contexte, la prestation, le résultat."
+            counter={
+              <span className={description.length < 10 || description.length > 500 ? 'text-danger-500 font-semibold' : ''}>
+                {description.length}/500
+              </span>
+            }
           >
             <Textarea
               id="ap-description"
-              rows={4}
+              rows={3}
               placeholder="Ex : Intervention le jour même, changement du siphon et test d'étanchéité complet."
               value={description}
               onChange={(e) => setDescription(e.target.value.slice(0, 500))}
@@ -312,7 +399,7 @@ function AddPhotoModal({ open, onClose, onSubmit, submitting, remaining }) {
               Annuler
             </Button>
             <Button type="submit" size="md" loading={submitting}>
-              Publier la photo
+              {photo ? 'Enregistrer' : 'Publier la photo'}
             </Button>
           </DialogFooter>
         </form>

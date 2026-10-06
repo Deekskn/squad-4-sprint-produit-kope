@@ -37,6 +37,18 @@ export async function touchProfile(professionalId, db = pool) {
   await db.query('UPDATE professionals SET updated_at = now() WHERE user_id = $1', [professionalId]);
 }
 
+/** Modifie titre + description uniquement si la photo appartient au professionnel. */
+export async function update(photoId, professionalId, { title, description }, db = pool) {
+  const { rows } = await db.query(
+    `UPDATE photos
+        SET title = $3, description = $4, caption = $3
+      WHERE id = $1 AND professional_id = $2
+      RETURNING ${PHOTO_COLUMNS}`,
+    [photoId, professionalId, title, description],
+  );
+  return rows[0] ?? null;
+}
+
 /** Supprime uniquement si la photo appartient à ce professionnel. */
 export async function remove(photoId, professionalId, db = pool) {
   const { rows } = await db.query(

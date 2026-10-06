@@ -33,6 +33,22 @@ export function addPhoto(file, { title, description } = {}) {
   );
 }
 
+export function updatePhoto(photoId, { title, description } = {}) {
+  const payload = {
+    title: String(title ?? '').slice(0, 100),
+    description: String(description ?? '').slice(0, 500),
+  };
+  return callApi(
+    () => api.putJson(`/me/photos/${photoId}`, payload).then((r) => r.photo),
+    async () => {
+      MOCK_PROS[0].photos = MOCK_PROS[0].photos.map((p) =>
+        p.id === photoId ? { ...p, ...payload, caption: payload.title } : p,
+      );
+      return MOCK_PROS[0].photos.find((p) => p.id === photoId);
+    },
+  );
+}
+
 export function deletePhoto(photoId) {
   return callApi(
     () => api.del(`/me/photos/${photoId}`),
@@ -43,4 +59,4 @@ export function deletePhoto(photoId) {
   );
 }
 
-export default { listPhotos, addPhoto, deletePhoto };
+export default { listPhotos, addPhoto, updatePhoto, deletePhoto };
