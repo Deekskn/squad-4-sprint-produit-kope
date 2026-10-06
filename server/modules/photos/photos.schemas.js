@@ -1,10 +1,15 @@
 import { z } from 'zod';
 
+/** US-05 : titre + description de la réalisation, demandés par le modal d'ajout. */
 export const addPhotoSchema = z.object({
-  caption: z
-    .string()
+  title: z
+    .string({ error: 'Le titre est obligatoire' })
     .trim()
-    .max(100, 'La légende ne doit pas dépasser 100 caractères')
-    .nullish()
-    .transform((value) => value || null),
+    .min(3, 'Le titre doit contenir au moins 3 caractères')
+    .max(100, 'Le titre ne doit pas dépasser 100 caractères'),
+  description: z
+    .string({ error: 'La description est obligatoire' })
+    .trim()
+    .min(10, 'La description doit contenir au moins 10 caractères')
+    .max(500, 'La description ne doit pas dépasser 500 caractères'),
 });

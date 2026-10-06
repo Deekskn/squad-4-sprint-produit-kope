@@ -1,12 +1,25 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
+import { Input } from '@/components/ui/Input.jsx';
+import { Textarea } from '@/components/ui/Textarea.jsx';
+import { FormField } from '@/components/ui/FormField.jsx';
 import { FileUpload } from '@/components/ui/FileUpload.jsx';
 import { Modal } from '@/components/ui/Modal.jsx';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/Dialog.jsx';
 import { Card } from '@/components/ui/Card.jsx';
+import { FloatingCaption } from '@/components/ui/FloatingCaption.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { MAX_PHOTOS, ALLOWED_MIME, MAX_FILE_SIZE_BYTES } from '@/lib/constants.js';
 import { addPhoto, deletePhoto } from '@/features/photos/services/photos.service.js';
+import { addPhotoSchema, validateFrontend } from '@/components/form/validators.js';
 import { cn } from '@/lib/utils.js';
 
 const MIN_SLOTS = 3;
@@ -16,34 +29,44 @@ export function PhotoManager({ photos = [], onChange }) {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmPhoto, setConfirmPhoto] = useState(null);
+  const [addOpen, setAddOpen] = useState(false);
 
   const remaining = Math.max(0, MAX_PHOTOS - photos.length);
   const full = remaining <= 0;
+  const slotCount = full ? 0 : Math.max(MIN_SLOTS - photos.length, 1);
 
-  const handleAdd = async (file, caption) => {
-    if (!file) return;
+  const handleAdd = async (file, { title, description }) => {
+    if (!file) return { ok: false };
     if (!ALLOWED_MIME.includes(file.type)) {
       toast({ message: 'Format non autorisé : seulement JPG ou PNG.', type: 'error' });
-      return;
+      return { ok: false };
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
       toast({ message: 'Fichier trop volumineux (max 5 Mo).', type: 'error' });
-      return;
+      return { ok: false };
     }
     if (photos.length >= MAX_PHOTOS) {
       toast({ message: 'Limite de 10 photos atteinte.', type: 'error' });
-      return;
+      return { ok: false };
     }
     setSubmitting(true);
     try {
-      const created = await addPhoto(file, caption || null);
-      const next = [...photos, created];
-      onChange?.(next);
+      const created = await addPhoto(file, { title, description });
+      onChange?.([...photos, created]);
       toast({ message: 'Photo ajoutée avec succès.', type: 'success' });
+      setAddOpen(false);
+      return { ok: true };
     } catch (err) {
-      const message =
-        err?.errors?.photo || err?.message || "Erreur lors de l'ajout de la photo.";
-      toast({ message, type: 'error' });
+      // Erreurs de champ renvoyées par le serveur (titre / description) : affichées dans le modal.
+      const fieldErrors = err?.errors
+        ? Object.fromEntries(Object.entries(err.errors).filter(([k]) => ['title', 'description'].includes(k)))
+        : {};
+      if (Object.keys(fieldErrors).length) return { ok: false, errors: fieldErrors };
+      toast({
+        message: err?.errors?.photo || err?.message || "Erreur lors de l'ajout de la photo.",
+        type: 'error',
+      });
+      return { ok: false };
     } finally {
       setSubmitting(false);
     }
@@ -87,6 +110,7 @@ export function PhotoManager({ photos = [], onChange }) {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {photos.map((p) => {
           const isDeleting = deletingId === p.id;
+          const title = p.title || p.caption;
           return (
             <figure
               key={p.id}
@@ -97,12 +121,13 @@ export function PhotoManager({ photos = [], onChange }) {
             >
               <img
                 src={p.thumbUrl || p.url}
-                alt={p.caption || ''}
+                alt={title || ''}
                 loading="lazy"
                 className="aspect-[4/3] w-full object-cover"
               />
               <figcaption className="bg-white/90 px-3 py-2 text-xs text-gray-700 ring-1 ring-gray-100 min-h-[42px]">
-                {p.caption || <span className="text-gray-400 italic">Sans légende</span>}
+                <p className="font-semibold text-gray-900">{title || <span className="text-gray-400 italic">Sans titre</span>}</p>
+                {p.description && <p className="mt-0.5 line-clamp-2 text-gray-500">{p.description}</p>}
               </figcaption>
               <button
                 type="button"
@@ -122,17 +147,23 @@ export function PhotoManager({ photos = [], onChange }) {
           );
         })}
 
-        {!full &&
-          Array.from({ length: Math.max(MIN_SLOTS - photos.length, 1) }, (_, index) => (
-            <UploaderSlot
-              key={`slot-${index}`}
-              slotNumber={photos.length + index + 1}
-              submitting={submitting}
-              onAdd={handleAdd}
-              remaining={remaining}
-            />
-          ))}
+        {Array.from({ length: slotCount }, (_, index) => (
+          <AddPhotoSlot
+            key={`slot-${index}`}
+            slotNumber={photos.length + index + 1}
+            remaining={remaining}
+            onClick={() => setAddOpen(true)}
+          />
+        ))}
       </div>
+
+      <AddPhotoModal
+        open={addOpen}
+        onClose={() => !submitting && setAddOpen(false)}
+        onSubmit={handleAdd}
+        submitting={submitting}
+        remaining={remaining}
+      />
 
       <Modal
         open={!!confirmPhoto}
@@ -155,36 +186,137 @@ export function PhotoManager({ photos = [], onChange }) {
   );
 }
 
-function UploaderSlot({ onAdd, submitting, remaining, slotNumber }) {
-  const [file, setFile] = useState(null);
-  const [caption, setCaption] = useState('');
+/** Carte "emplacement" cliquable : même style que les cartes de la home. */
+function AddPhotoSlot({ slotNumber, remaining, onClick }) {
+  const remainingLabel = `${remaining} emplacement${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''}`;
   return (
-    <div className="space-y-2 rounded-xl ring-1 ring-gray-200 bg-gray-50/60 p-1.5">
-      <FileUpload
-        label={submitting ? 'Ajout en cours...' : slotNumber ? `Emplacement ${slotNumber}` : 'Ajouter une photo'}
-        hint={`${remaining} emplacement${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''} · JPG/PNG · 5 Mo`}
-        value={file}
-        onChange={setFile}
-        caption={caption}
-        onCaptionChange={setCaption}
-        capture="environment"
-        disabled={submitting}
-      />
-      <div className="flex justify-end gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            onAdd(file, caption);
-            setFile(null);
-            setCaption('');
-          }}
-          disabled={!file || submitting}
-          loading={submitting}
-        >
-          Ajouter
-        </Button>
-      </div>
-    </div>
+    <button type="button" onClick={onClick} className="group h-full text-left focus-ring" aria-label={`Ajouter une photo — emplacement ${slotNumber}`}>
+      <Card className="relative flex h-full flex-col overflow-hidden">
+        <span className="relative block aspect-[4/3] w-full overflow-hidden bg-gray-100">
+          <span className="absolute inset-3 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-white/80 text-center transition group-hover:border-primary-400 group-hover:bg-white">
+            <span className="flex size-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+              <ImagePlus size={20} aria-hidden />
+            </span>
+            <span className="text-sm font-semibold text-gray-800">Ajouter une photo</span>
+            <span className="text-xs text-gray-500">JPG/PNG · 5 Mo</span>
+          </span>
+          <FloatingCaption
+            wide
+            icon={ImagePlus}
+            title={`Emplacement ${slotNumber}`}
+            subtitle={`${remainingLabel} · cliquez pour ouvrir le formulaire`}
+            className="pointer-events-none"
+          />
+        </span>
+      </Card>
+    </button>
+  );
+}
+
+/** Modal : image + titre + description de la réalisation. */
+function AddPhotoModal({ open, onClose, onSubmit, submitting, remaining }) {
+  const [file, setFile] = useState(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const reset = () => {
+    setFile(null);
+    setTitle('');
+    setDescription('');
+    setErrors({});
+  };
+
+  const close = () => {
+    if (submitting) return;
+    onClose?.();
+    reset();
+  };
+
+  const submit = async (e) => {
+    e?.preventDefault?.();
+    const check = validateFrontend(addPhotoSchema, { title, description });
+    if (!check.success) {
+      setErrors(check.errors);
+      return;
+    }
+    if (!file) {
+      setErrors({ file: 'Choisissez une image' });
+      return;
+    }
+    setErrors({});
+    const res = await onSubmit(file, { title: check.data.title, description: check.data.description });
+    if (res?.ok) reset();
+    else if (res?.errors) setErrors((prev) => ({ ...prev, ...res.errors }));
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) close(); }}>
+      <DialogContent className="max-w-lg p-6" onClose={close}>
+        <DialogHeader>
+          <DialogTitle>Ajouter une photo</DialogTitle>
+          <DialogDescription>
+            Image, titre et description de votre réalisation · {remaining} emplacement
+            {remaining > 1 ? 's' : ''} restant{remaining > 1 ? 's' : ''}.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={submit} noValidate className="space-y-4">
+          <div>
+            <FileUpload
+              label={file ? "Changer l'image" : 'Choisir une image'}
+              hint="JPG ou PNG · 5 Mo maximum"
+              value={file}
+              onChange={(next) => {
+                setFile(next);
+                if (next) setErrors((prev) => ({ ...prev, file: undefined }));
+              }}
+              capture="environment"
+              disabled={submitting}
+            />
+            {errors.file && <p role="alert" className="mt-1 text-xs text-danger-500">{errors.file}</p>}
+          </div>
+
+          <FormField id="ap-title" label="Titre" required error={errors.title}>
+            <Input
+              id="ap-title"
+              placeholder="Ex : Réparation d'une fuite cuisine"
+              value={title}
+              onChange={(e) => setTitle(e.target.value.slice(0, 100))}
+              maxLength={100}
+              disabled={submitting}
+            />
+          </FormField>
+
+          <FormField
+            id="ap-description"
+            label="Description"
+            required
+            as="textarea"
+            error={errors.description}
+            help="10 à 500 caractères : décrivez le contexte, la prestation, le résultat."
+          >
+            <Textarea
+              id="ap-description"
+              rows={4}
+              placeholder="Ex : Intervention le jour même, changement du siphon et test d'étanchéité complet."
+              value={description}
+              onChange={(e) => setDescription(e.target.value.slice(0, 500))}
+              maxLength={500}
+              disabled={submitting}
+            />
+          </FormField>
+
+          <DialogFooter>
+            <Button type="button" variant="ghost" size="md" onClick={close} disabled={submitting}>
+              Annuler
+            </Button>
+            <Button type="submit" size="md" loading={submitting}>
+              Publier la photo
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

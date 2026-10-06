@@ -1,7 +1,7 @@
 import * as service from './photos.service.js';
 
 export async function add(req, res) {
-  const photo = await service.addPhoto(req.session.user.id, req.file, req.validated.body.caption);
+  const photo = await service.addPhoto(req.session.user.id, req.file, req.validated.body);
   res.status(201).json({ photo });
 }
 

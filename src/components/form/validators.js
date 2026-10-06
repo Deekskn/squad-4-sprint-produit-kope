@@ -154,10 +154,12 @@ export const becomeProfessionalSchema = z.object({
 });
 
 export const addPhotoSchema = z.object({
-  caption: z.preprocess(
-    (v) => (v === '' || v == null ? null : String(v).trim().slice(0, 100)),
-    z.string().nullish(),
-  ),
+  title: requiredText(100, 'Le titre est obligatoire').refine((v) => v.length >= 3, 'Le titre doit contenir au moins 3 caractères'),
+  description: z
+    .string({ error: 'La description est obligatoire' })
+    .trim()
+    .min(10, 'La description doit contenir au moins 10 caractères')
+    .max(500, 'La description ne doit pas dépasser 500 caractères'),
 });
 
 export function validateFrontend(schema, values) {

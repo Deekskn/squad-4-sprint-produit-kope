@@ -20,7 +20,9 @@ export function PhotoGallery({ photos = [], editable = false, onDelete, allowEmp
   return (
     <div>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {photos.map((p, i) => (
+        {photos.map((p, i) => {
+          const title = p.title || p.caption;
+          return (
           <li
             key={p.id ?? i}
             className="group relative overflow-hidden rounded-xl ring-1 ring-gray-200 bg-gray-100"
@@ -29,18 +31,23 @@ export function PhotoGallery({ photos = [], editable = false, onDelete, allowEmp
               type="button"
               className="block aspect-[4/3] w-full focus-ring"
               onClick={() => setActiveIndex(i)}
-              aria-label={`Ouvrir la photo ${i + 1}${p.caption ? ` : ${p.caption}` : ''}`}
+              aria-label={`Ouvrir la photo ${i + 1}${title ? ` : ${title}` : ''}`}
             >
               <img
                 src={p.thumbUrl || p.url}
-                alt={p.caption || ''}
+                alt={title || ''}
                 loading="lazy"
                 className="h-full w-full object-cover transition group-hover:scale-[1.02]"
               />
             </button>
-            {p.caption && (
-              <p className="truncate bg-white/90 px-2.5 py-1.5 text-xs text-gray-700 ring-1 ring-gray-100">
-                {truncate(p.caption, 80)}
+            {title && (
+              <p className="truncate bg-white/90 px-2.5 py-1.5 text-xs font-semibold text-gray-800 ring-1 ring-gray-100">
+                {truncate(title, 80)}
+              </p>
+            )}
+            {p.description && (
+              <p className="line-clamp-2 bg-white/90 px-2.5 py-1.5 text-xs text-gray-500 ring-1 ring-gray-100">
+                {truncate(p.description, 120)}
               </p>
             )}
             {editable && onDelete && (
@@ -54,7 +61,8 @@ export function PhotoGallery({ photos = [], editable = false, onDelete, allowEmp
               </button>
             )}
           </li>
-        ))}
+          );
+        })}
       </ul>
       {activeIndex != null && (
         <Lightbox
@@ -74,13 +82,14 @@ export function PhotoGallery({ photos = [], editable = false, onDelete, allowEmp
 
 function Lightbox({ photos, index, onClose, onNavigate }) {
   const p = photos[index];
+  const title = p?.title || p?.caption;
   return (
     <Modal
       open
       onClose={onClose}
       size="full"
-      title={p?.caption || `Photo ${index + 1} / ${photos.length}`}
-      description={p?.caption ? '' : undefined}
+      title={title || `Photo ${index + 1} / ${photos.length}`}
+      description={p?.description || undefined}
       actions={
         <>
           <Button variant="secondary" onClick={() => onNavigate(-1)} disabled={photos.length < 2}>
@@ -96,7 +105,7 @@ function Lightbox({ photos, index, onClose, onNavigate }) {
       <div className="relative">
         <img
           src={p?.url || p?.thumbUrl}
-          alt={p?.caption || ''}
+          alt={title || ''}
           className={cn(
             'mx-auto max-h-[72vh] w-auto max-w-full rounded-lg object-contain',
           )}

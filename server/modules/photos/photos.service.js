@@ -12,6 +12,8 @@ function toDto(photo) {
     id: photo.id,
     url: uploadUrl(photo.filePath),
     thumbUrl: uploadUrl(photo.thumbPath),
+    title: photo.title ?? photo.caption ?? null,
+    description: photo.description ?? null,
     caption: photo.caption,
   };
 }
@@ -23,7 +25,7 @@ export async function listPhotos(professionalId) {
 }
 
 /** US-05 : ajout d'une photo (JPG/PNG, 5 Mo, 10 photos max, redimensionnée + miniature). */
-export async function addPhoto(professionalId, file, caption) {
+export async function addPhoto(professionalId, file, { title, description }) {
   if (!file) {
     throw ApiError.badRequest('Aucune photo reçue', { photo: 'Choisissez une photo' });
   }
@@ -45,7 +47,7 @@ export async function addPhoto(professionalId, file, caption) {
     }
 
     const created = await repository.create(
-      { professionalId, filePath: paths.filePath, thumbPath: paths.thumbPath, caption },
+      { professionalId, filePath: paths.filePath, thumbPath: paths.thumbPath, title, description },
       tx,
     );
     await storage.save(paths, processed); // si l'écriture échoue : rollback

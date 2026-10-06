@@ -8,7 +8,7 @@ import * as controller from './photos.controller.js';
 
 const router = Router();
 
-// US-05 : multipart/form-data avec le champ fichier "photo" et un champ texte "caption" (facultatif)
+// US-05 : multipart/form-data avec le champ fichier "photo" + texte "title" et "description" (modal d'ajout)
 router.post(
   '/me/photos',
   requireRole('professional'),

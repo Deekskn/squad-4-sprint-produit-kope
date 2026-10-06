@@ -4,7 +4,9 @@ import {
   registerClientSchema,
   createReviewSchema,
   becomeProfessionalSchema,
+  addPhotoSchema,
 } from '../src/components/form/validators.js';
+import { addPhotoSchema as serverAddPhotoSchema } from '../server/modules/photos/photos.schemas.js';
 
 describe('validators (zod)', () => {
   it('loginSchema accepte des identifiants valides', () => {
@@ -59,5 +61,33 @@ describe('validators (zod)', () => {
       yearsExperience: 5,
     });
     expect(r.success).toBe(false);
+  });
+});
+
+describe("addPhotoSchema (modal d'ajout de photo)", () => {
+  it('accepte un titre et une description valides', () => {
+    const values = {
+      title: "Réparation d'une fuite cuisine",
+      description: "Changement du siphon et test d'étanchéité complet en une matinée.",
+    };
+    expect(addPhotoSchema.safeParse(values).success).toBe(true);
+    expect(serverAddPhotoSchema.safeParse(values).success).toBe(true);
+  });
+
+  it('rejette un titre trop court et une description trop courte', () => {
+    const short = { title: 'Ok', description: 'Description trop courte' };
+    expect(addPhotoSchema.safeParse(short).success).toBe(false);
+    expect(serverAddPhotoSchema.safeParse(short).success).toBe(false);
+  });
+
+  it('borne la description à 500 caractères et nettoie les espaces', () => {
+    const tooLong = { title: 'Titre valide', description: `Description ${'a'.repeat(500)}` };
+    expect(addPhotoSchema.safeParse(tooLong).success).toBe(false);
+
+    const padded = { title: '  Titre valide  ', description: `  ${'a'.repeat(10)}  ` };
+    const parsed = serverAddPhotoSchema.safeParse(padded);
+    expect(parsed.success).toBe(true);
+    expect(parsed.data.title).toBe('Titre valide');
+    expect(parsed.data.description).toBe('a'.repeat(10));
   });
 });
