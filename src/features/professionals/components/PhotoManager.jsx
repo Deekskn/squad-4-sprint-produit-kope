@@ -247,7 +247,7 @@ export function PhotoManager({ photos = [], onChange }) {
 /** Carte */
 function AddPhotoSlot({ slotNumber, slotCount, onClick }) {
   return (
-    <button type="button" onClick={onClick} className="group h-full text-left focus-ring" aria-label={`Ajouter une photo — emplacement ${slotNumber}`}>
+    <button type="button" onClick={onClick} className="group h-full text-left focus-ring" aria-label={`Ajouter une photo - emplacement ${slotNumber}`}>
       <Card className="relative flex h-full flex-col overflow-hidden">
         <span className="relative block h-80 w-full overflow-hidden bg-gray-100">
           <span className="absolute inset-3 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-white/80 text-center transition group-hover:border-primary-400 group-hover:bg-white">

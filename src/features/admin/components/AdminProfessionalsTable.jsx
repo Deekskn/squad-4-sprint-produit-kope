@@ -107,14 +107,14 @@ export function AdminProfessionalsTable() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-gray-700">{p.trade || '—'}</TableCell>
+                      <TableCell className="text-gray-700">{p.trade || '-'}</TableCell>
                       <TableCell>
                         <Badge variant={statusVariant(p.status)}>
-                          {PROFILE_STATUS_LABELS[p.status] || p.status || '—'}
+                          {PROFILE_STATUS_LABELS[p.status] || p.status || '-'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-gray-600">
-                        {p.createdAt ? formatDateFr(p.createdAt) : '—'}
+                        {p.createdAt ? formatDateFr(p.createdAt) : '-'}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">

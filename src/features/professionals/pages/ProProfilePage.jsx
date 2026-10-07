@@ -88,7 +88,7 @@ function ProReviewsSection({ professionalId }) {
               <ul className="mt-2 space-y-2 border-t border-gray-100 pt-2">
                 {(expandedData[r.clientId] ?? []).map((o) => (
                   <li key={o.id} className="text-xs text-gray-600">
-                    Sur « {o.professionalName} » : <span className="font-semibold text-gray-900">★ {o.rating}/5</span> {o.comment ? `— ${o.comment}` : ''}
+                    Sur « {o.professionalName} » : <span className="font-semibold text-gray-900">★ {o.rating}/5</span> {o.comment ? `- ${o.comment}` : ''}
                   </li>
                 ))}
                 {(expandedData[r.clientId] ?? []).length === 0 && <li className="text-xs text-gray-400">Aucun autre avis.</li>}
@@ -184,7 +184,7 @@ export function ProProfilePage() {
             </div>
             <div className="px-5 py-4">
               <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Statut</p>
-              <p className="mt-1 text-sm font-semibold text-gray-900 capitalize">{profile?.status ?? '—'}</p>
+              <p className="mt-1 text-sm font-semibold text-gray-900 capitalize">{profile?.status ?? '-'}</p>
             </div>
           </Card>
           <div className="hidden lg:block">
@@ -254,7 +254,7 @@ export function ProProfilePage() {
                       <BadgeCheck size={14} className="text-primary-500" aria-hidden /> Statut
                     </dt>
                     <dd className="mt-2 text-lg font-bold text-gray-900">
-                      {PROFILE_STATUS_LABELS[profile?.status] || '—'}
+                      {PROFILE_STATUS_LABELS[profile?.status] || '-'}
                     </dd>
                   </div>
                 </dl>

@@ -17,7 +17,7 @@ vi.mock('../server/modules/photos/photos.service.js', () => ({
 
 import { getOwnProfile } from '../server/modules/professionals/professionals.service.js';
 
-describe('US-06 — statut de publication du profil', () => {
+describe('US-06 - statut de publication du profil', () => {
   beforeEach(() => {
     findOwnProfile.mockReset();
     listPhotos.mockReset();
