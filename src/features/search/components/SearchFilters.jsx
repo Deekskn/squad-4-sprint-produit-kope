@@ -15,7 +15,6 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
   const [keyword, setKeyword] = useState(initial.keyword || "");
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const trade = initial.trade ?? params.get("trade") ?? "";
   const zone = initial.zone ?? params.get("zone") ?? "";
@@ -33,7 +32,6 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
     if (k) next.set("q", k);
     next.set("page", "1");
     navigate(`${ROUTES.SEARCH}?${next.toString()}`);
-    setSearchOpen(false);
   };
 
   const dense = variant === "sidebar";
