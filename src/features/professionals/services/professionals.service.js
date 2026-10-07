@@ -1,6 +1,6 @@
-import { api } from '@/lib/api.js';
-import { callApi } from '@/lib/dataSource.js';
-import { getProDetailMock, MOCK_PROS, MOCK_TRADES } from '@/mocks/appMock.js';
+import { api } from '@/shared/lib/api.js';
+import { callApi } from '@/shared/lib/dataSource.js';
+import { getProDetailMock, MOCK_PROS, MOCK_TRADES } from '@/shared/mocks/appMock.js';
 
 function ownProfileFromMock() {
   const p = MOCK_PROS[0];

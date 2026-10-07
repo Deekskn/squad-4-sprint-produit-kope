@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { ROUTES } from '@/lib/constants.js';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { ROUTES } from '@/shared/lib/constants.js';
 
 export function ProtectedRoute({ children }) {
   const { user, loading } = useAuthContext();
@@ -9,7 +9,7 @@ export function ProtectedRoute({ children }) {
 
   if (loading)
     return (
-      <div className="container-kop space-y-4 py-16" aria-busy="true">
+      <div className="container-kop space-y-4 py-8 lg:py-16" aria-busy="true">
         <Skeleton className="h-8 w-1/3" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-40 w-full" />

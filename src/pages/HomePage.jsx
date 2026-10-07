@@ -1,12 +1,12 @@
-import { HeroSection } from './home/HeroSection.jsx';
-import { CategorySection } from './home/CategorySection.jsx';
-import { FeaturedProfessionalSection } from './home/FeaturedProfessionalSection.jsx';
-import { HowItWorksSection } from './home/HowItWorksSection.jsx';
-import { TrustSection } from './home/TrustSection.jsx';
-import { ZoneSection } from './home/ZoneSection.jsx';
-import { ProCTA } from './home/ProCTA.jsx';
-import { FAQSection } from './home/FAQSection.jsx';
-import { FinalCTA } from './home/FinalCTA.jsx';
+import { HeroSection } from '@/shared/components/home/HeroSection.jsx';
+import { CategorySection } from '@/shared/components/home/CategorySection.jsx';
+import { FeaturedProfessionalSection } from '@/shared/components/home/FeaturedProfessionalSection.jsx';
+import { HowItWorksSection } from '@/shared/components/home/HowItWorksSection.jsx';
+import { TrustSection } from '@/shared/components/home/TrustSection.jsx';
+import { ZoneSection } from '@/shared/components/home/ZoneSection.jsx';
+import { ProCTA } from '@/shared/components/home/ProCTA.jsx';
+import { FAQSection } from '@/shared/components/home/FAQSection.jsx';
+import { FinalCTA } from '@/shared/components/home/FinalCTA.jsx';
 
 export function HomePage() {
   return (

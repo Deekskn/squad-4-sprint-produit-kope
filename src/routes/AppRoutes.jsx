@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { RootLayout } from '@/components/layout/RootLayout.jsx';
+import { RootLayout } from '@/shared/components/layout/RootLayout.jsx';
 import { RoleRoute } from './RoleRoute.jsx';
-import { ROLES, ROUTES } from '@/lib/constants.js';
+import { ROLES, ROUTES } from '@/shared/lib/constants.js';
 
 import { HomePage } from '@/pages/HomePage.jsx';
 import { HowItWorksPage } from '@/pages/HowItWorksPage.jsx';

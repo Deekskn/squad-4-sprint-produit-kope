@@ -4,7 +4,7 @@ import { AdminProfessionalsTable } from '../components/AdminProfessionalsTable.j
 import { AdminReviewsTable } from '../components/AdminReviewsTable.jsx';
 import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
-import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
+import { SidebarNav } from '@/shared/components/ui/SidebarNav.jsx';
 
 const TABS = [
   { id: 'pros', label: 'Professionnels', icon: Briefcase },

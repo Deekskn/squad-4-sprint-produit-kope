@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { X, CheckCircle2, XCircle, Info, AlertTriangle } from 'lucide-react';
-import { cn } from '@/lib/utils.js';
+import { cn } from '@/shared/lib/utils.js';
 
 const NotificationContext = createContext(null);
 let uid = 0;

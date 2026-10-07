@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { listReviews } from '../services/reviews.service.js';
-import { Pagination } from '@/components/ui/Pagination.jsx';
-import { StarRating } from '@/components/ui/StarRating.jsx';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { Button } from '@/components/ui/Button.jsx';
-import { formatDateFr, fullNameInitials } from '@/lib/utils.js';
+import { Pagination } from '@/shared/components/ui/Pagination.jsx';
+import { StarRating } from '@/shared/components/ui/StarRating.jsx';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { formatDateFr, fullNameInitials } from '@/shared/lib/utils.js';
 
 const PAGE_SIZE = 10;
 const COMPACT_COUNT = 3;

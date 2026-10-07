@@ -1,7 +1,7 @@
 import { BadgeCheck, TriangleAlert } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge.jsx';
-import { Card } from '@/components/ui/Card.jsx';
-import { PROFILE_STATUS, PROFILE_STATUS_LABELS, RG04_CHECKLIST } from '@/lib/constants.js';
+import { Badge } from '@/shared/components/ui/Badge.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { PROFILE_STATUS, PROFILE_STATUS_LABELS, RG04_CHECKLIST } from '@/shared/lib/constants.js';
 
 const VARIANT = {
   [PROFILE_STATUS.PUBLISHED]: 'success',

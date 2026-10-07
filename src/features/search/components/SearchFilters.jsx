@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Select } from '@/components/ui/Select.jsx';
-import { Input } from '@/components/ui/Input.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Select } from '@/shared/components/ui/Select.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { ROUTES } from '@/lib/constants.js';
-import { cn } from '@/lib/utils.js';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { ROUTES } from '@/shared/lib/constants.js';
+import { cn } from '@/shared/lib/utils.js';
 
 export function SearchFilters({ initial = {}, variant = 'search', className }) {
   const navigate = useNavigate();

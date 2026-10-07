@@ -1,7 +1,7 @@
-import { api } from '@/lib/api.js';
-import { callApi } from '@/lib/dataSource.js';
-import { getDemoUser, setDemoUser } from '@/mocks/appMock.js';
-import { setTokens, clearTokens, getRefreshToken, getAccessToken } from '@/lib/authTokens.js';
+import { api } from '@/shared/lib/api.js';
+import { callApi } from '@/shared/lib/dataSource.js';
+import { getDemoUser, setDemoUser } from '@/shared/mocks/appMock.js';
+import { setTokens, clearTokens, getRefreshToken, getAccessToken } from '@/shared/lib/authTokens.js';
 
 export function registerClient(payload) {
   return callApi(

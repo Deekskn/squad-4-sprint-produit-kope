@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/Button.jsx';
-import { ROUTES } from '@/lib/constants.js';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { ROUTES } from '@/shared/lib/constants.js';
 
 export function ForbiddenPage() {
   const navigate = useNavigate();
