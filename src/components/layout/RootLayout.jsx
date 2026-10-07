@@ -27,7 +27,7 @@ export function RootLayout() {
           'fixed left-1/2 z-80 -translate-x-1/2 rounded-full bg-gray-900/90 px-4 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur',
           hasBottomNav ? 'bottom-24 lg:bottom-4' : 'bottom-4',
         )}>
-          Mode démo — données factices (backend indisponible)
+          Mode démo - données factices (backend indisponible)
         </div>
       )}
     </div>

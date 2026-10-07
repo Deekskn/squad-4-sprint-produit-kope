@@ -66,7 +66,7 @@ function ProfilSection({ user }) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const { logout } = useAuthContext();
-  const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || '—';
+  const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || '-';
 
   const save = async (e) => {
     e.preventDefault();
@@ -187,7 +187,7 @@ function ProfilSection({ user }) {
             </div>
             <div className="grid grid-cols-[120px_1fr] gap-4 px-6 py-4">
               <dt className="text-gray-500">Téléphone</dt>
-              <dd className="font-semibold text-gray-900">{user?.phone || '—'}</dd>
+              <dd className="font-semibold text-gray-900">{user?.phone || '-'}</dd>
             </div>
             <div className="grid grid-cols-[120px_1fr] gap-4 px-6 py-4">
               <dt className="text-gray-500">Rôle</dt>

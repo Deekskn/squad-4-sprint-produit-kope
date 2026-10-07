@@ -3,7 +3,7 @@ import { requireAuth } from '../server/middlewares/requireAuth.js';
 import { requireRole } from '../server/middlewares/requireRole.js';
 import { signToken } from '../server/utils/tokens.js';
 
-// requireAuth/requireRole utilisent env.ACCESS_TOKEN_SECRET — on génère le token avec le même env.
+// requireAuth/requireRole utilisent env.ACCESS_TOKEN_SECRET - on génère le token avec le même env.
 import { env } from '../server/config/env.js';
 
 function bearer(payload) {
