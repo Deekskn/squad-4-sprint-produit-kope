@@ -11,7 +11,7 @@ export function HowItWorksSection() {
         title="Votre projet commence ici."
         intro="Une fuite, un mur à repeindre, une idée à concrétiser ? Rencontrez les professionnels de votre quartier et échangez directement avec eux."
       />
-      <div className="md:flex gap-3 items-center">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
         {STEPS.map((s, index) => (
           <>
             <Card key={s.n} className={`${s.tone} flex-1 aspect-4/4.5 bg-primary-600! p-2 border-0! shadow-none! flex flex-col justify-between`}>
@@ -23,9 +23,9 @@ export function HowItWorksSection() {
                 <span className="text-9xl font-extrabold text-gray-900/70 tracking-tight">{s.n}</span>
               </div>
             </Card>
-            <ul className={`space-1 flex opacity-25  ${index === (STEPS.length - 1) ? 'hidden' : ''}`}  >
+            <ul className={`mx-4 flex w-auto flex-col gap-y-0 opacity-25 md:mx-0 md:w-auto md:flex-row ${index === (STEPS.length - 1) ? 'hidden' : ''}`}  >
               {Array.from({ length: 4 }).map((_, i) => (
-                <li key={i} className="border-l  w-1 h-88 " ></li>
+                <li key={i} className="h-1 w-full border-t md:h-88 md:w-1 md:border-t-0 md:border-l" ></li>
               ))}
             </ul>
           </>
