@@ -98,9 +98,17 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
     );
   }
 
-  if (home) {
+   if (home) {
     return (
-
+      <form
+        onSubmit={onSubmit}
+        className={cn(
+          'flex flex-col items-stretch gap-2 rounded-2xl bg-white p-2 md:flex-row md:items-center',
+          className,
+        )}
+        noValidate
+      >
+        <FormField id="sf-trade-h" hideLabel className="flex-1">
           <Select
             bordered={false}
             id="sf-trade-h"
@@ -114,16 +122,16 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
             ))}
           </Select>
         </FormField>
-          <span className='hidden opacity-20 md:inline'>|</span>
-        <FormField  id="sf-zone-h" hideLabel className="flex-1">
+        <span className="hidden opacity-20 md:inline">|</span>
+        <FormField id="sf-zone-h" hideLabel className="flex-1">
           <Select bordered={false} id="sf-zone-h" name="zone" defaultValue={zone}>
-            <option value="">Quelle Quatier ?</option>
+            <option value="">Quel quartier ?</option>
             {zones.map((z) => (
               <option key={z.id} value={z.id}>{z.name}</option>
             ))}
           </Select>
         </FormField>
-        <Button type="submit" size="lg" className="w-full! md:w-auto! ">
+        <Button type="submit" size="lg" className="w-full! md:w-auto!">
           Rechercher <Search size={16} aria-hidden />
         </Button>
       </form>
