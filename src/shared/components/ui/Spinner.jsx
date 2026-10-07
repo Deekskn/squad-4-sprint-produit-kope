@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 const SIZES = {
   xs: 'h-3 w-3 border-2',

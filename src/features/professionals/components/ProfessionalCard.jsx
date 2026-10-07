@@ -2,7 +2,7 @@ import { ChevronRight, Star } from 'lucide-react';
 import { Card } from '@/shared/components/ui/Card.jsx';
 import { Badge } from '@/shared/components/ui/Badge.jsx';
 import { StarRating } from '@/shared/components/ui/StarRating.jsx';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '@/shared/lib/constants.js';
 import { mockImage } from '@/shared/mocks/images.js';

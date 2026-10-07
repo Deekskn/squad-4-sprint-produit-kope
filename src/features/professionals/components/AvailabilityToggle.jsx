@@ -1,7 +1,7 @@
 import { Clock } from 'lucide-react';
 import { Badge } from '@/shared/components/ui/Badge.jsx';
 import { Card } from '@/shared/components/ui/Card.jsx';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function AvailabilityToggle({ isAvailable = true, onChange, loading }) {
   const on = Boolean(isAvailable);

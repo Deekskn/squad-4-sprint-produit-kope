@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function Modal({
   open,

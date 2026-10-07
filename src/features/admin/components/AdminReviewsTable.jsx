@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Badge, Button, Pagination, Modal, StarRating, DataState } from '@/shared/components/ui';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listReviews, setReviewHidden } from '../services/admin.service.js';
-import { formatDateFr, fullNameInitials } from '@/shared/lib/utils.js';
+import { formatDateFr, fullNameInitials } from '@/shared/utils';
 
 const PAGE_SIZE = 20;
 

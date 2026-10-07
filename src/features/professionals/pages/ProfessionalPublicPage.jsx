@@ -10,7 +10,7 @@ import { Badge } from '@/shared/components/ui/Badge.jsx';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { ContactDialog } from '@/features/contacts/components/ContactDialog.jsx';
-import { formatPhoneFR, toWhatsappUrl } from '@/shared/lib/utils.js';
+import { formatPhoneFR, toWhatsappUrl } from '@/shared/utils';
 import { ROLES, ROUTES } from '@/shared/lib/constants.js';
 
 export function ProfessionalPublicPage() {

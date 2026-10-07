@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function Footer({ className }) {
   const year = new Date().getFullYear();

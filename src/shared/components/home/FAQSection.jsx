@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 import { FAQ } from '@/shared/mocks/homeData.js';
 
 export function FAQSection() {

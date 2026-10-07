@@ -5,7 +5,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmp
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listPros, setProHidden } from '../services/admin.service.js';
 import { PROFILE_STATUS, PROFILE_STATUS_LABELS, ROUTES } from '@/shared/lib/constants.js';
-import { formatDateFr, initials } from '@/shared/lib/utils.js';
+import { formatDateFr, initials } from '@/shared/utils';
 
 const PAGE_SIZE = 20;
 

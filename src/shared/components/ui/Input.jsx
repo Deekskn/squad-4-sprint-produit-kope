@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 const BASE =
   'block w-full rounded-sm border bg-white px-4 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 transition-colors focus-ring focus:outline-none disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed';

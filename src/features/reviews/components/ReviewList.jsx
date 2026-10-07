@@ -5,7 +5,7 @@ import { Pagination } from '@/shared/components/ui/Pagination.jsx';
 import { StarRating } from '@/shared/components/ui/StarRating.jsx';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { Button } from '@/shared/components/ui/Button.jsx';
-import { formatDateFr, fullNameInitials } from '@/shared/lib/utils.js';
+import { formatDateFr, fullNameInitials } from '@/shared/utils';
 
 const PAGE_SIZE = 10;
 const COMPACT_COUNT = 3;

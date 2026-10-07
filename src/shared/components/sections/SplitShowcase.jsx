@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 import { FloatingCaption } from '@/shared/components/ui/FloatingCaption.jsx';
 
 export function SplitShowcase({ eyebrow, title, intro, imageSrc, imageAlt, caption, captionAlign = 'left', items, reverse = false, bg = 'bg-kop-mint', sectionClassName }) {

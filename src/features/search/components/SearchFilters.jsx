@@ -8,7 +8,7 @@ import { Input } from '@/shared/components/ui/Input.jsx';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function SearchFilters({ initial = {}, variant = 'search', className }) {
   const navigate = useNavigate();

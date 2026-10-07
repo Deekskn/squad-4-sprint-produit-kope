@@ -6,7 +6,7 @@ import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { EmptyState } from '@/shared/components/ui/EmptyState.jsx';
 import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { Badge } from '@/shared/components/ui/Badge.jsx';
-import { formatPhoneFR } from '@/shared/lib/utils.js';
+import { formatPhoneFR } from '@/shared/utils';
 
 function ContactRow({ contact }) {
   const name = contact.displayName || 'Utilisateur';

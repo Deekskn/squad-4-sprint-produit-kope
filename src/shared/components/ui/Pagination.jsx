@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './Button.jsx';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function Pagination({ page, pageSize, total, onPageChange, className }) {
   const pageCount = Math.max(1, Math.ceil((total ?? 0) / pageSize));

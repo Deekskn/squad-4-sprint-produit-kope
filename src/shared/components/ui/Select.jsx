@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function Select({ className, error, id, children, bordered = true, ...rest }) {
   return (
