@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button.jsx';
 import { FormField } from '@/components/ui/FormField.jsx';
 import { Select } from '@/components/ui/Select.jsx';
 import { Input } from '@/components/ui/Input.jsx';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog.jsx';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
 import { Skeleton } from '@/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/lib/constants.js';
@@ -15,6 +16,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
   const [keyword, setKeyword] = useState(initial.keyword || '');
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const trade = initial.trade ?? params.get('trade') ?? '';
   const zone  = initial.zone  ?? params.get('zone')  ?? '';
@@ -32,12 +34,13 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
     if (k) next.set('q',     k);
     next.set('page', '1');
     navigate(`${ROUTES.SEARCH}?${next.toString()}`);
+    setSearchOpen(false);
   };
 
   const dense  = variant === 'sidebar';
   const home   = variant === 'home';
 
-  if (loading) {
+  if (loading && !home) {
     return (
       <div className="space-y-3 py-2" aria-busy="true">
         <Skeleton className="h-11 w-full" />
@@ -98,8 +101,45 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
     );
   }
 
-   if (home) {
-    return (
+  if (home) {
+    const mobileSearchButton = (
+      <Button
+        type="button"
+        size="lg"
+        className="w-full! md:hidden"
+        onClick={() => setSearchOpen(true)}
+      >
+        Rechercher <Search size={16} aria-hidden />
+      </Button>
+    );
+
+    if (loading) {
+      return (
+        <>
+          {mobileSearchButton}
+          <div className="hidden md:block">
+            <div className="space-y-3 py-2" aria-busy="true">
+              <Skeleton className="h-11 w-full" />
+              <Skeleton className="h-11 w-full" />
+              <Skeleton className="h-11 w-40" />
+            </div>
+          </div>
+          <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+            <DialogContent className="max-w-lg p-6" onClose={() => setSearchOpen(false)}>
+              <DialogHeader>
+                <DialogTitle>Rechercher un professionnel</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3 py-2" aria-busy="true">
+                <Skeleton className="h-11 w-full" />
+                <Skeleton className="h-11 w-full" />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      );
+    }
+
+    const homeForm = (suffix) => (
       <form
         onSubmit={onSubmit}
         className={cn(
@@ -108,10 +148,27 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
         )}
         noValidate
       >
-        <FormField id="sf-trade-h" hideLabel className="flex-1">
+        {suffix === 'hm' && (
+          <div>
+            <label
+              htmlFor="sf-keyword-hm"
+              className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-gray-700"
+            >
+              <Search size={15} aria-hidden /> Recherche par mot-clé
+            </label>
+            <Input
+              id="sf-keyword-hm"
+              name="q"
+              placeholder="Nom, entreprise, mot-clé..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </div>
+        )}
+        <FormField id={`sf-trade-${suffix}`} hideLabel className="flex-1">
           <Select
             bordered={false}
-            id="sf-trade-h"
+            id={`sf-trade-${suffix}`}
             name="trade"
             defaultValue={trade}
             error={error?.trade}
@@ -123,8 +180,8 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
           </Select>
         </FormField>
         <span className="hidden opacity-20 md:inline">|</span>
-        <FormField id="sf-zone-h" hideLabel className="flex-1">
-          <Select bordered={false} id="sf-zone-h" name="zone" defaultValue={zone}>
+        <FormField id={`sf-zone-${suffix}`} hideLabel className="flex-1">
+          <Select bordered={false} id={`sf-zone-${suffix}`} name="zone" defaultValue={zone}>
             <option value="">Quel quartier ?</option>
             {zones.map((z) => (
               <option key={z.id} value={z.id}>{z.name}</option>
@@ -135,6 +192,23 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
           Rechercher <Search size={16} aria-hidden />
         </Button>
       </form>
+    );
+
+    return (
+      <>
+        {mobileSearchButton}
+        <div className="hidden md:block">
+          {homeForm('h')}
+        </div>
+        <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+          <DialogContent className="max-w-lg p-6" onClose={() => setSearchOpen(false)}>
+            <DialogHeader>
+              <DialogTitle>Rechercher un professionnel</DialogTitle>
+            </DialogHeader>
+            {homeForm('hm')}
+          </DialogContent>
+        </Dialog>
+      </>
     );
   }
 
