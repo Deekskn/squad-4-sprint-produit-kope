@@ -29,9 +29,9 @@ export async function searchPublished({ tradeId, zoneId, keyword, limit, offset 
              OR p.display_name ILIKE '%' || $3 || '%'
              OR t.name ILIKE '%' || $3 || '%')
       GROUP BY p.user_id, p.display_name, p.years_experience, p.is_available, p.updated_at, t.name
-      ORDER BY p.is_available DESC, "ratingAverage" DESC NULLS LAST, p.updated_at DESC, p.user_id
+      ORDER BY p.is_available DESC, AVG(r.rating) DESC NULLS LAST, p.updated_at DESC, p.user_id
       LIMIT $4 OFFSET $5`,
-    [tradeId, zoneId, keyword, limit, offset],
+    [tradeId, zoneId, keyword ?? null, limit, offset],
   );
   return rows;
 }

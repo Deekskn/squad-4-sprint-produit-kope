@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { Modal } from '@/components/ui/Modal.jsx';
-import { Button } from '@/components/ui/Button.jsx';
-import { cn, truncate } from '@/lib/utils.js';
+import { Modal } from '@/shared/components/ui/Modal.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { cn, truncate } from '@/shared/utils';
 
 function EmptyGallery() {
   return (

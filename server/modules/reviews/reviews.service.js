@@ -14,9 +14,9 @@ export async function canReview(viewer, professionalId) {
 }
 
 export async function createReview(clientId, professionalId, { rating, comment }) {
-  if (!(await professionalsRepository.existsPublished(professionalId))) {
+  if (!(await professionalsRepository.existsPublished(professionalId)))
     throw ApiError.notFound('Profil introuvable');
-  }
+
 
   try {
     return await repository.create({ clientId, professionalId, rating, comment });
@@ -38,9 +38,9 @@ export async function byClient(clientId, pagination) {
 
 export async function listReviews(viewer, professionalId, pagination) {
   const isOwner = viewer?.role === 'professional' && viewer.id === professionalId;
-  if (!isOwner && !(await professionalsRepository.existsPublished(professionalId))) {
+  if (!isOwner && !(await professionalsRepository.existsPublished(professionalId)))
     throw ApiError.notFound('Profil introuvable');
-  }
+
 
   const [rows, summary] = await Promise.all([
     repository.listByProfessional(professionalId, { limit: pagination.pageSize, offset: offsetOf(pagination) }),

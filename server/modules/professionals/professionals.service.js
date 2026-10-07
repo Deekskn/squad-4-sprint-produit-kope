@@ -38,14 +38,20 @@ export async function getOwnProfile(userId) {
 
 /** US-04 */
 export async function updateOwnProfile(userId, { displayName, tradeId, description, yearsExperience, whatsapp, zoneIds }) {
-  if (!(await repository.tradeExists(tradeId))) {
+  if (!(await repository.tradeExists(tradeId))) 
     throw ApiError.badRequest('Choisissez un métier valide', { tradeId: 'Choisissez un métier' });
-  }
+  
 
   await withTransaction(async (tx) => {
     await repository.updateProfile(
       userId,
-      { displayName, tradeId, description, yearsExperience, whatsapp: whatsapp ?? null },
+      {
+        displayName,
+        tradeId,
+        description,
+        yearsExperience,
+        ...(whatsapp !== undefined ? { whatsapp } : {}),
+      },
       tx,
     );
     await repository.replaceZones(userId, zoneIds, tx);

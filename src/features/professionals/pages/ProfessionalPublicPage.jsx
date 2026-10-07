@@ -5,13 +5,13 @@ import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getPublishedDetail, canReview } from '../services/professionals.service.js';
 import { PhotoGallery } from '../components/PhotoGallery.jsx';
 import { RatingSummary, ReviewList, ReviewForm } from '@/features/reviews/components/index.js';
-import { DataState } from '@/components/ui/DataState.jsx';
-import { Badge } from '@/components/ui/Badge.jsx';
-import { Button } from '@/components/ui/Button.jsx';
+import { DataState } from '@/shared/components/ui/DataState.jsx';
+import { Badge } from '@/shared/components/ui/Badge.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { ContactDialog } from '@/features/contacts/components/ContactDialog.jsx';
-import { formatPhoneFR, toWhatsappUrl } from '@/lib/utils.js';
-import { ROLES, ROUTES } from '@/lib/constants.js';
+import { formatPhoneFR, toWhatsappUrl } from '@/shared/utils';
+import { ROLES, ROUTES } from '@/shared/lib/constants.js';
 
 export function ProfessionalPublicPage() {
   const { id } = useParams();
@@ -22,7 +22,7 @@ export function ProfessionalPublicPage() {
   const detail = useAsyncData(() => getPublishedDetail(id), [id]);
   const canReviewState = useAsyncData(() => canReview(id), [id, user?.id]);
 
-  if (detail.loading || detail.error) {
+  if (detail.loading || detail.error) 
     return (
       <div className="container-kop page-padding">
         <DataState loading={detail.loading} error={detail.error} errorPrefix="Fiche introuvable">
@@ -30,7 +30,7 @@ export function ProfessionalPublicPage() {
         </DataState>
       </div>
     );
-  }
+  
 
   const { profile, photos, rating } = detail.data;
   const whatsappUrl = toWhatsappUrl(profile.whatsapp || profile.phone);

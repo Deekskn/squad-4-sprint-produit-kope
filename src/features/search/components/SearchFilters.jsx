@@ -1,20 +1,14 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Search } from "lucide-react";
-import { Button } from "@/components/ui/Button.jsx";
-import { FormField } from "@/components/ui/FormField.jsx";
-import { Select } from "@/components/ui/Select.jsx";
-import { Input } from "@/components/ui/Input.jsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/Dialog.jsx";
-import { useReferenceData } from "@/features/reference/hooks/useReferenceData.js";
-import { Skeleton } from "@/components/ui/Skeleton.jsx";
-import { ROUTES } from "@/lib/constants.js";
-import { cn } from "@/lib/utils.js";
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Search } from 'lucide-react';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Select } from '@/shared/components/ui/Select.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
+import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { ROUTES } from '@/shared/lib/constants.js';
+import { cn } from '@/shared/utils';
 
 export function SearchFilters({ initial = {}, variant = "search", className }) {
   const navigate = useNavigate();
@@ -44,8 +38,9 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
 
   const dense = variant === "sidebar";
   const home = variant === "home";
+  const suffix = home ? "hm" : "sb";
 
-  if (loading && !home) {
+  if (loading) 
     return (
       <div className="space-y-3 py-2" aria-busy="true">
         <Skeleton className="h-11 w-full" />
@@ -53,9 +48,9 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
         <Skeleton className="h-11 w-40" />
       </div>
     );
-  }
+  
 
-  if (dense) {
+  if (dense) 
     return (
       <form
         onSubmit={onSubmit}
@@ -112,50 +107,10 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
         </div>
       </form>
     );
-  }
+  
 
-  if (home) {
-    const mobileSearchButton = (
-      <Button
-        type="button"
-        size="lg"
-        className="w-full! border-0! shadow-lg shadow-primary-900/20 transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 md:hidden"
-        onClick={() => setSearchOpen(true)}
-      >
-        Rechercher <Search size={16} aria-hidden />
-      </Button>
-    );
-
-    if (loading) {
-      return (
-        <>
-          {mobileSearchButton}
-          <div className="hidden md:block">
-            <div className="space-y-3 py-2" aria-busy="true">
-              <Skeleton className="h-11 w-full" />
-              <Skeleton className="h-11 w-full" />
-              <Skeleton className="h-11 w-40" />
-            </div>
-          </div>
-          <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-            <DialogContent
-              className="max-w-lg p-6"
-              onClose={() => setSearchOpen(false)}
-            >
-              <DialogHeader>
-                <DialogTitle>Rechercher un professionnel</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3 py-2" aria-busy="true">
-                <Skeleton className="h-11 w-full" />
-                <Skeleton className="h-11 w-full" />
-              </div>
-            </DialogContent>
-          </Dialog>
-        </>
-      );
-    }
-
-    const homeForm = (suffix) => (
+   if (home) 
+    return (
       <form
         onSubmit={onSubmit}
         className={cn(
@@ -218,25 +173,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
         </Button>
       </form>
     );
-
-    return (
-      <>
-        {mobileSearchButton}
-        <div className="hidden md:block">{homeForm("h")}</div>
-        <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-          <DialogContent
-            className="max-w-lg p-6"
-            onClose={() => setSearchOpen(false)}
-          >
-            <DialogHeader>
-              <DialogTitle>Rechercher un professionnel</DialogTitle>
-            </DialogHeader>
-            {homeForm("hm")}
-          </DialogContent>
-        </Dialog>
-      </>
-    );
-  }
+  
 
   return (
     <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>

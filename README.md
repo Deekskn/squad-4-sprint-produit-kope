@@ -2,7 +2,7 @@
 
 Application fullstack de mise en relation avec des artisans. Le projet utilise une architecture monolithique moderne intégrant Express 5 et React 19 dans un même runtime via `vite-express`.
 
-> **Scope MVP** : US-01 → US-16. Sont **hors scope** : US-09, US-10, US-11, US-17 (workflow de demande de contact supprimé — les coordonnées du pro sont visibles directement sur sa fiche) et US-18 (Could, hors sprint).
+> **Scope MVP** : US-01 → US-16. Sont **hors scope** : US-09, US-10, US-11, US-17 (workflow de demande de contact supprimé - les coordonnées du pro sont visibles directement sur sa fiche) et US-18 (Could, hors sprint).
 
 ---
 
@@ -37,7 +37,7 @@ Application fullstack de mise en relation avec des artisans. Le projet utilise u
 
 ---
 
-## US-15 — Note moyenne et avis
+## US-15 - Note moyenne et avis
 
 La fiche publique expose la moyenne des avis visibles, arrondie à une décimale, et leur nombre. `GET /api/professionals/:id/reviews?page=<n>&pageSize=<n>` renvoie également les avis paginés du plus récent au plus ancien avec le prénom et l'initiale du nom du client. Les avis masqués sont exclus. La moyenne est calculée directement depuis `reviews` à chaque lecture : un avis ajouté est donc pris en compte sans cache ni mise à jour manuelle d'un agrégat. Les cartes de recherche reçoivent cette même moyenne et ce nombre.
 

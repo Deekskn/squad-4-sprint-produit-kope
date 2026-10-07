@@ -3,13 +3,13 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Input } from '@/components/ui/Input.jsx';
-import { useForm } from '@/components/form/useForm.js';
-import { loginSchema } from '@/components/form/validators.js';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
+import { useForm } from '@/shared/hooks/useForm.js';
+import { loginSchema } from '@/shared/utils/validators.js';
 import { login } from '../services/auth.service.js';
-import { ROLES, ROUTES } from '@/lib/constants.js';
+import { ROLES, ROUTES } from '@/shared/lib/constants.js';
 import { Lock, LockOpen } from 'lucide-react';
 
 const INITIAL = { phone: '', password: '' };
@@ -41,17 +41,21 @@ export function LoginForm({ bare = false } = {}) {
     const res = await handleSubmit(e);
     if (res.ok) {
       setUser(res.result);
-      const next = params.get('next') || dashboardForRole(res.result.role);
+      const rawNext = params.get('next');
+      const safeNext = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+        ? rawNext
+        : null;
+      const next = safeNext || dashboardForRole(res.result.role);
       toast({ message: 'Bienvenue !', type: 'success' });
       closeModal();
       navigate(next, { replace: true });
-    } else if (res.error && !res.error?.errors) {
+    } else if (res.error && !res.error?.errors)
       toast({ message: res.error?.message || 'Identifiants incorrects', type: 'error' });
-    }
+
   };
 
   return (
-    <div className={`${bare ? 'w-full' : 'mx-auto w-full max-w-md'} px-12 space-y-4 `}>
+    <div className={`${bare ? 'w-full px-6' : 'mx-auto w-full max-w-md px-12'} space-y-4 `}>
 
       <h1 className="text-3xl font-extrabold tracking-tight text-primary-500!">Connexion</h1>
       <p className=" text-sm mb-8 text-gray-500">

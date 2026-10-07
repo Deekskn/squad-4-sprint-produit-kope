@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import * as authService from '@/features/auth/services/auth.service.js';
-import { ROUTES } from '@/lib/constants.js';
+import { ROUTES } from '@/shared/lib/constants.js';
 
 const AuthContext = createContext(null);
 
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   
     } finally {
       setUser(null);
-      setInterval(() => redirect(ROUTES.HOME), 0);
+      setTimeout(() => redirect(ROUTES.HOME), 0);
     }
   }, []);
 

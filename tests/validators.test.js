@@ -5,7 +5,7 @@ import {
   createReviewSchema,
   becomeProfessionalSchema,
   addPhotoSchema,
-} from '../src/components/form/validators.js';
+} from '../src/shared/utils/validators.js';
 import { addPhotoSchema as serverAddPhotoSchema } from '../server/modules/photos/photos.schemas.js';
 
 describe('validators (zod)', () => {

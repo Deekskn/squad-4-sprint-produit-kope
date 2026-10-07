@@ -5,18 +5,18 @@ import { getMyProfile, setAvailability } from '../services/professionals.service
 import { listReviews, getClientReviews } from '@/features/reviews/services/reviews.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { Button } from '@/components/ui/Button.jsx';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
 import { PublicationStatus } from '../components/PublicationStatus.jsx';
 import { AvailabilityToggle } from '../components/AvailabilityToggle.jsx';
 import { ProfileEditor } from '../components/ProfileEditor.jsx';
 import { PhotoManager } from '../components/PhotoManager.jsx';
-import { Card } from '@/components/ui/Card.jsx';
-import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
-import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
-import { BottomNav } from '@/components/ui/BottomNav.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
+import { SidebarNav } from '@/shared/components/ui/SidebarNav.jsx';
+import { BottomNav } from '@/shared/components/ui/BottomNav.jsx';
 import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
-import { ROUTES, PROFILE_STATUS, PROFILE_STATUS_LABELS } from '@/lib/constants.js';
+import { ROUTES, PROFILE_STATUS, PROFILE_STATUS_LABELS } from '@/shared/lib/constants.js';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Vue d’ensemble', shortLabel: 'Aperçu', icon: LayoutDashboard },
@@ -49,11 +49,11 @@ function ProReviewsSection({ professionalId }) {
       return;
     }
     setExpanded(clientId);
-    if (!expandedData[clientId]) {
+    if (!expandedData[clientId]) 
       getClientReviews(clientId)
         .then((d) => setExpandedData((m) => ({ ...m, [clientId]: d.items || [] })))
         .catch(() => {});
-    }
+    
   };
 
   return (
@@ -88,7 +88,7 @@ function ProReviewsSection({ professionalId }) {
               <ul className="mt-2 space-y-2 border-t border-gray-100 pt-2">
                 {(expandedData[r.clientId] ?? []).map((o) => (
                   <li key={o.id} className="text-xs text-gray-600">
-                    Sur « {o.professionalName} » : <span className="font-semibold text-gray-900">★ {o.rating}/5</span> {o.comment ? `— ${o.comment}` : ''}
+                    Sur « {o.professionalName} » : <span className="font-semibold text-gray-900">★ {o.rating}/5</span> {o.comment ? `- ${o.comment}` : ''}
                   </li>
                 ))}
                 {(expandedData[r.clientId] ?? []).length === 0 && <li className="text-xs text-gray-400">Aucun autre avis.</li>}
@@ -144,7 +144,7 @@ export function ProProfilePage() {
     load();
   };
 
-  if (loading) {
+  if (loading) 
     return (
       <div className="container-kop space-y-4 py-10" aria-busy="true">
         <Skeleton className="h-8 w-1/3" />
@@ -152,9 +152,9 @@ export function ProProfilePage() {
         <Skeleton className="h-64 w-full" />
       </div>
     );
-  }
+  
 
-  if (error && !profile) {
+  if (error && !profile) 
     return (
       <div className="mx-auto max-w-xl rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700 shadow-sm">
         <h1 className="text-xl font-bold">Erreur de chargement du profil</h1>
@@ -164,7 +164,7 @@ export function ProProfilePage() {
         </div>
       </div>
     );
-  }
+  
 
   const displayName = user?.displayName || profile?.displayName || 'Professionnel';
 
@@ -184,7 +184,7 @@ export function ProProfilePage() {
             </div>
             <div className="px-5 py-4">
               <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Statut</p>
-              <p className="mt-1 text-sm font-semibold text-gray-900 capitalize">{profile?.status ?? '—'}</p>
+              <p className="mt-1 text-sm font-semibold text-gray-900 capitalize">{profile?.status ?? '-'}</p>
             </div>
           </Card>
           <div className="hidden lg:block">
@@ -254,7 +254,7 @@ export function ProProfilePage() {
                       <BadgeCheck size={14} className="text-primary-500" aria-hidden /> Statut
                     </dt>
                     <dd className="mt-2 text-lg font-bold text-gray-900">
-                      {PROFILE_STATUS_LABELS[profile?.status] || '—'}
+                      {PROFILE_STATUS_LABELS[profile?.status] || '-'}
                     </dd>
                   </div>
                 </dl>

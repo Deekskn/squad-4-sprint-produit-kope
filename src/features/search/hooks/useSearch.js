@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '@/lib/api.js';
-import { callApi } from '@/lib/dataSource.js';
-import { searchMock } from '@/mocks/appMock.js';
-import { cached } from '@/lib/cache.js';
-import { PAGE_SIZE } from '@/lib/constants.js';
+import { api } from '@/shared/lib/api.js';
+import { callApi } from '@/shared/lib/dataSource.js';
+import { searchMock } from '@/shared/mocks/appMock.js';
+import { cached } from '@/shared/lib/cache.js';
+import { PAGE_SIZE } from '@/shared/lib/constants.js';
 
 export async function searchProfessionals({ trade, zone, q, page }) {
   const params = {};

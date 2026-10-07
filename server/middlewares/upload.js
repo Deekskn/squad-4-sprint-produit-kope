@@ -8,7 +8,7 @@ export const upload = multer({
   fileFilter(req, file, cb) {
     if (ALLOWED_TYPES.includes(file.mimetype)) return cb(null, true);
     cb(ApiError.badRequest('Format non supporté : JPG ou PNG uniquement', {
-      photo: 'Format non supporté : JPG ou PNG uniquement',
+      [file.fieldname || 'photo']: 'Format non supporté : JPG ou PNG uniquement',
     }));
   },
 });

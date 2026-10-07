@@ -1,16 +1,16 @@
 import { ChevronRight, Star } from 'lucide-react';
-import { Card } from '@/components/ui/Card.jsx';
-import { Badge } from '@/components/ui/Badge.jsx';
-import { StarRating } from '@/components/ui/StarRating.jsx';
-import { cn } from '@/lib/utils.js';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { Badge } from '@/shared/components/ui/Badge.jsx';
+import { StarRating } from '@/shared/components/ui/StarRating.jsx';
+import { cn } from '@/shared/utils';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '@/lib/constants.js';
-import { mockImage } from '@/mocks/images.js';
+import { ROUTES } from '@/shared/lib/constants.js';
+import { mockImage } from '@/shared/mocks/images.js';
 
 function fallbackPortrait(seed, prompt) {
-  if (prompt) {
+  if (prompt) 
     return mockImage(prompt, 'portrait_4_3');
-  }
+  
   const hash = String(seed || 'kop').split('').reduce((a, c) => a + ((c.charCodeAt(0) * 13) % 7), 3);
   const palettes = [
     ['#eaf3ec', '#2d5c4a'], ['#f6efe0', '#8b6b2f'], ['#fbeae3', '#a45e3a'], ['#e6ecff', '#3e4c8a'],
@@ -35,7 +35,7 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
   const avg = Number(item.rating?.average ?? 0);
   const cnt = Number(item.rating?.count ?? 0);
 
-  if (mode === 'grid') {
+  if (mode === 'grid') 
     return (
       <Card className="group border-[#BDC0C8]! flex h-full flex-col overflow-hidden relative aspect-4/5.5 ">
           <img
@@ -78,7 +78,7 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
           </div>
       </Card>
     );
-  }
+  
 
   return (
     <li>

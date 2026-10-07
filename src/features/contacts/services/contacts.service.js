@@ -1,6 +1,6 @@
-import { api } from '@/lib/api.js';
-import { callApi } from '@/lib/dataSource.js';
-import { mockMyContacts } from '@/mocks/appMock.js';
+import { api } from '@/shared/lib/api.js';
+import { callApi } from '@/shared/lib/dataSource.js';
+import { mockMyContacts } from '@/shared/mocks/appMock.js';
 
 /** Mes contacts */
 export function getMyContacts({ page = 1, pageSize = 20 } = {}) {

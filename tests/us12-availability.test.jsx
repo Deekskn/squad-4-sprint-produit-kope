@@ -34,7 +34,7 @@ function renderInRouter(element) {
   return renderToStaticMarkup(<MemoryRouter>{element}</MemoryRouter>);
 }
 
-describe('US-12 — disponibilité', () => {
+describe('US-12 - disponibilité', () => {
   it('initialise le toggle à Disponible et expose son état accessible', () => {
     const html = renderToStaticMarkup(<AvailabilityToggle />);
 

@@ -38,9 +38,9 @@ const absolute = (relativePath) => path.join(env.UPLOAD_DIR, relativePath);
 
 export async function save({ filePath, thumbPath }, { main, thumb }) {
   try {
-    if (useCloud) {
+    if (useCloud) 
       await Promise.all([uploadBuffer(main, filePath), uploadBuffer(thumb, thumbPath)]);
-    } else {
+     else {
       await fs.mkdir(path.dirname(absolute(filePath)), { recursive: true });
       await fs.writeFile(absolute(filePath), main);
       await fs.writeFile(absolute(thumbPath), thumb);
@@ -53,9 +53,9 @@ export async function save({ filePath, thumbPath }, { main, thumb }) {
 
 export async function remove({ filePath, thumbPath }) {
   const paths = [filePath, thumbPath];
-  if (useCloud) {
+  if (useCloud) 
     await Promise.all(paths.map(destroyImage));
-  } else {
+   else 
     await Promise.all(paths.map((p) => fs.rm(absolute(p), { force: true })));
-  }
+  
 }

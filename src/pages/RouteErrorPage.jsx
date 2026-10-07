@@ -1,7 +1,7 @@
 import { Link, useRouteError } from 'react-router-dom';
 import { TriangleAlert } from 'lucide-react';
-import { Button } from '@/components/ui/Button.jsx';
-import { ROUTES } from '@/lib/constants.js';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { ROUTES } from '@/shared/lib/constants.js';
 
 export function RouteErrorPage() {
   const error = useRouteError();
@@ -14,7 +14,7 @@ export function RouteErrorPage() {
 
   return (
     <div className="bg-kop-mint">
-      <div className="container-kop flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
+      <div className="container-kop flex min-h-[60vh] flex-col items-center justify-center py-8 lg:py-16 text-center">
         <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 text-danger-500 ring-1 ring-gray-300">
           <TriangleAlert size={28} aria-hidden />
         </span>

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { listReviews } from '../services/reviews.service.js';
-import { Pagination } from '@/components/ui/Pagination.jsx';
-import { StarRating } from '@/components/ui/StarRating.jsx';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { Button } from '@/components/ui/Button.jsx';
-import { formatDateFr, fullNameInitials } from '@/lib/utils.js';
+import { Pagination } from '@/shared/components/ui/Pagination.jsx';
+import { StarRating } from '@/shared/components/ui/StarRating.jsx';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { formatDateFr, fullNameInitials } from '@/shared/utils';
 
 const PAGE_SIZE = 10;
 const COMPACT_COUNT = 3;
@@ -49,28 +49,28 @@ export function ReviewList({ professionalId, compact }) {
     load();
   }, [load]);
 
-  if (loading) {
+  if (loading)
     return (
       <div className="space-y-3 py-4" aria-busy="true">
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
       </div>
     );
-  }
+
   if (error) return <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">Impossible de charger les avis.</div>;
 
   const total = Number(data?.total ?? 0);
   const items = data?.items ?? [];
 
-  if (items.length === 0) {
+  if (items.length === 0)
     return (
       <div className="rounded-[20px] border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
         Aucun avis pour le moment.
       </div>
     );
-  }
 
-  if (compact) {
+
+  if (compact)
     return (
       <div className="space-y-0">
         <div className="divide-y divide-gray-100">
@@ -101,7 +101,7 @@ export function ReviewList({ professionalId, compact }) {
         )}
       </div>
     );
-  }
+
 
   return (
     <div className="space-y-4">

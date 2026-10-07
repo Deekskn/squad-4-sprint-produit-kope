@@ -1,14 +1,14 @@
-import { Dialog, DialogContent } from '@/components/ui/Dialog.jsx';
+import { Dialog, DialogContent } from '@/shared/components/ui/Dialog.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { LoginForm } from '../pages/LoginPage.jsx';
 import { RegisterClientForm } from '../pages/RegisterClientPage.jsx';
 import { BecomeProForm } from './BecomeProForm.jsx';
 import { ChangePasswordForm } from './ChangePasswordForm.jsx';
-import { ROLES } from '@/lib/constants.js';
-import { mockImage, LOGIN_IMAGE_PROMPT } from '@/mocks/images.js';
-import { Card } from '@/components/ui/Card.jsx';
-import { FloatingCaption } from '@/components/ui/FloatingCaption.jsx';
+import { ROLES } from '@/shared/lib/constants.js';
+import { mockImage, LOGIN_IMAGE_PROMPT } from '@/shared/mocks/images.js';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { FloatingCaption } from '@/shared/components/ui/FloatingCaption.jsx';
 import { User } from 'lucide-react';
 
 export function AuthModal() {
@@ -18,13 +18,13 @@ export function AuthModal() {
   const renderPro = () => {
 
     if (!user) return <LoginForm bare />
-    
-    if (user.role === ROLES.ADMIN) {
+
+    if (user.role === ROLES.ADMIN)
       return <p className="p-2 text-sm text-gray-600">Un compte administrateur ne peut pas devenir professionnel.</p>;
-    }
-    if (user.role === ROLES.PRO) {
+
+    if (user.role === ROLES.PRO)
       return <p className="p-2 text-sm text-gray-600">Votre compte est déjà professionnel.</p>;
-    }
+
     return <BecomeProForm bare />;
   };
 
@@ -32,8 +32,26 @@ export function AuthModal() {
     <Dialog open={mode != null} onOpenChange={(o) => !o && close()}>
       <DialogContent className="max-w-4xl p-2 " onClose={close}>
         <div className="grid lg:grid-cols-2 lg:items-start min-h-140">
-          <aside className="hidden  h-full  lg:flex flex-col justify-between gap-3 rounded-[16px] bg-radial from-[#28604B] to-[#183E30] p-2 text-white">
-            <div className='space-y-2 p-6'>
+          <aside className="relative hidden h-full lg:flex flex-col justify-between gap-3 overflow-hidden rounded-[16px] bg-radial from-[#28604B] to-[#183E30] p-2 text-white">
+            <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 640 960" preserveAspectRatio="xMidYMid slice" fill="none">
+              <circle cx="60" cy="60" r="50" fill="#ffffff" opacity="0.05" />
+              <circle cx="600" cy="900" r="70" fill="#ffffff" opacity="0.05" />
+              <rect x="80" y="700" width="60" height="60" rx="14" transform="rotate(18 110 730)" fill="#ffffff" opacity="0.06" />
+              <rect x="480" y="140" width="56" height="56" rx="13" transform="rotate(-14 508 168)" fill="#ffffff" opacity="0.06" />
+              <polygon points="240,560 300,490 360,560" fill="#ffffff" opacity="0.05" />
+              <circle cx="320" cy="140" r="22" fill="none" stroke="#ffffff" strokeWidth="6" opacity="0.1" />
+              <circle cx="160" cy="170" r="11" fill="#ffffff" opacity="0.1" />
+              <polygon points="520,700 556,714 528,734" fill="#ffffff" opacity="0.1" />
+              <path d="M40 800 Q100 760 160 790" stroke="#ffffff" strokeWidth="5" opacity="0.09" />
+              <circle cx="130" cy="420" r="16" fill="none" stroke="#ffffff" strokeWidth="5" opacity="0.09" />
+              <rect x="280" y="90" width="28" height="28" rx="8" transform="rotate(28 294 104)" fill="#ffffff" opacity="0.08" />
+              <rect x="420" y="820" width="40" height="40" rx="10" transform="rotate(-22 440 840)" fill="none" stroke="#ffffff" strokeWidth="4" opacity="0.1" />
+              <circle cx="500" cy="420" r="8" fill="#ffffff" opacity="0.12" />
+              <circle cx="230" cy="60" r="6" fill="none" stroke="#ffffff" strokeWidth="4" opacity="0.12" />
+              <path d="M460 90 q27 -19 54 0 q27 19 54 0" stroke="#ffffff" strokeWidth="5" opacity="0.08" />
+              <polygon points="60,300 120,300 90,340" fill="#ffffff" opacity="0.06" transform="rotate(-16 90 320)" />
+            </svg>
+            <div className='relative z-10 space-y-2 p-6'>
               <h2 className="text-3xl font-semibold tracking-tight leading-tight text-white!">
                 Les belles rencontres commencent tout près.
               </h2>
@@ -41,7 +59,7 @@ export function AuthModal() {
                 Retrouvez les professionnels de votre quartier et gardez une trace de vos demandes, au même endroit.
               </p>
             </div>
-            <Card className="overflow-hidden flex flex-col transition rounded-sm! border-0! ">
+            <Card className="relative z-10 overflow-hidden flex flex-col transition rounded-sm! border-0! ">
               <div className="relative aspect-6/4 overflow-hidden ">
                 <img
                   src={mockImage(LOGIN_IMAGE_PROMPT)}

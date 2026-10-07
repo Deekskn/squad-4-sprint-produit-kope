@@ -4,9 +4,9 @@ import * as contactsService from '../server/modules/contacts/contacts.service.js
 import * as contactsRepository from '../server/modules/contacts/contacts.repository.js';
 import * as authRepository from '../server/modules/auth/auth.repository.js';
 import { ApiError } from '../server/utils/ApiError.js';
-import { createContactSchema as createContactSchemaClient } from '../src/components/form/validators.js';
+import { createContactSchema as createContactSchemaClient } from '../src/shared/utils/validators.js';
 import { getMyContacts } from '../src/features/contacts/services/contacts.service.js';
-import { resetMockMode } from '../src/lib/dataSource.js';
+import { resetMockMode } from '../src/shared/lib/dataSource.js';
 
 afterEach(() => {
   vi.restoreAllMocks();

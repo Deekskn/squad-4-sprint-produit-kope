@@ -19,12 +19,12 @@ export function verifyToken(token, secret) {
   const [header, body, signature] = token.split('.');
   if (!header || !body || !signature) throw new Error('Token invalide');
   const expected = sign(`${header}.${body}`, secret);
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) 
     throw new Error('Signature invalide');
-  }
+  
   const payload = JSON.parse(Buffer.from(body, 'base64url').toString());
-  if (payload.exp && payload.exp * 1000 < Date.now()) {
+  if (payload.exp && payload.exp * 1000 < Date.now()) 
     throw new Error('Token expiré');
-  }
+  
   return payload;
 }

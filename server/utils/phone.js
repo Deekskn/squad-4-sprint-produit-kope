@@ -9,9 +9,9 @@ export function normalizePhone(input) {
 
   if (!/^\d+$/.test(digits)) return null;
 
-  if (digits.startsWith(COUNTRY_CODE) && digits.length === COUNTRY_CODE.length + 9) {
+  if (digits.startsWith(COUNTRY_CODE) && digits.length === COUNTRY_CODE.length + 9) 
     digits = digits.slice(COUNTRY_CODE.length);
-  }
+  
 
   return /^0\d{8}$/.test(digits) ? `+${COUNTRY_CODE}${digits}` : null;
 }

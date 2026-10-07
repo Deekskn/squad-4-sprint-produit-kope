@@ -3,14 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Input } from '@/components/ui/Input.jsx';
-import { Checkbox } from '@/components/ui/Checkbox.jsx';
-import { useForm } from '@/components/form/useForm.js';
-import { registerClientSchema } from '@/components/form/validators.js';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
+import { Checkbox } from '@/shared/components/ui/Checkbox.jsx';
+import { useForm } from '@/shared/hooks/useForm.js';
+import { registerClientSchema } from '@/shared/utils/validators.js';
 import { registerClient } from '../services/auth.service.js';
-import { ROUTES } from '@/lib/constants.js';
+import { ROUTES } from '@/shared/lib/constants.js';
 import { Lock, LockOpen } from 'lucide-react';
 
 const INITIAL = { firstName: '', lastName: '', phone: '', password: '', consent: false };
@@ -42,9 +42,9 @@ export function RegisterClientForm({ bare = false } = {}) {
     } else if (res.error?.errors) {
       setErrors((prev) => ({ ...prev, ...res.error.errors }));
       toast({ message: res.error.message || 'Veuillez corriger les erreurs.', type: 'error' });
-    } else if (res.error?.message) {
+    } else if (res.error?.message)
       toast({ message: res.error.message, type: 'error' });
-    }
+
   };
 
   return (
