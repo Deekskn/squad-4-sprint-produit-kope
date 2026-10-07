@@ -12,14 +12,14 @@ function EmptyGallery() {
   );
 }
 
-export function PhotoGallery({ photos = [], editable = false, onDelete, allowEmptyMessage = true }) {
+export function PhotoGallery({ photos = [], editable = false, onDelete, allowEmptyMessage = true, columns = 'sm:grid-cols-2 lg:grid-cols-3' }) {
   const [activeIndex, setActiveIndex] = useState(null);
 
   if (!photos.length && allowEmptyMessage) return <EmptyGallery />;
 
   return (
     <div>
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className={cn('grid gap-3', columns)}>
         {photos.map((p, i) => {
           const title = p.title || p.caption;
           return (
