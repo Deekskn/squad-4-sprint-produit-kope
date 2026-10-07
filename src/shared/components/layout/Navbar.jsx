@@ -56,9 +56,9 @@ export function Navbar() {
                 to={item.to}
                 className={({ isActive }) =>
                   cn(
-                    'rounded-[10px]  py-2 text-sm font-semibold transition',
+                    'relative rounded-[10px] px-3 py-2 text-sm font-semibold transition',
                     isActive
-                      ? 'text-primary-700'
+                      ? 'text-primary-500 nav-link-active'
                       : 'text-gray-700 hover:text-gray-900',
                   )
                 }
@@ -129,7 +129,7 @@ export function Navbar() {
                     cn(
                       'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition',
                       isActive
-                        ? 'bg-primary-50 text-primary-700'
+                        ? 'bg-primary-50 text-primary-500'
                         : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900',
                     )
                   }
