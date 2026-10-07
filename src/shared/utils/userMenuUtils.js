@@ -1,5 +1,5 @@
 import { ROUTES, ROLES } from '@/shared/lib/constants.js';
-import { initials } from '@/shared/lib/utils.js';
+import { initials } from '@/shared/utils';
 
 export function avatarFor(user) {
   if (!user) return '?';

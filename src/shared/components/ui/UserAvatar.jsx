@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
-import { initials } from '@/shared/lib/utils.js';
+import { initials } from '@/shared/utils';
 
 /** Avatar utilisateur */
 export function UserAvatar({ user, name, className = 'h-8 w-8', fallbackClassName = 'bg-primary-100 text-primary-800', src }) {

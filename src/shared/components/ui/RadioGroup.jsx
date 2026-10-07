@@ -1,5 +1,5 @@
 import { createContext, useContext, useId } from 'react';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 const RadioGroupContext = createContext(null);
 

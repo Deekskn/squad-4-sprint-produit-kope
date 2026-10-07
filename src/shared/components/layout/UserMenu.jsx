@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { ROUTES, ROLES, PROFILE_STATUS } from '@/shared/lib/constants.js';
 import { Button } from '@/shared/components/ui/Button.jsx';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 import { useEffect, useState } from 'react';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';

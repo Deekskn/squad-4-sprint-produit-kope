@@ -6,7 +6,7 @@ import {
   initials,
   fullNameInitials,
   truncate,
-} from '../src/shared/lib/utils.js';
+} from '../src/shared/utils';
 
 describe('utils.js', () => {
   describe('formatPhoneFR', () => {

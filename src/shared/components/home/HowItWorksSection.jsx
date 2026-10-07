@@ -1,6 +1,6 @@
 import { Card } from '@/shared/components/ui/Card.jsx';
 import { SectionHeader } from '@/shared/components/sections/SectionHeader.jsx';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 import { STEPS } from '@/shared/mocks/homeData.js';
 
 export function HowItWorksSection() {

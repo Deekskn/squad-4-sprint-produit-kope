@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function SidebarNav({ items, active, onChange, ariaLabel, orientation = 'vertical' }) {
   const isHorizontal = orientation === 'horizontal';

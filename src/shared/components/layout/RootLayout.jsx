@@ -4,7 +4,7 @@ import { Footer } from './Footer.jsx';
 import { AuthModal } from '@/features/auth/components/AuthModal.jsx';
 import { useMockMode } from '@/shared/lib/dataSource.js';
 import { ROUTES } from '@/shared/lib/constants.js';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 const BOTTOM_NAV_ROUTES = [ROUTES.DASHBOARD_PRO, ROUTES.DASHBOARD_CLIENT];
 

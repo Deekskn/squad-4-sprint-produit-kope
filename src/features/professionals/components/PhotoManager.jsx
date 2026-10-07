@@ -20,7 +20,7 @@ import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { MAX_PHOTOS, ALLOWED_MIME, MAX_FILE_SIZE_BYTES } from '@/shared/lib/constants.js';
 import { addPhoto, updatePhoto, deletePhoto } from '@/features/photos/services/photos.service.js';
 import { addPhotoSchema, validateFrontend } from '@/shared/utils/validators.js';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 const MIN_SLOTS = 3;
 

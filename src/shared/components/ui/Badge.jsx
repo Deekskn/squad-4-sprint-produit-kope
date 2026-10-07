@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 const VARIANTS = {
   success:      'bg-available-50 text-available-500 ring ring-[#bdd8c6]',

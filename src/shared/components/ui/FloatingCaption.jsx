@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 export function FloatingCaption({ title, subtitle, subtitleClassName, icon: Icon, align = 'left', wide = false, className }) {
   return (

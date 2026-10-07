@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 import { Input } from './Input.jsx';
 import { Textarea } from './Textarea.jsx';
 import { Select } from './Select.jsx';

@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { RadioGroup, Radio } from './RadioGroup.jsx';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 
 function Stars({ count = 5, value = 0, onChange, size = 'md', readOnly = false }) {
   const items = Array.from({ length: count }, (_, i) => i + 1);

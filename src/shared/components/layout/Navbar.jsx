@@ -4,7 +4,7 @@ import { UserMenu } from './UserMenu.jsx';
 import { displayNameFor, roleLabel, dashboardHref } from '@/shared/utils/userMenuUtils.js';
 import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
-import { cn } from '@/shared/lib/utils.js';
+import { cn } from '@/shared/utils';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
