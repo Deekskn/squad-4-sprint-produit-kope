@@ -56,9 +56,9 @@ export function BecomeProForm({ bare = false } = {}) {
     } else if (res.error?.errors) {
       setErrors((prev) => ({ ...prev, ...res.error.errors }));
       toast({ message: res.error.message || 'Veuillez corriger les erreurs.', type: 'error' });
-    } else if (res.error?.message) {
+    } else if (res.error?.message)
       toast({ message: res.error.message, type: 'error' });
-    }
+
   };
 
   return (

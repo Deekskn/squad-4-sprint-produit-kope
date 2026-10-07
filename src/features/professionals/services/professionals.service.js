@@ -44,9 +44,9 @@ export function updateMyProfile(payload) {
         yearsExperience: payload.yearsExperience ?? p.yearsExperience,
         whatsapp: payload.whatsapp ?? p.whatsapp,
       });
-      if (Array.isArray(payload.zoneIds) && payload.zoneIds.length) {
+      if (Array.isArray(payload.zoneIds) && payload.zoneIds.length)
         p.zones = payload.zoneIds.map((id) => p.zones.find((z) => Number(z.id) === Number(id)) || { id, name: `Zone ${id}` });
-      }
+
       return { ...ownProfileFromMock(), ...p };
     },
   );

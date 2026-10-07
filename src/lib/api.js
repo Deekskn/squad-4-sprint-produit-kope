@@ -21,13 +21,13 @@ function resolveUrl(url) {
 async function parseResponse(res) {
   let payload = null;
   const contentType = res.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) {
+  if (contentType.includes('application/json')) 
     try {
       payload = await res.json();
     } catch {
       payload = null;
     }
-  }
+  
   if (!res.ok) {
     const message = payload?.message || `Erreur ${res.status}`;
     throw new ApiError(res.status, message, payload?.errors);
@@ -38,7 +38,7 @@ async function parseResponse(res) {
 let refreshPromise = null;
 
 async function refreshAccessToken() {
-  if (!refreshPromise) {
+  if (!refreshPromise) 
     refreshPromise = (async () => {
       const refreshToken = getRefreshToken();
       if (!refreshToken) throw new Error('no-refresh-token');
@@ -55,7 +55,7 @@ async function refreshAccessToken() {
     })().finally(() => {
       refreshPromise = null;
     });
-  }
+  
   return refreshPromise;
 }
 
@@ -67,14 +67,14 @@ export async function fetchApi(url, options = {}, retry = true) {
     headers: { ...DEFAULT_HEADERS, ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers },
     ...rest,
   });
-  if (res.status === 401 && retry && !url.includes('/auth/refresh') && !url.includes('/auth/login')) {
+  if (res.status === 401 && retry && !url.includes('/auth/refresh') && !url.includes('/auth/login')) 
     try {
       await refreshAccessToken();
       return fetchApi(url, options, false);
     } catch {
       clearTokens();
     }
-  }
+  
   return parseResponse(res);
 }
 

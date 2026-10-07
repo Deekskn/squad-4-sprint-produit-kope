@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { normalizePhone } from './phone.js';
 
-export const requiredText = (max) =>
+export const requiredText = (max, message = 'Ce champ est obligatoire') =>
   z
-    .string({ error: 'Ce champ est obligatoire' })
+    .string({ error: message })
     .trim()
-    .min(1, 'Ce champ est obligatoire')
+    .min(1, message)
     .max(max, `${max} caractères maximum`);
 
 /** Identifiant numérique  */

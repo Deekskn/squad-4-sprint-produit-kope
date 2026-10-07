@@ -7,7 +7,7 @@ export function ProtectedRoute({ children }) {
   const { user, loading } = useAuthContext();
   const location = useLocation();
 
-  if (loading) {
+  if (loading)
     return (
       <div className="container-kop space-y-4 py-16" aria-busy="true">
         <Skeleton className="h-8 w-1/3" />
@@ -15,7 +15,7 @@ export function ProtectedRoute({ children }) {
         <Skeleton className="h-40 w-full" />
       </div>
     );
-  }
+
   if (!user) {
     const next = encodeURIComponent(`${location.pathname}${location.search}`);
     return <Navigate to={`${ROUTES.LOGIN}?next=${next}`} replace />;

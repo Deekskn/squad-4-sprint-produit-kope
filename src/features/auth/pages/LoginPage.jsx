@@ -41,13 +41,17 @@ export function LoginForm({ bare = false } = {}) {
     const res = await handleSubmit(e);
     if (res.ok) {
       setUser(res.result);
-      const next = params.get('next') || dashboardForRole(res.result.role);
+      const rawNext = params.get('next');
+      const safeNext = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+        ? rawNext
+        : null;
+      const next = safeNext || dashboardForRole(res.result.role);
       toast({ message: 'Bienvenue !', type: 'success' });
       closeModal();
       navigate(next, { replace: true });
-    } else if (res.error && !res.error?.errors) {
+    } else if (res.error && !res.error?.errors)
       toast({ message: res.error?.message || 'Identifiants incorrects', type: 'error' });
-    }
+
   };
 
   return (

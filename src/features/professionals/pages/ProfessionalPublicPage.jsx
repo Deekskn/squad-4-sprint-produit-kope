@@ -22,7 +22,7 @@ export function ProfessionalPublicPage() {
   const detail = useAsyncData(() => getPublishedDetail(id), [id]);
   const canReviewState = useAsyncData(() => canReview(id), [id, user?.id]);
 
-  if (detail.loading || detail.error) {
+  if (detail.loading || detail.error) 
     return (
       <div className="container-kop page-padding">
         <DataState loading={detail.loading} error={detail.error} errorPrefix="Fiche introuvable">
@@ -30,7 +30,7 @@ export function ProfessionalPublicPage() {
         </DataState>
       </div>
     );
-  }
+  
 
   const { profile, photos, rating } = detail.data;
   const whatsappUrl = toWhatsappUrl(profile.whatsapp || profile.phone);

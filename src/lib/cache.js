@@ -24,7 +24,7 @@ export async function cached(key, ttlMs, loader) {
 }
 
 export function cacheInvalidate(prefix) {
-  for (const key of store.keys()) {
+  for (const key of store.keys())
     if (key.startsWith(prefix)) store.delete(key);
-  }
+
 }

@@ -15,7 +15,7 @@ describe('US-13 professional ranking', () => {
     );
     expect(query).toContain('ROUND(AVG(r.rating), 1)::float8 AS "ratingAverage"');
     expect(query).toContain('LEFT JOIN reviews r ON r.professional_id = p.user_id AND NOT r.is_hidden');
-    expect(params).toEqual([2, 5, 10, 20]);
+    expect(params).toEqual([2, 5, null, 10, 20]);
   });
 
   it('updates the profile timestamp when availability changes', async () => {

@@ -56,9 +56,9 @@ export async function login(req, res) {
 
 export async function logout(req, res, next) {
   const { refreshToken } = req.body ?? {};
-  if (refreshToken) {
+  if (refreshToken) 
     try { await refreshTokens.revoke(refreshToken); } catch { /* ignore */ }
-  }
+  
   req.session.destroy((err) => {
     if (err) return next(err);
     res.clearCookie(SESSION_COOKIE);
@@ -68,14 +68,14 @@ export async function logout(req, res, next) {
 
 export async function me(req, res, next) {
   const user = await service.getCurrentUser(currentUser(req).id);
-  if (!user) {
+  if (!user) 
     // compte supprimé depuis : on ferme la session
     return logout(req, res, next);
-  }
+  
 
-  if (req.bearerExpired) {
+  if (req.bearerExpired) 
     return res.json({ user, ...(await issueTokens(user)) });
-  }
+  
   res.json({ user });
 }
 

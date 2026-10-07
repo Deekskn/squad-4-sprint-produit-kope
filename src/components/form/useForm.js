@@ -27,9 +27,9 @@ export function useForm(schema, initialValues = {}, onSubmit) {
       setErrors(fieldErrors || {});
       if (!success) {
         const firstKey = Object.keys(fieldErrors || {})[0];
-        if (firstKey && typeof document !== 'undefined') {
+        if (firstKey && typeof document !== 'undefined')
           document.querySelector(`[id="${firstKey}"], [name="${firstKey}"]`)?.focus?.();
-        }
+
         return { ok: false };
       }
       setSubmitting(true);
@@ -37,9 +37,9 @@ export function useForm(schema, initialValues = {}, onSubmit) {
         const result = await onSubmit?.(data);
         return { ok: true, result };
       } catch (err) {
-        if (err?.errors) {
+        if (err?.errors)
           setErrors((e) => ({ ...e, ...err.errors }));
-        }
+
         if (err?.message) setGlobalError(err.message);
         return { ok: false, error: err };
       } finally {

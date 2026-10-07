@@ -19,9 +19,9 @@ export function AuthModalRedirect({ mode }) {
 
   useEffect(() => {
     if (loading) return;
-    if (user) {
+    if (user)
       navigate(dashboardForRole(user.role), { replace: true });
-    } else {
+     else {
       open(mode);
       navigate(ROUTES.HOME, { replace: true });
     }
