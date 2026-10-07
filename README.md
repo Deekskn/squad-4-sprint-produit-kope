@@ -1,4 +1,4 @@
-# Squad 4 — Sprint Produit
+# Squad 4 - Sprint Produit
 
 Dépôt de travail de la Squad 4 dans le cadre du Sprint Produit Akieni Academy.
 
