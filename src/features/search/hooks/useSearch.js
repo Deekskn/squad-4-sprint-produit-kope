@@ -5,10 +5,11 @@ import { searchMock } from '@/mocks/appMock.js';
 import { cached } from '@/lib/cache.js';
 import { PAGE_SIZE } from '@/lib/constants.js';
 
-export async function searchProfessionals({ trade, zone, page }) {
+export async function searchProfessionals({ trade, zone, q, page }) {
   const params = {};
   if (trade) params.trade = String(trade);
   if (zone) params.zone = String(zone);
+  if (q) params.q = q;
   if (page) params.page = String(page);
   return callApi(
     () =>
@@ -19,7 +20,7 @@ export async function searchProfessionals({ trade, zone, page }) {
   );
 }
 
-export function useSearch({ trade, zone, page }) {
+export function useSearch({ trade, zone, q, page }) {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -42,10 +43,9 @@ export function useSearch({ trade, zone, page }) {
     } finally {
       setLoading(false);
     }
-  }, [trade, zone, page]);
+  }, [trade, zone, q, page]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     run();
   }, [run]);
 

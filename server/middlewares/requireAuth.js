@@ -1,12 +1,4 @@
 import { ApiError } from '../utils/ApiError.js';
-import { verifyToken } from '../utils/tokens.js';
-import { env } from '../config/env.js';
-
-/**
- * Identifie l'utilisateur via `Authorization: Bearer <accessToken>` en priorité,
- * sinon via la session cookie. Remplit req.user = { id, role }.
- * 401 si non connecté.
- */
 export function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
