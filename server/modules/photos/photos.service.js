@@ -18,19 +18,17 @@ function toDto(photo) {
   };
 }
 
-/** Utilisé aussi par professionals.service (fiche publique et profil). */
 export async function listPhotos(professionalId) {
   const photos = await repository.listByProfessional(professionalId);
   return photos.map(toDto);
 }
 
-/** US-05 : ajout d'une photo (JPG/PNG, 5 Mo, 10 photos max, redimensionnée + miniature). */
+/** US-05 */
 export async function addPhoto(professionalId, file, { title, description }) {
   if (!file) {
     throw ApiError.badRequest('Aucune photo reçue', { photo: 'Choisissez une photo' });
   }
 
-  // Vérification rapide avant le traitement d'image (qui coûte du CPU)
   if ((await repository.count(professionalId)) >= MAX_PHOTOS) {
     throw ApiError.badRequest(LIMIT_MESSAGE, { photo: LIMIT_MESSAGE });
   }
@@ -39,8 +37,6 @@ export async function addPhoto(professionalId, file, { title, description }) {
   const paths = storage.newPaths(professionalId);
 
   const photo = await withTransaction(async (tx) => {
-    // On verrouille la ligne du professionnel : deux envois simultanés ne peuvent
-    // pas dépasser la limite en passant chacun la vérification en même temps.
     await repository.lockProfessional(professionalId, tx);
     if ((await repository.count(professionalId, tx)) >= MAX_PHOTOS) {
       throw ApiError.badRequest(LIMIT_MESSAGE, { photo: LIMIT_MESSAGE });
@@ -50,21 +46,21 @@ export async function addPhoto(professionalId, file, { title, description }) {
       { professionalId, filePath: paths.filePath, thumbPath: paths.thumbPath, title, description },
       tx,
     );
-    await storage.save(paths, processed); // si l'écriture échoue : rollback
+    await storage.save(paths, processed); 
     return created;
   });
 
   return toDto(photo);
 }
 
-/** Modification du titre / de la description (US-05, bouton "Modifier"). */
+/** Modification du titre */
 export async function updatePhoto(professionalId, photoId, { title, description }) {
   const updated = await repository.update(photoId, professionalId, { title, description });
   if (!updated) throw ApiError.notFound('Photo introuvable');
   return toDto(updated);
 }
 
-/** US-05 CA4 : la photo disparaît aussi de la fiche publique (même table). */
+/** US-05 */
 export async function removePhoto(professionalId, photoId) {
   const removed = await withTransaction((tx) => repository.remove(photoId, professionalId, tx)); // filtre par propriétaire
   if (!removed) throw ApiError.notFound('Photo introuvable');

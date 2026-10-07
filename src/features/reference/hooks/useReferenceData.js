@@ -31,7 +31,6 @@ export function useReferenceData() {
 
   useEffect(() => {
     mounted.current = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     return () => {
       mounted.current = false;

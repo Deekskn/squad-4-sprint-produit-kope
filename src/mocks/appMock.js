@@ -1,5 +1,4 @@
-// Données mock cohérentes avec le schéma SQL (migrations 1759500000000).
-// Utilisées quand le backend/DB est indisponible ou VITE_USE_MOCKS=true.
+// Données mock Utilisées quand le backend/DB est indisponible
 import what1 from '@/assets/what1.png';
 import what2 from '@/assets/what2.png';
 import what3 from '@/assets/what3.png';
@@ -133,10 +132,6 @@ export function getProDetailMock(id) {
 
 // ---------- Contacts mock ----------
 
-/**
- * Mes contacts en mode démo : un client m'a contacté, j'ai contacté un pro.
- * `outgoing` = true si c'est moi qui ai envoyé le message.
- */
 export function mockMyContacts({ page = 1, pageSize = 20 } = {}) {
   const items = [
     {
@@ -180,7 +175,7 @@ export function mockMyContacts({ page = 1, pageSize = 20 } = {}) {
   };
 }
 
-// ---------- Session mock (persistée en localStorage pour survivre au reload) ----------
+// ---------- Session mock  ----------
 
 const SESSION_KEY = 'kop_demo_user';
 

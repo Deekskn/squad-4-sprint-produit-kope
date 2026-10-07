@@ -17,7 +17,7 @@ export const registerClientSchema = z.object({
   consent: consentSchema,
 });
 
-/** US-02 : métier et zones = valeurs du référentiel (vérifiées par les clés étrangères en base) */
+/** US-02 */
 export const registerProfessionalSchema = z.object({
   displayName: requiredText(100),
   phone: phoneSchema,
@@ -27,7 +27,6 @@ export const registerProfessionalSchema = z.object({
   consent: consentSchema,
 });
 
-/** Upgrade d'un compte client existant en compte professionnel. */
 export const becomeProfessionalSchema = z.object({
   displayName: requiredText(100),
   tradeId: idSchema('Choisissez un metier'),
@@ -44,20 +43,18 @@ export const becomeProfessionalSchema = z.object({
     .max(500, 'La description ne doit pas depasser 500 caracteres'),
 });
 
-/** US-03 : on ne valide pas le format ici (message d'erreur générique géré par le service) */
+/** US-03 */
 export const loginSchema = z.object({
   phone: z.string({ error: 'Champ obligatoire' }).trim().min(1, 'Champ obligatoire'),
   password: z.string({ error: 'Champ obligatoire' }).min(1, 'Champ obligatoire'),
 });
 
-/** Mise à jour des informations personnelles (client) */
 export const updateAccountSchema = z.object({
   firstName: requiredText(100).optional(),
   lastName: requiredText(100).optional(),
   phone: phoneSchema.optional(),
 });
 
-/** Changement de mot de passe : exige l'ancien pour autoriser le nouveau */
 export const changePasswordSchema = z.object({
   currentPassword: z.string({ error: 'Champ obligatoire' }).min(1, 'Champ obligatoire'),
   newPassword: passwordSchema,

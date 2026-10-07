@@ -1,10 +1,5 @@
 import { cn } from '@/lib/utils.js';
 
-/**
- * Navigation de sidebar partagée (client / pro / admin).
- * Les onglets ont le même style de bordure que les inputs.
- * `orientation="horizontal"` transforme la liste en tabs scrollables en X (mobile).
- */
 export function SidebarNav({ items, active, onChange, ariaLabel, orientation = 'vertical' }) {
   const isHorizontal = orientation === 'horizontal';
   return (

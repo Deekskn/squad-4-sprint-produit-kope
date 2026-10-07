@@ -37,7 +37,6 @@ export async function existsPair(senderId, recipientId, db = pool) {
   return rowCount > 0;
 }
 
-/** Un contact déjà lu par son destinataire ne doit plus remonter comme "nouveau". */
 export async function markIncomingAsSeen(userId, db = pool) {
   await db.query(
     "UPDATE contacts SET status = 'seen' WHERE recipient_id = $1 AND status = 'new'",
@@ -45,10 +44,6 @@ export async function markIncomingAsSeen(userId, db = pool) {
   );
 }
 
-/**
- * Tous mes contacts, dans les deux sens : ceux que j'ai contactés et ceux qui m'ont contacté.
- * `outgoing` indique le sens, le reste des colonnes décrit l'interlocuteur.
- */
 export async function listForUser(userId, { limit = 20, offset = 0 } = {}, db = pool) {
   const outgoing = COUNTERPART.replace('%s', 'c.recipient_id');
   const incoming = COUNTERPART.replace('%s', 'c.sender_id');

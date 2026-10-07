@@ -60,7 +60,6 @@ export function logout() {
         await api.postJson('/auth/logout', { refreshToken: getRefreshToken() });
       } finally {
         clearTokens();
-        // Le compte démo local nuit aussi à la déconnexion : on le purge.
         setDemoUser(null);
       }
       return {};
@@ -72,8 +71,6 @@ export function logout() {
 }
 
 export function getCurrentUser() {
-  // En mode démo (login mock), l'utilisateur vit dans localStorage et il n'y a
-  // pas de jeton : on le restitue directement, sans appeler l'API.
   const demoUser = getDemoUser();
   if (demoUser && !getAccessToken()) {
     return Promise.resolve(demoUser);

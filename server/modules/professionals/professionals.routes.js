@@ -6,7 +6,7 @@ import * as controller from './professionals.controller.js';
 
 const router = Router();
 
-// Espace du professionnel connecté (US-04, US-06, US-12)
+// Espace du professionnel connecté
 router.get('/me/profile', requireRole('professional'), controller.getMyProfile);
 router.put('/me/profile', requireRole('professional'), validate(updateProfileSchema), controller.updateMyProfile);
 router.patch('/me/availability', requireRole('professional'), validate(availabilitySchema), controller.setAvailability);

@@ -37,7 +37,6 @@ export function ProfessionalPublicPage() {
   const canLeaveReview =
     reviewSubmittedFor !== id && user?.role === ROLES.CLIENT && canReviewState.data === true;
 
-  // Un connecté (hors admin, hors soi-même) peut envoyer une demande de contact.
   const isSelf = user?.id != null && String(user.id) === String(profile.id);
   const canContact = Boolean(user) && user.role !== ROLES.ADMIN && !isSelf;
   const onContactClick = () => setContactOpen(true);
@@ -46,7 +45,6 @@ export function ProfessionalPublicPage() {
     setReviewSubmittedFor(id);
     setReviewsVersion((version) => version + 1);
     detail.reload().catch(() => {
-      // useAsyncData stores the error for the page's DataState.
     });
   };
 

@@ -8,7 +8,6 @@ const ZONES_JSON = `
       WHERE pz.professional_id = p.user_id),
     '[]'::json)`;
 
-/** Appelé à l'inscription (auth.service) : profil créé vide, donc "Incomplet". */
 export async function create({ userId, displayName, tradeId }, db = pool) {
   await db.query(
     'INSERT INTO professionals (user_id, display_name, trade_id) VALUES ($1, $2, $3)',
@@ -16,7 +15,6 @@ export async function create({ userId, displayName, tradeId }, db = pool) {
   );
 }
 
-/** Remplace toutes les zones du professionnel (à appeler dans une transaction). */
 export async function replaceZones(professionalId, zoneIds, db = pool) {
   await db.query('DELETE FROM professional_zones WHERE professional_id = $1', [professionalId]);
   await db.query(
@@ -39,12 +37,6 @@ const PROFILE_COLUMNS = {
   whatsapp: 'whatsapp',
 };
 
-/**
- * Mise à jour partielle : seules les clés présentes (≠ undefined) sont écrites.
- * `becomeProfessional` n'envoie que description/années/whatsapp après la création
- * du profil — sans ça, display_name/trade_id passeraient à NULL (contrainte NOT NULL).
- * `null` reste une valeur explicite (ex : whatsapp vidé).
- */
 export async function updateProfile(userId, fields, db = pool) {
   const sets = [];
   const values = [userId];
@@ -68,7 +60,7 @@ export async function setAvailability(userId, isAvailable, db = pool) {
   );
 }
 
-/** Profil du propriétaire, quel que soit son statut. */
+/** Profil du propriétaire */
 export async function findOwnProfile(userId, db = pool) {
   const { rows } = await db.query(
     `SELECT p.user_id AS id,

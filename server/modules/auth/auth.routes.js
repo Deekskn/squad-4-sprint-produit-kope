@@ -26,6 +26,5 @@ router.put('/auth/me', requireAuth, validate(updateAccountSchema), controller.up
 router.put('/auth/password', requireAuth, validate(changePasswordSchema), controller.changePassword);
 router.post('/auth/avatar', requireAuth, upload.single('avatar'), controller.uploadAvatar);
 
-// US-18 (Could) : mot de passe oublié — à ajouter quand la story sera arbitrée.
 
 export default router;

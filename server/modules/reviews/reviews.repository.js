@@ -46,7 +46,7 @@ export async function listByProfessional(professionalId, { limit, offset }, db =
   return rows;
 }
 
-/** Tous les avis laissés par un client, toutes cibles confondues (transparence des avis). */
+/** Tous les avis laissés par un client */
 export async function listByClient(clientId, { limit = 20, offset = 0 } = {}, db = pool) {
   const { rows } = await db.query(
     `SELECT r.id, r.rating, r.comment, r.created_at AS "createdAt",

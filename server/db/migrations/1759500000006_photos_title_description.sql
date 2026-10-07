@@ -1,10 +1,10 @@
 -- Up Migration
 
--- Photos : titre + description de la réalisation demandés par le modal d'ajout.
+-- Photos : titre + description.
 ALTER TABLE photos ADD COLUMN title varchar(100);
 ALTER TABLE photos ADD COLUMN description varchar(500);
 
--- Rétrocompatibilité : l'ancienne légende devient le titre existant.
+-- l'ancienne légende devient le titre.
 UPDATE photos SET title = caption WHERE title IS NULL AND caption IS NOT NULL;
 
 -- Down Migration

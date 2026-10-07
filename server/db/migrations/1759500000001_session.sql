@@ -1,6 +1,5 @@
 -- Up Migration
 
--- Table attendue par connect-pg-simple (sessions Express stockées dans Postgres)
 CREATE TABLE "session" (
   "sid"    varchar NOT NULL COLLATE "default",
   "sess"   json NOT NULL,

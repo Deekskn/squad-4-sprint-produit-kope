@@ -1,7 +1,5 @@
 import { pool } from '../../db/pool.js';
 
-// `db` = pool par défaut, ou le client d'une transaction (withTransaction).
-
 export async function updateRole(userId, role, db = pool) {
   await db.query('UPDATE users SET role = $2 WHERE id = $1', [userId, role]);
 }

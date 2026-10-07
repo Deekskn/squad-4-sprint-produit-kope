@@ -30,11 +30,6 @@ function Availability({ isAvailable }) {
   return <Badge variant="neutral">Disponible</Badge>;
 }
 
-/**
- * Two layouts:
- *  - mode="list"   (default) : horizontal — portrait left, info right — for Search Results
- *  - mode="grid"              : portrait+overlay — for Home featured grid
- */
 export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
   const imgSrc = coverImage({ ...item, featuredPrompt });
   const avg = Number(item.rating?.average ?? 0);

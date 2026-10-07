@@ -1,7 +1,5 @@
 -- Up Migration
 
--- Contacts : un utilisateur (client ou professionnel) contacte un autre utilisateur.
--- Le champ `outgoing` est calculé côté API : la table ne distingue pas les deux sens.
 CREATE TYPE contact_status AS ENUM ('new', 'seen', 'done');
 
 CREATE TABLE contacts (

@@ -1,11 +1,5 @@
 import { cn } from '@/lib/utils.js';
 
-/**
- * Bottom navigation mobile (profil pro / espace client).
- * Fixée en bas d'écran sous `lg`, la sidebar reprend la main en desktop.
- * Mêmes items que SidebarNav : { id, label, icon, shortLabel? }.
- * `shortLabel` permet un libellé court pour les petits écrans.
- */
 export function BottomNav({ items, active, onChange, ariaLabel }) {
   return (
     <nav

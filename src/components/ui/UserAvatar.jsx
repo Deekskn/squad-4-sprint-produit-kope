@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
 import { initials } from '@/lib/utils.js';
 
-/** Avatar utilisateur : photo si disponible, sinon initiales/icône. */
+/** Avatar utilisateur */
 export function UserAvatar({ user, name, className = 'h-8 w-8', fallbackClassName = 'bg-primary-100 text-primary-800', src }) {
   const [failed, setFailed] = useState(false);
   const label = name || [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || user?.displayName || 'Profil';
@@ -17,7 +17,6 @@ export function UserAvatar({ user, name, className = 'h-8 w-8', fallbackClassNam
   const photoUrl = src ?? user?.avatarUrl;
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFailed(false);
   }, [photoUrl]);
 

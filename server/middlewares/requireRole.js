@@ -9,7 +9,7 @@ export function requireRole(...roles) {
         user = { id: Number(payload.sub), role: payload.role };
         req.user = user;
       } catch {
-        // Bearer expiré/invalide : on retombe sur la session cookie
+        
       }
     }
     if (!user && req.session?.user) {

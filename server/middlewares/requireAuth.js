@@ -7,7 +7,7 @@ export function requireAuth(req, res, next) {
       req.user = { id: Number(payload.sub), role: payload.role };
       return next();
     } catch {
-      // Bearer expiré/invalide : on retombe sur la session cookie plutôt que d'échouer
+      
     }
   }
   if (!req.session?.user) throw ApiError.unauthorized();

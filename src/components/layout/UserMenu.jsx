@@ -16,8 +16,6 @@ export function UserMenu({ onNavigate }) {
   const [proStatus, setProStatus] = useState(null);
   const isPro = Boolean(user) && hasRole(ROLES.PRO);
 
-  // La fiche n'existe que si le profil est publié : on ne propose le lien qu'une fois
-  // le statut connu (chargé à l'ouverture du menu, une seule fois).
   useEffect(() => {
     if (!open || !isPro || proStatus !== null) return undefined;
     let cancelled = false;

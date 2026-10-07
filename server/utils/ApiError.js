@@ -1,7 +1,3 @@
-/**
- * Erreur "attendue" renvoyée au client avec un code HTTP.
- * `errors` (optionnel) = messages par champ : { phone: 'Ce numéro est déjà utilisé' }
- */
 export class ApiError extends Error {
   constructor(status, message, errors) {
     super(message);
