@@ -171,7 +171,7 @@ export function ProProfilePage() {
   return (
     <div className="container-kop py-10 lg:py-16">
       <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="space-y-6">
+        <aside className="space-y-6 lg:sticky lg:top-(--header-height) lg:self-start">
           <Card className="p-0 overflow-hidden">
             <div className="p-5 pb-4 bg-gradient-to-r from-primary-50 to-kop-mint/60">
               <div className="flex items-center gap-4">

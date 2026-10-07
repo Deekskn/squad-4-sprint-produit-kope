@@ -178,6 +178,17 @@ p {
   padding-block: 2.75rem;
 }
 
+/* Motif de points subtil pour les espaces dashboards */
+.bg-dots {
+  background-color: var(--color-gray-100);
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-primary-500) 14%, transparent) 1px,
+    transparent 1.5px
+  );
+  background-size: 18px 18px;
+  background-repeat: repeat;
+}
+
 .focus-ring:focus-visible {
   & .error{
     --color-primary-500: #b42318 !important;

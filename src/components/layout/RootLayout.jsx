@@ -15,7 +15,7 @@ export function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <Navbar />
-      <main id="main-content" className="flex-1">
+      <main id="main-content" className={cn('flex-1', hasBottomNav && 'bg-dots')}>
         <div className=" animate-fade-in">
           <Outlet />
         </div>
