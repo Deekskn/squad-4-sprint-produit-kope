@@ -149,23 +149,25 @@ export function Navbar() {
                 <Button variant="primary" size="md" className="w-full" onClick={() => { setOpen(false); openModal('register-client'); }}>S'inscrire</Button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
-                <UserAvatar user={user} name={displayNameFor(user)} className="h-9 w-9" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-800">{displayNameFor(user)}</p>
-                  <p className="text-xs text-gray-500">{roleLabel(user.role)}</p>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <UserAvatar user={user} name={displayNameFor(user)} className="h-9 w-9" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-gray-800">{displayNameFor(user)}</p>
+                    <p className="text-xs text-gray-500">{roleLabel(user.role)}</p>
+                  </div>
                 </div>
-                <Link to={dashboardHref(user.role)} onClick={() => setOpen(false)}>
-                  <Button variant="outline" size="sm">Mon espace</Button>
+                <Link to={dashboardHref(user.role)} onClick={() => setOpen(false)} className="w-full">
+                  <Button variant="outline" size="md" className="w-full">Mon espace</Button>
                 </Link>
-                <button
-                  type="button"
-                  aria-label="Se déconnecter"
+                <Button
+                  variant="danger-outline"
+                  size="md"
+                  className="w-full"
                   onClick={() => { setOpen(false); logout(); }}
-                  className="rounded-lg p-2 text-gray-400 transition hover:bg-rose-50 hover:text-danger-500"
                 >
-                  <LogOut size={18} aria-hidden />
-                </button>
+                  Se déconnecter <LogOut size={18} aria-hidden />
+                </Button>
               </div>
             )}
           </div>
