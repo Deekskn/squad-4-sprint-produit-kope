@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   
     } finally {
       setUser(null);
-      setInterval(() => redirect(ROUTES.HOME), 0);
+      setTimeout(() => redirect(ROUTES.HOME), 0);
     }
   }, []);
 

@@ -72,9 +72,9 @@ export function logout() {
 
 export function getCurrentUser() {
   const demoUser = getDemoUser();
-  if (demoUser && !getAccessToken()) {
+  if (demoUser && !getAccessToken()) 
     return Promise.resolve(demoUser);
-  }
+  
   return callApi(
     () => api.get('/auth/me').then((r) => { setTokens(r); return r?.user; }),
     async () => getDemoUser(),
@@ -126,18 +126,18 @@ export function uploadAvatar(file, onProgress) {
         const token = getAccessToken();
         if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable && onProgress) {
+          if (e.lengthComputable && onProgress) 
             onProgress(Math.round((e.loaded / e.total) * 100));
-          }
+          
         };
         xhr.onload = () => {
           try {
             const payload = JSON.parse(xhr.responseText);
-            if (xhr.status >= 200 && xhr.status < 300) {
+            if (xhr.status >= 200 && xhr.status < 300) 
               resolve(payload?.avatarUrl ?? null);
-            } else {
+             else 
               reject(new Error(payload?.message || `Erreur ${xhr.status}`));
-            }
+            
           } catch {
             reject(new Error('Réponse invalide'));
           }

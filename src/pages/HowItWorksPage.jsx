@@ -25,7 +25,7 @@ export function HowItWorksPage() {
             Deux parcours, une même rencontre.
           </h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-gray-600 sm:text-lg">
-            KÔPE simplifie la mise en relation entre les particuliers et les artisans du bâtiment au Congo.
+            KOP simplifie la mise en relation entre les particuliers et les artisans du bâtiment au Congo.
           </p>
         </div>
       </section>
@@ -45,7 +45,7 @@ export function HowItWorksPage() {
         title="Le parcours pro."
         intro="Rendez-vous visible dans votre ville et recevez les demandes directement."
         imageSrc={user2}
-        imageAlt="Professionnel KÔPE"
+        imageAlt="Professionnel KOP"
         caption={['Se faire connaître, chez soi', 'Votre savoir-faire, visible dans votre quartier.']}
         items={PRO_STEPS}
         reverse

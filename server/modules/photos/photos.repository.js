@@ -46,6 +46,7 @@ export async function update(photoId, professionalId, { title, description }, db
       RETURNING ${PHOTO_COLUMNS}`,
     [photoId, professionalId, title, description],
   );
+  if (rows[0]) await touchProfile(professionalId, db);
   return rows[0] ?? null;
 }
 

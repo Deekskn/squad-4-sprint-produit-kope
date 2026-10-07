@@ -25,7 +25,7 @@ export function SearchResults({ data, listMode = true }) {
     navigate(`${ROUTES.SEARCH}?${next.toString()}`);
   };
 
-  if (items.length === 0) {
+  if (items.length === 0)
     return (
       <div className="rounded-[32px] border border-gray-200 bg-white p-10 sm:p-16 text-center min-h-[380px] flex flex-col items-center justify-center">
         <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-mint-100">
@@ -51,7 +51,7 @@ export function SearchResults({ data, listMode = true }) {
         )}
       </div>
     );
-  }
+
 
   const cards = (
     <ul className={listMode ? 'space-y-3 sm:space-y-4' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>

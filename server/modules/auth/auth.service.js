@@ -16,9 +16,9 @@ async function insertUser(data, db) {
   try {
     return await repository.createUser(data, db);
   } catch (err) {
-    if (err.code === '23505') {
+    if (err.code === '23505') 
       throw ApiError.conflict(DUPLICATE_PHONE, { phone: DUPLICATE_PHONE });
-    }
+    
     throw err;
   }
 }
@@ -58,12 +58,12 @@ export async function becomeProfessional(userId, { displayName, tradeId, zoneIds
   return withTransaction(async (tx) => {
     const user = await repository.findById(userId, tx);
     if (!user) throw ApiError.unauthorized();
-    if (user.role === 'admin') {
+    if (user.role === 'admin') 
       throw ApiError.forbidden('Un administrateur ne peut pas devenir professionnel');
-    }
-    if (user.role === 'professional') {
+    
+    if (user.role === 'professional') 
       throw ApiError.conflict('Vous avez deja un compte professionnel');
-    }
+    
     await repository.updateRole(userId, 'professional', tx);
     await professionalsRepository.create({ userId, displayName, tradeId }, tx);
     await professionalsRepository.replaceZones(userId, zoneIds, tx);
@@ -81,9 +81,9 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
   if (!passwordHash) throw ApiError.notFound('Compte introuvable');
 
   const matches = await bcrypt.compare(currentPassword ?? '', passwordHash);
-  if (!matches) {
+  if (!matches) 
     throw ApiError.unauthorized('Mot de passe actuel incorrect');
-  }
+  
 
   const newHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
   await repository.updatePasswordHash(userId, newHash);
@@ -94,9 +94,9 @@ export async function updateAccount(userId, { firstName, lastName, phone }) {
   try {
     return await repository.updateAccount(userId, { firstName, lastName, phone });
   } catch (err) {
-    if (err.code === '23505') {
+    if (err.code === '23505') 
       throw ApiError.conflict(DUPLICATE_PHONE, { phone: DUPLICATE_PHONE });
-    }
+    
     throw err;
   }
 }

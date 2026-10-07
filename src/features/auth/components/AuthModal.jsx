@@ -18,13 +18,13 @@ export function AuthModal() {
   const renderPro = () => {
 
     if (!user) return <LoginForm bare />
-    
-    if (user.role === ROLES.ADMIN) {
+
+    if (user.role === ROLES.ADMIN)
       return <p className="p-2 text-sm text-gray-600">Un compte administrateur ne peut pas devenir professionnel.</p>;
-    }
-    if (user.role === ROLES.PRO) {
+
+    if (user.role === ROLES.PRO)
       return <p className="p-2 text-sm text-gray-600">Votre compte est déjà professionnel.</p>;
-    }
+
     return <BecomeProForm bare />;
   };
 

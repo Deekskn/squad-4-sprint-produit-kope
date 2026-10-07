@@ -20,7 +20,7 @@ export function UserAvatar({ user, name, className = 'h-8 w-8', fallbackClassNam
     setFailed(false);
   }, [photoUrl]);
 
-  if (photoUrl && !failed) {
+  if (photoUrl && !failed) 
     return (
       <img
         src={photoUrl}
@@ -29,7 +29,7 @@ export function UserAvatar({ user, name, className = 'h-8 w-8', fallbackClassNam
         onError={() => setFailed(true)}
       />
     );
-  }
+  
   return (
     <span className={`${className} inline-flex items-center justify-center rounded-full text-sm font-semibold ${fallbackClassName}`}>
       {initialsValue || <User size={16} aria-hidden />}

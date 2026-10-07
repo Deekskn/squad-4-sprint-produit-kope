@@ -12,7 +12,7 @@ function Stars({ count = 5, value = 0, onChange, size = 'md', readOnly = false }
   const reactId = useId();
   const groupName = `stars-${reactId.replace(/:/g, '')}`;
 
-  if (readOnly || !onChange) {
+  if (readOnly || !onChange)
     return (
       <div className="flex items-center gap-0.5" aria-label={`Note ${value} sur ${count}`}>
         {items.map((n) => {
@@ -23,7 +23,7 @@ function Stars({ count = 5, value = 0, onChange, size = 'md', readOnly = false }
         })}
       </div>
     );
-  }
+
 
   return (
     <RadioGroup

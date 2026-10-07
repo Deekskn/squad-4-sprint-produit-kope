@@ -20,9 +20,18 @@ export function errorHandler(err, req, res, next) {
   } else if (err.type === 'entity.parse.failed') {
     status = 400;
     message = 'JSON invalide';
-  } else if (PG_ERRORS[err.code]) {
+  } else if (
+    err.code === 'ECONNREFUSED' ||
+    err.code === 'ECONNRESET' ||
+    err.code === 'ETIMEDOUT' ||
+    /timeout expired/i.test(String(err.message ?? ''))
+  ) {
+    status = 503;
+    message = 'Base de données indisponible';
+    errors = undefined;
+  } else if (PG_ERRORS[err.code]) 
     [status, message] = PG_ERRORS[err.code];
-  }
+  
   if (status >= 500) {
     console.error(err);
     if (status !== 503) {

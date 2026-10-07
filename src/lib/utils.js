@@ -5,12 +5,12 @@ export function cn(...inputs) {
 export function formatPhoneFR(value) {
   if (!value) return '';
   const digits = String(value).replace(/\D/g, '');
-  if (digits.startsWith('242') && digits.length >= 12) {
+  if (digits.startsWith('242') && digits.length >= 12)
     return `+242 ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`;
-  }
-  if (digits.length === 10) {
+
+  if (digits.length === 10)
     return `${digits.slice(0, 2)} ${digits.slice(2, 4)} ${digits.slice(4, 6)} ${digits.slice(6, 8)} ${digits.slice(8)}`;
-  }
+
   return value;
 }
 

@@ -49,11 +49,11 @@ function ProReviewsSection({ professionalId }) {
       return;
     }
     setExpanded(clientId);
-    if (!expandedData[clientId]) {
+    if (!expandedData[clientId]) 
       getClientReviews(clientId)
         .then((d) => setExpandedData((m) => ({ ...m, [clientId]: d.items || [] })))
         .catch(() => {});
-    }
+    
   };
 
   return (
@@ -144,7 +144,7 @@ export function ProProfilePage() {
     load();
   };
 
-  if (loading) {
+  if (loading) 
     return (
       <div className="container-kop space-y-4 py-10" aria-busy="true">
         <Skeleton className="h-8 w-1/3" />
@@ -152,9 +152,9 @@ export function ProProfilePage() {
         <Skeleton className="h-64 w-full" />
       </div>
     );
-  }
+  
 
-  if (error && !profile) {
+  if (error && !profile) 
     return (
       <div className="mx-auto max-w-xl rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700 shadow-sm">
         <h1 className="text-xl font-bold">Erreur de chargement du profil</h1>
@@ -164,7 +164,7 @@ export function ProProfilePage() {
         </div>
       </div>
     );
-  }
+  
 
   const displayName = user?.displayName || profile?.displayName || 'Professionnel';
 

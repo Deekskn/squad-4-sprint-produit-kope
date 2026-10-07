@@ -29,5 +29,8 @@ dist-ssr
 !.env.example
 
 # Runtime uploads and files from the retired backend/ layout
-/uploads/
-/backend/
+/uploads
+/backend
+
+# Bun / lint-staged artefacts (npm reste la source de vérité via package-lock.json)
+bun.lock

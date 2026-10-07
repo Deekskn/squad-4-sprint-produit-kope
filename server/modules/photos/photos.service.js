@@ -25,22 +25,22 @@ export async function listPhotos(professionalId) {
 
 /** US-05 */
 export async function addPhoto(professionalId, file, { title, description }) {
-  if (!file) {
+  if (!file) 
     throw ApiError.badRequest('Aucune photo reçue', { photo: 'Choisissez une photo' });
-  }
+  
 
-  if ((await repository.count(professionalId)) >= MAX_PHOTOS) {
+  if ((await repository.count(professionalId)) >= MAX_PHOTOS) 
     throw ApiError.badRequest(LIMIT_MESSAGE, { photo: LIMIT_MESSAGE });
-  }
+  
 
   const processed = await storage.processImage(file.buffer);
   const paths = storage.newPaths(professionalId);
 
   const photo = await withTransaction(async (tx) => {
     await repository.lockProfessional(professionalId, tx);
-    if ((await repository.count(professionalId, tx)) >= MAX_PHOTOS) {
+    if ((await repository.count(professionalId, tx)) >= MAX_PHOTOS) 
       throw ApiError.badRequest(LIMIT_MESSAGE, { photo: LIMIT_MESSAGE });
-    }
+    
 
     const created = await repository.create(
       { professionalId, filePath: paths.filePath, thumbPath: paths.thumbPath, title, description },

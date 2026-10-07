@@ -37,7 +37,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
   const dense  = variant === 'sidebar';
   const home   = variant === 'home';
 
-  if (loading) {
+  if (loading) 
     return (
       <div className="space-y-3 py-2" aria-busy="true">
         <Skeleton className="h-11 w-full" />
@@ -45,9 +45,9 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
         <Skeleton className="h-11 w-40" />
       </div>
     );
-  }
+  
 
-  if (dense) {
+  if (dense) 
     return (
       <form
         onSubmit={onSubmit}
@@ -96,9 +96,9 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
         </div>
         </form>
     );
-  }
+  
 
-   if (home) {
+   if (home) 
     return (
       <form
         onSubmit={onSubmit}
@@ -136,7 +136,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
         </Button>
       </form>
     );
-  }
+  
 
   return (
     <form onSubmit={onSubmit} className={cn('space-y-4', className)} noValidate>
