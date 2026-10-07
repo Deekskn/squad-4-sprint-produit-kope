@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { ArrowRight, Search, X } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { Badge } from '@/shared/components/ui/Badge.jsx';
+import { Modal } from '@/shared/components/ui/Modal.jsx';
 import { Select } from '@/shared/components/ui/Select.jsx';
 import { SearchFilters } from '../components/SearchFilters.jsx';
 import { SearchResults } from '../components/SearchResults.jsx';
@@ -22,6 +24,7 @@ export function SearchPage() {
   const { trade, zone, page, q } = Object.fromEntries(params.entries());
   const { results, loading, error } = useSearch({ trade, zone, q, page });
   const [sort, setSort] = useState(params.get('sort') || 'recommended');
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const summary = useMemo(() => {
     const parts = [];
@@ -48,11 +51,46 @@ export function SearchPage() {
   return (
     <div className="container-kop page-padding">
       <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:items-start">
-        <aside className="lg:sticky lg:top-[92px] space-y-4">
+        <aside className="hidden space-y-4 lg:sticky lg:top-[92px] lg:block">
           <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} />
         </aside>
 
         <section className="space-y-5 min-w-0">
+          <Button
+            type="button"
+            className="h-14 w-full justify-between gap-4 rounded-2xl bg-primary-700 px-4 text-left text-white shadow-soft hover:bg-primary-800 lg:hidden"
+            onClick={() => setSearchOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={searchOpen}
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <Search size={18} aria-hidden />
+              <span className="truncate font-semibold">Modifier ma recherche</span>
+            </span>
+            <ArrowRight size={18} aria-hidden className="shrink-0" />
+          </Button>
+          <Modal
+            open={searchOpen}
+            onClose={() => setSearchOpen(false)}
+            title={
+              <span className="flex items-center justify-between gap-3">
+                <span>Rechercher un professionnel</span>
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(false)}
+                  aria-label="Fermer la recherche"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50"
+                >
+                  <X size={16} aria-hidden />
+                </button>
+              </span>
+            }
+            size="full"
+          >
+            <div onSubmitCapture={() => setSearchOpen(false)}>
+              <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} bare />
+            </div>
+          </Modal>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">

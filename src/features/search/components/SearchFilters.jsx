@@ -10,7 +10,7 @@ import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
 import { cn } from '@/shared/utils';
 
-export function SearchFilters({ initial = {}, variant = "search", className }) {
+export function SearchFilters({ initial = {}, variant = "search", className, bare = false }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
@@ -53,7 +53,9 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
       <form
         onSubmit={onSubmit}
         className={cn(
-          "rounded-[28px] border border-mint-200 bg-mint-50/60 p-4 sm:p-5 space-y-4",
+          bare
+            ? "space-y-4"
+            : "rounded-[28px] border border-mint-200 bg-mint-50/60 p-4 sm:p-5 space-y-4",
           className,
         )}
         noValidate
@@ -117,23 +119,6 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
         )}
         noValidate
       >
-        {suffix === "hm" && (
-          <div>
-            <label
-              htmlFor="sf-keyword-hm"
-              className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-gray-700"
-            >
-              <Search size={15} aria-hidden /> Recherche par mot-clé
-            </label>
-            <Input
-              id="sf-keyword-hm"
-              name="q"
-              placeholder="Nom, entreprise, mot-clé..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-            />
-          </div>
-        )}
         <FormField id={`sf-trade-${suffix}`} hideLabel className="flex-1">
           <Select
             bordered={false}
