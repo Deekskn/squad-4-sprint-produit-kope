@@ -46,76 +46,78 @@ export function SearchPage() {
   };
 
   return (
-    <div className="container-kop page-padding">
-      <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:items-start">
-        <aside className="lg:sticky lg:top-[92px] space-y-4">
-          <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} />
-        </aside>
+    <div className="bg-[#f5f6f3]">
+      <div className="container-kop page-padding">
+        <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:items-start">
+          <aside className="lg:sticky lg:top-[92px] space-y-4">
+            <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} />
+          </aside>
 
-        <section className="space-y-5 min-w-0">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Résultats
-              </p>
-              <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-[28px]">
-                <span className="text-primary-700">{results?.total ?? 0}</span> professionnel{(results?.total ?? 0) > 1 ? 's' : ''} trouvés
-                {summary && (
-                  <span className="block text-base font-semibold text-gray-500 mt-0.5">
-                    {summary}
-                  </span>
-                )}
-              </h1>
-            </div>
-            <div className="w-full sm:w-auto">
-              <label className="mb-1 block text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Tri</label>
-              <Select
-                value={sort}
-                onChange={(e) => onChangeSort(e.target.value)}
-                className="!py-2.5"
-              >
-                {SORTS.map((s) => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
-                ))}
-              </Select>
-            </div>
-          </div>
-
-          {loading && (
-            <div className="space-y-4" aria-busy="true">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="flex gap-4 rounded-[28px] border border-gray-100 bg-white p-5">
-                  <Skeleton className="h-28 w-32 shrink-0 rounded-2xl" />
-                  <div className="flex-1 space-y-3 py-1">
-                    <Skeleton className="h-5 w-1/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-1/4" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {error && !loading && (
-            <div role="alert" className="rounded-[28px] border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700">
-              {error.message || 'Erreur de chargement des résultats.'}
-              <div className="mt-3">
-                <Button variant="outline" as={Link} to={ROUTES.SEARCH}>Réessayer</Button>
+          <section className="min-w-0 space-y-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                  Résultats
+                </p>
+                <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-[28px]">
+                  <span className="text-primary-700">{results?.total ?? 0}</span> professionnel{(results?.total ?? 0) > 1 ? 's' : ''} trouvés
+                  {summary && (
+                    <span className="mt-1 block text-base font-semibold text-gray-500">
+                      {summary}
+                    </span>
+                  )}
+                </h1>
+              </div>
+              <div className="w-full sm:w-auto">
+                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500">Tri</label>
+                <Select
+                  value={sort}
+                  onChange={(e) => onChangeSort(e.target.value)}
+                  className="!h-[42px] !rounded-[10px] border-[#dde4e1] bg-white text-[14px]"
+                >
+                  {SORTS.map((s) => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </Select>
               </div>
             </div>
-          )}
-          {!loading && !error && results && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              {(results?.total ?? 0) > 0 && (
-                <Badge variant="white">
-                  Page {results?.page || 1} sur {Math.max(1, Math.ceil((results.total||0) / (results.pageSize||10)))}
-                </Badge>
-              )}
-            </div>
-          )}
-          {!loading && !error && (
-            <SearchResults data={results} listMode />
-          )}
-        </section>
+
+            {loading && (
+              <div className="space-y-4" aria-busy="true">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex gap-4 rounded-[20px] border border-gray-100 bg-white p-4">
+                    <Skeleton className="h-24 w-28 shrink-0 rounded-[16px]" />
+                    <div className="flex-1 space-y-3 py-1">
+                      <Skeleton className="h-5 w-1/3" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-4 w-1/4" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {error && !loading && (
+              <div role="alert" className="rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700">
+                {error.message || 'Erreur de chargement des résultats.'}
+                <div className="mt-3">
+                  <Button variant="outline" as={Link} to={ROUTES.SEARCH}>Réessayer</Button>
+                </div>
+              </div>
+            )}
+            {!loading && !error && results && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                {(results?.total ?? 0) > 0 && (
+                  <Badge variant="white">
+                    Page {results?.page || 1} sur {Math.max(1, Math.ceil((results.total||0) / (results.pageSize||10)))}
+                  </Badge>
+                )}
+              </div>
+            )}
+            {!loading && !error && (
+              <SearchResults data={results} listMode />
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );
