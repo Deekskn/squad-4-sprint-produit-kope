@@ -106,7 +106,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
       <Button
         type="button"
         size="lg"
-        className="w-full! md:hidden"
+        className="w-full! border-0! shadow-lg shadow-primary-900/20 transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 md:hidden"
         onClick={() => setSearchOpen(true)}
       >
         Rechercher <Search size={16} aria-hidden />

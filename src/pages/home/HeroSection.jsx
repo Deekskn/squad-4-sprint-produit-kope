@@ -45,7 +45,7 @@ export function HeroSection() {
         <p className="hidden md:inline-flex bg-[#F5F6F6] rounded-t-sm border border-[#B9C2BE] px-4 py-2 items-center gap-2 text-xs font-semibold text-gray-600">
           <span className="inline-flex items-center gap-2"><Search size={14} aria-hidden /> Recherche par mot-clé</span>
         </p>
-        <div className="bg-white rounded-tl-[16px] md:rounded-tl-none rounded-r-[16px] rounded-bl-[16px] border border-[#B9C2BE] p-3 sm:p-5">
+        <div className="rounded-tl-[16px] md:rounded-tl-none rounded-r-[16px] rounded-bl-[16px] border-0 bg-transparent p-0 md:border md:border-[#B9C2BE] md:bg-white md:p-5">
 
           <SearchFilters variant="home" />
 
