@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Badge, Button, Input, Pagination, Modal, DataState } from '@/components/ui/index.js';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui/Table.jsx';
+import { Badge, Button, Input, Pagination, Modal, DataState } from '@/shared/components/ui';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from '@/shared/components/ui/index.js';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listPros, setProHidden } from '../services/admin.service.js';
-import { PROFILE_STATUS, PROFILE_STATUS_LABELS, ROUTES } from '@/lib/constants.js';
-import { formatDateFr, initials } from '@/lib/utils.js';
+import { PROFILE_STATUS, PROFILE_STATUS_LABELS, ROUTES } from '@/shared/lib/constants.js';
+import { formatDateFr, initials } from '@/shared/lib/utils.js';
 
 const PAGE_SIZE = 20;
 

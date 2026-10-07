@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { DataState } from '../src/components/ui/DataState.jsx';
+import { DataState } from '../src/shared/components/ui/DataState.jsx';
 
 describe('DataState', () => {
   it('affiche le spinner quand loading', () => {

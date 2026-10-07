@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { paginate, offsetOf } from '../server/utils/pagination.js';
 import { normalizePhone } from '../server/utils/phone.js';
-import { registerClientSchema } from '../src/components/form/validators.js';
+import { registerClientSchema } from '../src/shared/utils/validators.js';
 
 describe('paginate', () => {
   it('extrait le total et pagine les items', () => {

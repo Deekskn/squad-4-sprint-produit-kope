@@ -1,6 +1,6 @@
-import { api } from '@/lib/api.js';
-import { callApi } from '@/lib/dataSource.js';
-import { mockReviewsFor } from '@/mocks/appMock.js';
+import { api } from '@/shared/lib/api.js';
+import { callApi } from '@/shared/lib/dataSource.js';
+import { mockReviewsFor } from '@/shared/mocks/appMock.js';
 
 export function listReviews(professionalId, { page = 1, pageSize = 10 } = {}) {
   return callApi(

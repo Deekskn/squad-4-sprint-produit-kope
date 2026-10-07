@@ -6,12 +6,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/Dialog.jsx';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Textarea } from '@/components/ui/Textarea.jsx';
+} from '@/shared/components/ui/Dialog.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Textarea } from '@/shared/components/ui/Textarea.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { createContactSchema } from '@/components/form/validators.js';
+import { createContactSchema } from '@/shared/utils/validators.js';
 import { createContact } from '../services/contacts.service.js';
 
 const MESSAGE_MAX = 500;

@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../src/lib/api.js', () => ({
+vi.mock('../src/shared/lib/api.js', () => ({
   api: { get: vi.fn() },
 }));
 
-import { api } from '../src/lib/api.js';
+import { api } from '../src/shared/lib/api.js';
 import { searchProfessionals } from '../src/features/search/hooks/useSearch.js';
 
 describe('searchProfessionals', () => {

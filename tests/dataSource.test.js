@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { callApi, isMockMode, enableMockMode, resetMockMode } from '../src/lib/dataSource.js';
+import { callApi, isMockMode, enableMockMode, resetMockMode } from '../src/shared/lib/dataSource.js';
 
 afterEach(() => {
   resetMockMode();

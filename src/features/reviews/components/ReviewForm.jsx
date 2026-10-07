@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { createReview } from '../services/reviews.service.js';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Textarea } from '@/components/ui/Textarea.jsx';
-import { StarInput } from '@/components/ui/StarRating.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Textarea } from '@/shared/components/ui/Textarea.jsx';
+import { StarInput } from '@/shared/components/ui/StarRating.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { Card } from '@/components/ui/Card.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
 
 const MAX = 300;
 

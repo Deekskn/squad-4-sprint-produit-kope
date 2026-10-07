@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { cached, cacheGet, cacheSet, cacheInvalidate } from '../src/lib/cache.js';
+import { cached, cacheGet, cacheSet, cacheInvalidate } from '../src/shared/lib/cache.js';
 
 describe('cache.js', () => {
   it('stocke et récupère une valeur', () => {
