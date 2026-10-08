@@ -1,4 +1,4 @@
-import { Wrench, Zap, Palette } from 'lucide-react';
+import { Wrench, Zap, Palette, Search, UserRound, MessageSquare } from 'lucide-react';
 import what1 from '@/shared/assets/what1.png';
 import what2 from '@/shared/assets/what2.png';
 import what3 from '@/shared/assets/what3.png';
@@ -21,9 +21,9 @@ export const FEATURED = [
 ];
 
 export const STEPS = [
-  { n: '01', title: 'Cherchez près de chez vous', body: 'Choisissez un métier et votre quartier. Les professionnels disponibles apparaissent en premier.', tone: 'bg-kop-mint' },
-  { n: '02', title: 'Découvrez les profils', body: 'Consultez les réalisations, l\'expérience et les avis pour vous faire une idée.', tone: 'bg-kop-cream' },
-  { n: '03', title: 'Échangez directement', body: 'Accédez au téléphone et au WhatsApp du professionnel sur sa fiche publique pour discuter de votre projet.', tone: 'bg-kop-rose' },
+  { n: '01', icon: Search, title: 'Cherchez près de chez vous', body: 'Choisissez un métier et votre quartier. Les professionnels disponibles apparaissent en premier.', tone: 'bg-kop-mint' },
+  { n: '02', icon: UserRound, title: 'Découvrez les profils', body: 'Consultez les réalisations, l\'expérience et les avis pour vous faire une idée.', tone: 'bg-kop-cream' },
+  { n: '03', icon: MessageSquare, title: 'Échangez directement', body: 'Accédez au téléphone et au WhatsApp du professionnel sur sa fiche publique pour discuter de votre projet.', tone: 'bg-kop-rose' },
 ];
 
 export const FAQ = [

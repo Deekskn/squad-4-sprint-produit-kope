@@ -15,6 +15,7 @@ function ownProfileFromMock() {
     isAvailable: p.isAvailable,
     isHidden: false,
     isPublished: true,
+    avatarUrl: p.avatarUrl,
     photoCount: p.photos.length,
     zones: p.zones,
     photos: p.photos,
