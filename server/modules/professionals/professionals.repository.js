@@ -99,8 +99,9 @@ export async function findPublishedDetail(id, db = pool) {
             p.description,
             p.years_experience AS "yearsExperience",
             p.is_available AS "isAvailable",
-            u.phone,
-            COALESCE(p.whatsapp, u.phone) AS whatsapp,
+           u.phone,
+           u.avatar_url AS "avatarUrl",
+           COALESCE(p.whatsapp, u.phone) AS whatsapp,
             ${ZONES_JSON} AS zones
        FROM published_professionals p
        JOIN users u ON u.id = p.user_id

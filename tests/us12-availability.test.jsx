@@ -17,6 +17,9 @@ vi.mock('../src/shared/hooks/useAsyncData.js', () => ({ useAsyncData }));
 vi.mock('../src/shared/context/AuthContext.jsx', () => ({
   useAuthContext: () => ({ user: null }),
 }));
+vi.mock('../src/shared/context/AuthModalContext.jsx', () => ({
+  useAuthModal: () => ({ open: vi.fn() }),
+}));
 vi.mock('../src/features/professionals/components/PhotoGallery.jsx', () => ({
   PhotoGallery: () => null,
 }));

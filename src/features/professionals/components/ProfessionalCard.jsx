@@ -83,9 +83,9 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
   return (
     <li>
       <Card className={cn(
-        'group flex h-full flex-col sm:flex-row overflow-hidden gap-0 !rounded-[28px] !border-gray-200 hover:!border-primary-200 hover:shadow-[0_14px_36px_-20px_rgba(45,92,74,0.3)] transition',
+        'group flex h-full flex-col overflow-hidden gap-0 border-[#e5e7eb] bg-white !rounded-[18px] shadow-[0_8px_20px_-18px_rgba(16,42,32,0.45)] transition hover:border-primary-200 hover:shadow-[0_16px_30px_-22px_rgba(45,92,74,0.35)] sm:flex-row',
       )}>
-        <div className="relative block sm:w-[200px] shrink-0 aspect-[5/4] sm:aspect-auto overflow-hidden bg-gray-100">
+        <div className="relative block h-[180px] w-full shrink-0 overflow-hidden bg-gray-100 sm:h-auto sm:w-[170px]">
           <img
             src={imgSrc}
             alt={item.displayName}
@@ -98,10 +98,10 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
             </div>
           )}
         </div>
-        <div className="flex-1 flex flex-col p-5 sm:p-6 gap-3">
+        <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-1.5 min-w-0">
-              <div className="text-xl font-extrabold tracking-tight text-gray-900 -ml-1 pl-1">
+            <div className="min-w-0 space-y-1.5">
+              <div className="text-[20px] font-extrabold tracking-tight text-gray-900">
                 {item.displayName}
               </div>
               <p className="text-sm text-gray-700">
@@ -122,15 +122,15 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
                 )}
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center">
               <Availability isAvailable={item.isAvailable} />
             </div>
           </div>
 
-          <div className="mt-auto flex flex-wrap items-center justify-end gap-3 pt-2">
+          <div className="mt-auto flex items-center justify-end pt-1">
             <Link
               to={ROUTES.PROFESSIONAL(item.id)}
-              className="inline-flex items-center justify-center rounded-[14px] border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-900 shadow-sm hover:bg-gray-50 transition"
+              className="inline-flex items-center justify-center rounded-[12px] border border-[#dfe5e2] bg-[#f5f7f6] px-4 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-white"
             >
               Afficher le profil
             </Link>

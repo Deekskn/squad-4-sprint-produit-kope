@@ -11,7 +11,7 @@ export function FloatingCaption({ title, subtitle, subtitleClassName, icon: Icon
       )}
     >
       {Icon && (
-        <span className="flex size-9 items-center justify-center">
+        <span className="flex size-9 items-center justify-center text-primary-500">
           <Icon size={24} strokeWidth={1.5} aria-hidden />
         </span>
       )}

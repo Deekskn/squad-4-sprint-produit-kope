@@ -4,6 +4,7 @@ export async function searchPublished({ tradeId, zoneId, keyword, limit, offset 
     `SELECT p.user_id AS id,
             p.display_name AS "displayName",
             t.name AS trade,
+            u.avatar_url AS "avatarUrl",
             p.years_experience AS "yearsExperience",
             p.is_available AS "isAvailable",
             ROUND(AVG(r.rating), 1)::float8 AS "ratingAverage",
@@ -20,6 +21,7 @@ export async function searchPublished({ tradeId, zoneId, keyword, limit, offset 
             COUNT(*) OVER()::int AS total
        FROM published_professionals p
        JOIN trades t ON t.id = p.trade_id
+       JOIN users u ON u.id = p.user_id
        LEFT JOIN reviews r ON r.professional_id = p.user_id AND NOT r.is_hidden
       WHERE ($1::smallint IS NULL OR p.trade_id = $1)
         AND ($2::smallint IS NULL
@@ -28,7 +30,7 @@ export async function searchPublished({ tradeId, zoneId, keyword, limit, offset 
         AND ($3::text IS NULL
              OR p.display_name ILIKE '%' || $3 || '%'
              OR t.name ILIKE '%' || $3 || '%')
-      GROUP BY p.user_id, p.display_name, p.years_experience, p.is_available, p.updated_at, t.name
+      GROUP BY p.user_id, p.display_name, p.years_experience, p.is_available, p.updated_at, t.name, u.avatar_url
       ORDER BY p.is_available DESC, AVG(r.rating) DESC NULLS LAST, p.updated_at DESC, p.user_id
       LIMIT $4 OFFSET $5`,
     [tradeId, zoneId, keyword ?? null, limit, offset],

@@ -5,7 +5,7 @@ export function RatingSummary({ rating }) {
   const count = Number(rating?.count ?? 0);
   const avg = Number(rating?.average ?? 0);
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-md border border-gray-200 bg-white p-5">
       <h2 className="mb-2 text-lg font-bold text-gray-900">Note moyenne</h2>
       {count > 0 ? (
         <div className="flex items-center gap-4">

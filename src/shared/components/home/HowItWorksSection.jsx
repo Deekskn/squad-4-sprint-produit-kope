@@ -20,7 +20,7 @@ export function HowItWorksSection() {
                 <p className="mt-2 text-sm leading-12 text-gray-300">{s.body}</p>
               </div>
               <div className={cn('h-45.5 rounded-sm flex items-center justify-center', s.tone)}>
-                <span className="text-9xl font-extrabold text-gray-900/70 tracking-tight">{s.n}</span>
+                {s.icon && <s.icon size={56} strokeWidth={1.5} className="text-gray-900/30" aria-hidden />}
               </div>
             </Card>
             <ul className={`mx-4 flex w-auto flex-col gap-y-0 opacity-25 md:mx-0 md:w-auto md:flex-row ${index === (STEPS.length - 1) ? 'hidden' : ''}`}  >
