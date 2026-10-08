@@ -103,10 +103,18 @@ export function toSearchItem(p) {
   };
 }
 
-export function searchMock({ trade, zone, page = 1, pageSize = 10 } = {}) {
+export function searchMock({ trade, zone, q, page = 1, pageSize = 10 } = {}) {
   let rows = MOCK_PROS.filter((p) => !p.isHidden);
   if (trade) rows = rows.filter((p) => String(p.tradeId) === String(trade));
   if (zone) rows = rows.filter((p) => p.zones.some((z) => String(z.id) === String(zone)));
+  if (q) {
+    const qNorm = String(q).trim().toLowerCase();
+    rows = rows.filter((p) =>
+      p.displayName.toLowerCase().includes(qNorm) ||
+      p.trade.toLowerCase().includes(qNorm) ||
+      p.zones.some((z) => z.name.toLowerCase().includes(qNorm)),
+    );
+  }
   rows = [...rows].sort((a, b) => Number(b.isAvailable) - Number(a.isAvailable) || (b.ratingAverage ?? 0) - (a.ratingAverage ?? 0));
   const total = rows.length;
   const items = rows.slice((page - 1) * pageSize, page * pageSize).map(toSearchItem);

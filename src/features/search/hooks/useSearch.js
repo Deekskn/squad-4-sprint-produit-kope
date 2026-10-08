@@ -13,14 +13,14 @@ export async function searchProfessionals({ trade, zone, q, page }) {
   if (page) params.page = String(page);
   return callApi(
     () =>
-      cached(`search:${trade ?? ''}:${zone ?? ''}:${page ?? 1}`, 30_000, () =>
+      cached(`search:${trade ?? ''}:${zone ?? ''}:${q ?? ''}:${page ?? 1}`, 30_000, () =>
         api.get('/professionals', params),
       ),
-    async () => searchMock({ trade, zone, page: page || 1, pageSize: PAGE_SIZE }),
+    async () => searchMock({ trade, zone, q, page: page || 1, pageSize: PAGE_SIZE }),
   );
 }
 
-export function useSearch({ trade, zone, q, page }) {
+export function useSearch({ trade, zone, q, page, sort }) {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,17 +35,23 @@ export function useSearch({ trade, zone, q, page }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await searchProfessionals({ trade, zone, page: page || 1 });
-      setResults(data);
+      const data = await searchProfessionals({ trade, zone, q, page: page || 1 });
+      let sorted = data;
+      if (sort === 'rating')
+        sorted = { ...data, items: [...data.items].sort((a, b) => Number(b.rating?.average ?? 0) - Number(a.rating?.average ?? 0)) };
+      else if (sort === 'experience')
+        sorted = { ...data, items: [...data.items].sort((a, b) => Number(b.yearsExperience ?? 0) - Number(a.yearsExperience ?? 0)) };
+      setResults(sorted);
     } catch (err) {
       setResults(null);
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, [trade, zone, q, page]);
+  }, [trade, zone, q, page, sort]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     run();
   }, [run]);
 

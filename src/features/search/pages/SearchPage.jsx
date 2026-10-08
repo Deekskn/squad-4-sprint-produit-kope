@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/Button.jsx';
-import { Badge } from '@/shared/components/ui/Badge.jsx';
 import { Select } from '@/shared/components/ui/Select.jsx';
 import { SearchFilters } from '../components/SearchFilters.jsx';
 import { Sheet } from '@/shared/components/ui/Sheet.jsx';
@@ -20,8 +19,8 @@ const SORTS = [
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const { trade, zone, page, q } = Object.fromEntries(params.entries());
-  const { results, loading, error } = useSearch({ trade, zone, q, page });
   const [sort, setSort] = useState(params.get('sort') || 'recommended');
+  const { results, loading, error } = useSearch({ trade, zone, q, page, sort });
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const onChangeSort = (val) => {
@@ -51,7 +50,6 @@ export function SearchPage() {
 
                 </div>
                 <div className="w-full sm:w-auto">
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500">Tri</label>
                   <Select
                     value={sort}
                     onChange={(e) => onChangeSort(e.target.value)}
