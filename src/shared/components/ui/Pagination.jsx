@@ -1,0 +1,78 @@
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { cn } from '@/shared/utils';
+
+function getButtons(current, totalPages) {
+  if (totalPages <= 7)
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = new Set([1, totalPages]);
+  for (let i = Math.max(2, current - 1); i <= Math.min(totalPages - 1, current + 1); i += 1)
+    pages.add(i);
+  return Array.from(pages).sort((a, b) => a - b);
+}
+
+export function Pagination({ page, pageSize, total, onPageChange, className }) {
+  const pageCount = Math.max(1, Math.ceil((total ?? 0) / pageSize));
+  const current = Math.max(1, Math.min(page || 1, pageCount));
+  const prevDisabled = current <= 1;
+  const nextDisabled = current >= pageCount;
+  const pages = getButtons(current, pageCount);
+
+  return (
+    <nav
+      role="navigation"
+      aria-label="Pagination"
+      className={cn('flex w-full items-center justify-center gap-1 sm:gap-2', className)}
+    >
+      <button
+        type="button"
+        disabled={prevDisabled}
+        onClick={() => onPageChange?.(current - 1)}
+        className={cn(
+          'inline-flex h-9 items-center justify-center gap-1 rounded-[8px] border border-gray-200 bg-white px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed',
+        )}
+      >
+        <ChevronLeft size={16} aria-hidden />
+        <span className="hidden sm:inline">Précédent</span>
+      </button>
+
+      {pages.map((p, i) => {
+        const isLast = i === pages.length - 1;
+        const showEllipsis = !isLast && p !== current && pages[i + 1] - p > 1;
+        return (
+          <span key={p} className="inline-flex items-center">
+            <button
+              type="button"
+              onClick={() => onPageChange?.(p)}
+              aria-current={p === current ? 'page' : undefined}
+              className={cn(
+                'inline-flex h-9 w-9 items-center justify-center rounded-[8px] border text-sm font-semibold transition-colors',
+                p === current
+                  ? 'border-primary-500 bg-primary-500 text-white'
+                  : 'border-gray-200 bg-white text-gray-800 hover:bg-gray-50',
+              )}
+            >
+              {p}
+            </button>
+            {showEllipsis && (
+              <span className="inline-flex h-9 w-9 items-center justify-center text-gray-500" aria-hidden>
+                <MoreHorizontal size={16} />
+              </span>
+            )}
+          </span>
+        );
+      })}
+
+      <button
+        type="button"
+        disabled={nextDisabled}
+        onClick={() => onPageChange?.(current + 1)}
+        className={cn(
+          'inline-flex h-9 items-center justify-center gap-1 rounded-[8px] border border-gray-200 bg-white px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed',
+        )}
+      >
+        <span className="hidden sm:inline">Suivant</span>
+        <ChevronRight size={16} aria-hidden />
+      </button>
+    </nav>
+  );
+}
