@@ -89,15 +89,6 @@ export function SearchPage() {
                 </div>
               </div>
             )}
-            {!loading && !error && results && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                {(results?.total ?? 0) > 0 && (
-                  <Badge variant="white">
-                    Page {results?.page || 1} sur {Math.max(1, Math.ceil((results.total || 0) / (results.pageSize || 10)))}
-                  </Badge>
-                )}
-              </div>
-            )}
             {!loading && !error && (
               <SearchResults data={results} listMode />
             )}
