@@ -5,11 +5,12 @@ import { AdminReviewsTable } from '../components/AdminReviewsTable.jsx';
 import { AccountSettings } from '@/features/auth/components/AccountSettings.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { SidebarNav } from '@/shared/components/ui/SidebarNav.jsx';
+import { BottomNav } from '@/shared/components/ui/BottomNav.jsx';
 
 const TABS = [
-  { id: 'pros', label: 'Professionnels', icon: Briefcase },
-  { id: 'reviews', label: 'Avis', icon: Star },
-  { id: 'compte', label: 'Mon compte', icon: Settings },
+  { id: 'pros', label: 'Professionnels', shortLabel: 'Pros', icon: Briefcase },
+  { id: 'reviews', label: 'Avis', shortLabel: 'Avis', icon: Star },
+  { id: 'compte', label: 'Mon profil', shortLabel: 'Profil', icon: Settings },
 ];
 
 export function AdminDashboardPage() {
@@ -40,6 +41,7 @@ export function AdminDashboardPage() {
           {tab === 'compte' && <AccountSettings user={user} />}
         </main>
       </div>
+      <BottomNav items={TABS} active={tab} onChange={setTab} ariaLabel="Navigation admin (mobile)" />
     </div>
   );
 }

@@ -311,7 +311,7 @@ function PhotoFormModal({ open, photo, onClose, onSubmit, submitting, remaining 
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) close(); }}>
-      <DialogContent className="max-w-lg p-5" onClose={close}>
+      <DialogContent className="max-w-lg p-8" onClose={close}>
         <DialogHeader>
           <DialogTitle>{photo ? 'Modifier la photo' : 'Ajouter une photo'}</DialogTitle>
           <DialogDescription>
@@ -349,7 +349,6 @@ function PhotoFormModal({ open, photo, onClose, onSubmit, submitting, remaining 
             label="Titre"
             required
             error={errors.title}
-            help="3 à 100 caractères"
             counter={
               <span className={title.length < 3 || title.length > 100 ? 'text-danger-500 font-semibold' : ''}>
                 {title.length}/100
@@ -372,7 +371,6 @@ function PhotoFormModal({ open, photo, onClose, onSubmit, submitting, remaining 
             required
             as="textarea"
             error={errors.description}
-            help="10 à 500 caractères : décrivez le contexte, la prestation, le résultat."
             counter={
               <span className={description.length < 10 || description.length > 500 ? 'text-danger-500 font-semibold' : ''}>
                 {description.length}/500
