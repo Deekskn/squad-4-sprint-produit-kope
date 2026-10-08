@@ -3,9 +3,9 @@ import { Lock, LockOpen } from 'lucide-react';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { changePassword } from '../services/auth.service.js';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Input } from '@/components/ui/Input.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
 
 export function ChangePasswordForm({ bare = false } = {}) {
   const { toast } = useNotification();

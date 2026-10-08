@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Phone, Users } from 'lucide-react';
 import { getMyContacts } from '../services/contacts.service.js';
-import { Card } from '@/components/ui/Card.jsx';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { EmptyState } from '@/components/ui/EmptyState.jsx';
-import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
-import { Badge } from '@/components/ui/Badge.jsx';
-import { formatPhoneFR } from '@/lib/utils.js';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { EmptyState } from '@/shared/components/ui/EmptyState.jsx';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
+import { Badge } from '@/shared/components/ui/Badge.jsx';
+import { formatPhoneFR } from '@/shared/utils';
 
 function ContactRow({ contact }) {
   const name = contact.displayName || 'Utilisateur';

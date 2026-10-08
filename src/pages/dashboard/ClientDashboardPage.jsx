@@ -3,16 +3,16 @@ import { User, Star, Pencil, Camera, Phone } from 'lucide-react';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
-import { Button } from '@/components/ui/Button.jsx';
-import { Card } from '@/components/ui/Card.jsx';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
-import { EmptyState } from '@/components/ui/EmptyState.jsx';
+import { EmptyState } from '@/shared/components/ui/EmptyState.jsx';
 import { getMyReviews } from '@/features/reviews/services/reviews.service.js';
 import { updateAccount, uploadAvatar } from '@/features/auth/services/auth.service.js';
-import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
-import { BottomNav } from '@/components/ui/BottomNav.jsx';
+import { SidebarNav } from '@/shared/components/ui/SidebarNav.jsx';
+import { BottomNav } from '@/shared/components/ui/BottomNav.jsx';
 
 const NAV_ITEMS = [
   { id: 'profil', label: 'Mon profil', shortLabel: 'Profil', icon: User },

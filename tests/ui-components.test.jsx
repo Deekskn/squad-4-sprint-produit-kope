@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { User, Star } from 'lucide-react';
-import { Select } from '../src/components/ui/Select.jsx';
-import { Table, TableRow, TableEmpty } from '../src/components/ui/Table.jsx';
-import { Skeleton } from '../src/components/ui/Skeleton.jsx';
-import { FloatingCaption } from '../src/components/ui/FloatingCaption.jsx';
-import { BottomNav } from '../src/components/ui/BottomNav.jsx';
+import { Select } from '../src/shared/components/ui/Select.jsx';
+import { Table, TableRow, TableEmpty } from '../src/shared/components/ui/Table.jsx';
+import { Skeleton } from '../src/shared/components/ui/Skeleton.jsx';
+import { FloatingCaption } from '../src/shared/components/ui/FloatingCaption.jsx';
+import { BottomNav } from '../src/shared/components/ui/BottomNav.jsx';
 
 describe('Select', () => {
   it('a une bordure par défaut', () => {

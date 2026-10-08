@@ -1,11 +1,11 @@
 import { ChevronRight, Star } from 'lucide-react';
-import { Card } from '@/components/ui/Card.jsx';
-import { Badge } from '@/components/ui/Badge.jsx';
-import { StarRating } from '@/components/ui/StarRating.jsx';
-import { cn } from '@/lib/utils.js';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { Badge } from '@/shared/components/ui/Badge.jsx';
+import { StarRating } from '@/shared/components/ui/StarRating.jsx';
+import { cn } from '@/shared/utils';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '@/lib/constants.js';
-import { mockImage } from '@/mocks/images.js';
+import { ROUTES } from '@/shared/lib/constants.js';
+import { mockImage } from '@/shared/mocks/images.js';
 
 function fallbackPortrait(seed, prompt) {
   if (prompt) 

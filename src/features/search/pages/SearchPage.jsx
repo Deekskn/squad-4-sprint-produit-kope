@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/Button.jsx';
-import { Badge } from '@/components/ui/Badge.jsx';
-import { Select } from '@/components/ui/Select.jsx';
+import { ArrowRight, Search, X } from 'lucide-react';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { Badge } from '@/shared/components/ui/Badge.jsx';
+import { Modal } from '@/shared/components/ui/Modal.jsx';
+import { Select } from '@/shared/components/ui/Select.jsx';
 import { SearchFilters } from '../components/SearchFilters.jsx';
 import { SearchResults } from '../components/SearchResults.jsx';
 import { useSearch } from '../hooks/useSearch.js';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { ROUTES } from '@/lib/constants.js';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { ROUTES } from '@/shared/lib/constants.js';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
 
 const SORTS = [
@@ -22,6 +24,7 @@ export function SearchPage() {
   const { trade, zone, page, q } = Object.fromEntries(params.entries());
   const { results, loading, error } = useSearch({ trade, zone, q, page });
   const [sort, setSort] = useState(params.get('sort') || 'recommended');
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const summary = useMemo(() => {
     const parts = [];

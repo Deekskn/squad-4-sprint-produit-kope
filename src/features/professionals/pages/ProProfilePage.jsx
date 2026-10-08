@@ -5,18 +5,18 @@ import { getMyProfile, setAvailability } from '../services/professionals.service
 import { listReviews, getClientReviews } from '@/features/reviews/services/reviews.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { Button } from '@/components/ui/Button.jsx';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
 import { PublicationStatus } from '../components/PublicationStatus.jsx';
 import { AvailabilityToggle } from '../components/AvailabilityToggle.jsx';
 import { ProfileEditor } from '../components/ProfileEditor.jsx';
 import { PhotoManager } from '../components/PhotoManager.jsx';
-import { Card } from '@/components/ui/Card.jsx';
-import { UserAvatar } from '@/components/ui/UserAvatar.jsx';
-import { SidebarNav } from '@/components/ui/SidebarNav.jsx';
-import { BottomNav } from '@/components/ui/BottomNav.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
+import { SidebarNav } from '@/shared/components/ui/SidebarNav.jsx';
+import { BottomNav } from '@/shared/components/ui/BottomNav.jsx';
 import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
-import { ROUTES, PROFILE_STATUS, PROFILE_STATUS_LABELS } from '@/lib/constants.js';
+import { ROUTES, PROFILE_STATUS, PROFILE_STATUS_LABELS } from '@/shared/lib/constants.js';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Vue d’ensemble', shortLabel: 'Aperçu', icon: LayoutDashboard },

@@ -1,6 +1,6 @@
-import { api } from '@/lib/api.js';
-import { callApi } from '@/lib/dataSource.js';
-import { MOCK_PROS } from '@/mocks/appMock.js';
+import { api } from '@/shared/lib/api.js';
+import { callApi } from '@/shared/lib/dataSource.js';
+import { MOCK_PROS } from '@/shared/mocks/appMock.js';
 
 export function listPhotos() {
   return callApi(

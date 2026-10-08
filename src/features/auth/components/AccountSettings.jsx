@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { updateAccount, changePassword } from '../services/auth.service.js';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Input } from '@/components/ui/Input.jsx';
-import { PasswordInput } from '@/components/ui/PasswordInput.jsx';
-import { Card } from '@/components/ui/Card.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
+import { PasswordInput } from '@/shared/components/ui/PasswordInput.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
 
 export function AccountSettings({ user, passwordOnly = false }) {
   const { refresh } = useAuthContext();

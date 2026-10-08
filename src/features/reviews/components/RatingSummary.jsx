@@ -1,5 +1,5 @@
-import { StarRating } from '@/components/ui/StarRating.jsx';
-import { Badge } from '@/components/ui/Badge.jsx';
+import { StarRating } from '@/shared/components/ui/StarRating.jsx';
+import { Badge } from '@/shared/components/ui/Badge.jsx';
 
 export function RatingSummary({ rating }) {
   const count = Number(rating?.count ?? 0);

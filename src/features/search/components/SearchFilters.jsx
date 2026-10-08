@@ -1,41 +1,42 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import { Button } from '@/components/ui/Button.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { Select } from '@/components/ui/Select.jsx';
-import { Input } from '@/components/ui/Input.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { Select } from '@/shared/components/ui/Select.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
-import { ROUTES } from '@/lib/constants.js';
-import { cn } from '@/lib/utils.js';
+import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { ROUTES } from '@/shared/lib/constants.js';
+import { cn } from '@/shared/utils';
 
-export function SearchFilters({ initial = {}, variant = 'search', className }) {
+export function SearchFilters({ initial = {}, variant = "search", className, bare = false }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
-  const [keyword, setKeyword] = useState(initial.keyword || '');
+  const [keyword, setKeyword] = useState(initial.keyword || "");
 
-  const trade = initial.trade ?? params.get('trade') ?? '';
-  const zone  = initial.zone  ?? params.get('zone')  ?? '';
+  const trade = initial.trade ?? params.get("trade") ?? "";
+  const zone = initial.zone ?? params.get("zone") ?? "";
   const error = initial.error;
 
   const onSubmit = (e) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const t = String(fd.get('trade') || '').trim();
-    const z = String(fd.get('zone') || '').trim();
-    const k = String(fd.get('q') || keyword || '').trim();
+    const t = String(fd.get("trade") || "").trim();
+    const z = String(fd.get("zone") || "").trim();
+    const k = String(fd.get("q") || keyword || "").trim();
     const next = new URLSearchParams();
-    if (t) next.set('trade', t);
-    if (z) next.set('zone',  z);
-    if (k) next.set('q',     k);
-    next.set('page', '1');
+    if (t) next.set("trade", t);
+    if (z) next.set("zone", z);
+    if (k) next.set("q", k);
+    next.set("page", "1");
     navigate(`${ROUTES.SEARCH}?${next.toString()}`);
   };
 
-  const dense  = variant === 'sidebar';
-  const home   = variant === 'home';
+  const dense = variant === "sidebar";
+  const home = variant === "home";
+  const suffix = home ? "hm" : "sb";
 
   if (loading) 
     return (
@@ -78,7 +79,9 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
           >
             <option value="">Plombier</option>
             {trades.map((t) => (
-              <option key={t.id} value={t.id}>{t.name}</option>
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
             ))}
           </Select>
 
@@ -90,7 +93,9 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
           >
             <option value="">Brazaville</option>
             {zones.map((z) => (
-              <option key={z.id} value={z.id}>{z.name}</option>
+              <option key={z.id} value={z.id}>
+                {z.name}
+              </option>
             ))}
           </Select>
         </div>
@@ -169,24 +174,39 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
   
 
   return (
-    <form onSubmit={onSubmit} className={cn('space-y-4', className)} noValidate>
+    <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>
       <FormField label="Métier" error={error?.trade} id="sf-trade-d">
-        <Select id="sf-trade-d" name="trade" defaultValue={trade} error={error?.trade}>
+        <Select
+          id="sf-trade-d"
+          name="trade"
+          defaultValue={trade}
+          error={error?.trade}
+        >
           <option value="">Choisissez un métier</option>
           {trades.map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
           ))}
         </Select>
       </FormField>
-      <FormField label="Zone (facultatif)" help="Par défaut : toute la ville" id="sf-zone-d">
+      <FormField
+        label="Zone (facultatif)"
+        help="Par défaut : toute la ville"
+        id="sf-zone-d"
+      >
         <Select id="sf-zone-d" name="zone" defaultValue={zone}>
           <option value="">Toute la ville</option>
           {zones.map((z) => (
-            <option key={z.id} value={z.id}>{z.name}</option>
+            <option key={z.id} value={z.id}>
+              {z.name}
+            </option>
           ))}
         </Select>
       </FormField>
-      <Button type="submit" size="lg">Rechercher</Button>
+      <Button type="submit" size="lg">
+        Rechercher
+      </Button>
     </form>
   );
 }

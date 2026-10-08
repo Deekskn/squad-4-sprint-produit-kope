@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { ImagePlus, Pencil, Trash } from 'lucide-react';
-import { Button } from '@/components/ui/Button.jsx';
-import { Input } from '@/components/ui/Input.jsx';
-import { Textarea } from '@/components/ui/Textarea.jsx';
-import { FormField } from '@/components/ui/FormField.jsx';
-import { FileUpload } from '@/components/ui/FileUpload.jsx';
-import { Modal } from '@/components/ui/Modal.jsx';
+import { Button } from '@/shared/components/ui/Button.jsx';
+import { Input } from '@/shared/components/ui/Input.jsx';
+import { Textarea } from '@/shared/components/ui/Textarea.jsx';
+import { FormField } from '@/shared/components/ui/FormField.jsx';
+import { FileUpload } from '@/shared/components/ui/FileUpload.jsx';
+import { Modal } from '@/shared/components/ui/Modal.jsx';
 import {
   Dialog,
   DialogContent,
@@ -13,14 +13,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/Dialog.jsx';
-import { Card } from '@/components/ui/Card.jsx';
-import { FloatingCaption } from '@/components/ui/FloatingCaption.jsx';
+} from '@/shared/components/ui/Dialog.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
+import { FloatingCaption } from '@/shared/components/ui/FloatingCaption.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { MAX_PHOTOS, ALLOWED_MIME, MAX_FILE_SIZE_BYTES } from '@/lib/constants.js';
+import { MAX_PHOTOS, ALLOWED_MIME, MAX_FILE_SIZE_BYTES } from '@/shared/lib/constants.js';
 import { addPhoto, updatePhoto, deletePhoto } from '@/features/photos/services/photos.service.js';
-import { addPhotoSchema, validateFrontend } from '@/components/form/validators.js';
-import { cn } from '@/lib/utils.js';
+import { addPhotoSchema, validateFrontend } from '@/shared/utils/validators.js';
+import { cn } from '@/shared/utils';
 
 const MIN_SLOTS = 3;
 

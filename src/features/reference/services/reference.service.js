@@ -1,7 +1,7 @@
-import { api } from '@/lib/api.js';
-import { callApi } from '@/lib/dataSource.js';
-import { cached, cacheInvalidate } from '@/lib/cache.js';
-import { MOCK_TRADES, MOCK_ZONES } from '@/mocks/appMock.js';
+import { api } from '@/shared/lib/api.js';
+import { callApi } from '@/shared/lib/dataSource.js';
+import { cached, cacheInvalidate } from '@/shared/lib/cache.js';
+import { MOCK_TRADES, MOCK_ZONES } from '@/shared/mocks/appMock.js';
 
 export function listTrades() {
   return cached('reference:trades', 5 * 60_000, () =>
