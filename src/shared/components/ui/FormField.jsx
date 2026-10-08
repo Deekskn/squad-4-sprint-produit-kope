@@ -4,8 +4,8 @@ import { Textarea } from './Textarea.jsx';
 import { Select } from './Select.jsx';
 
 const FIELD_LABEL = 'block text-sm font-medium text-gray-700 mb-1.5';
-const FIELD_HELP = 'mt-1.5 text-xs text-gray-500';
-const FIELD_ERROR = 'mt-1.5 text-xs text-danger-500';
+const FIELD_HELP = 'mt-1 text-xs text-gray-500';
+const FIELD_ERROR = 'mt-1 text-xs text-danger-500';
 
 const COMPONENT = { input: Input, textarea: Textarea, select: Select };
 
@@ -38,7 +38,7 @@ export function FormField({
         <Control id={id} error={error} aria-describedby={describedBy} {...rest} />
       )}
       {counter && (
-        <div className="mt-1 text-right text-[11px] text-gray-400">{counter}</div>
+        <div className="mt-0.5 text-right text-[11px] text-gray-400">{counter}</div>
       )}
       {help && <p id={helpId} className={FIELD_HELP}>{help}</p>}
       {error && <p id={errorId} role="alert" className={FIELD_ERROR}>{error}</p>}

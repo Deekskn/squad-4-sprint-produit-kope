@@ -50,6 +50,11 @@ export function Modal({
     full: 'max-w-5xl',
   }[size] || 'max-w-md';
 
+  // Moins de 4 sections (titre, description, contenu, actions) : réduire le rayon des coins.
+  const sections = [title, description, children, actions].filter(Boolean).length;
+  const radiusTop = sections < 4 ? 'rounded-t-xl' : 'rounded-t-2xl';
+  const radiusMain = sections < 4 ? 'sm:rounded-xl' : 'sm:rounded-2xl';
+
   return createPortal(
     <div
       className={cn(
@@ -64,7 +69,9 @@ export function Modal({
       <div
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          'w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-[var(--shadow-pop)] sm:rounded-2xl transition-opacity duration-300',
+          'w-full max-h-[90vh] overflow-y-auto bg-white shadow-[var(--shadow-pop)] transition-opacity duration-300',
+          radiusTop,
+          radiusMain,
           show ? 'opacity-100' : 'opacity-0',
           widths,
         )}

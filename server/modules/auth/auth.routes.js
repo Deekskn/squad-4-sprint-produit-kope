@@ -15,15 +15,15 @@ import * as controller from './auth.controller.js';
 
 const router = Router();
 
-router.post('/auth/register/client', validate(registerClientSchema), controller.registerClient);
-router.post('/auth/register/professional', validate(registerProfessionalSchema), controller.registerProfessional);
+router.post('/auth/register/client', rateLimit({ max: 10, key: 'register' }), validate(registerClientSchema), controller.registerClient);
+router.post('/auth/register/professional', rateLimit({ max: 10, key: 'register' }), validate(registerProfessionalSchema), controller.registerProfessional);
 router.post('/auth/become-professional', requireAuth, validate(becomeProfessionalSchema), controller.becomeProfessional);
 router.post('/auth/login', rateLimit({ max: 10, key: 'login' }), validate(loginSchema), controller.login);
 router.post('/auth/refresh', rateLimit({ max: 30, key: 'refresh' }), controller.refresh);
 router.post('/auth/logout', controller.logout);
 router.get('/auth/me', requireAuth, controller.me);
 router.put('/auth/me', requireAuth, validate(updateAccountSchema), controller.updateAccount);
-router.put('/auth/password', requireAuth, validate(changePasswordSchema), controller.changePassword);
+router.put('/auth/password', requireAuth, rateLimit({ max: 10, key: 'password' }), validate(changePasswordSchema), controller.changePassword);
 router.post('/auth/avatar', requireAuth, upload.single('avatar'), controller.uploadAvatar);
 
 
