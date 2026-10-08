@@ -1,16 +1,21 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import { Button } from '@/shared/components/ui/Button.jsx';
-import { FormField } from '@/shared/components/ui/FormField.jsx';
-import { Select } from '@/shared/components/ui/Select.jsx';
-import { Input } from '@/shared/components/ui/Input.jsx';
-import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
-import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
-import { ROUTES } from '@/shared/lib/constants.js';
-import { cn } from '@/shared/utils';
+import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Search } from "lucide-react";
+import { Button } from "@/shared/components/ui/Button.jsx";
+import { FormField } from "@/shared/components/ui/FormField.jsx";
+import { Select } from "@/shared/components/ui/Select.jsx";
+import { Input } from "@/shared/components/ui/Input.jsx";
+import { useReferenceData } from "@/features/reference/hooks/useReferenceData.js";
+import { Skeleton } from "@/shared/components/ui/Skeleton.jsx";
+import { ROUTES } from "@/shared/lib/constants.js";
+import { cn } from "@/shared/utils";
 
-export function SearchFilters({ initial = {}, variant = "search", className, bare = false }) {
+export function SearchFilters({
+  initial = {},
+  variant = "search",
+  className,
+  bare = false,
+}) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
@@ -38,7 +43,7 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
   const home = variant === "home";
   const suffix = home ? "hm" : "sb";
 
-  if (loading) 
+  if (loading)
     return (
       <div className="space-y-3 py-2" aria-busy="true">
         <Skeleton className="h-11 w-full" />
@@ -46,9 +51,8 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
         <Skeleton className="h-11 w-40" />
       </div>
     );
-  
 
-  if (dense) 
+  if (dense)
     return (
       <form
         onSubmit={onSubmit}
@@ -107,9 +111,8 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
         </div>
       </form>
     );
-  
 
-   if (home) 
+  if (home)
     return (
       <form
         onSubmit={onSubmit}
@@ -156,7 +159,6 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
         </Button>
       </form>
     );
-  
 
   return (
     <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>
