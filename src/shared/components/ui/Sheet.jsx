@@ -1,8 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { cn } from '@/shared/utils';
 
 export function Sheet({ open, onOpenChange, children }) {
+  const [render, setRender] = useState(open);
+  const [show, setShow] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRender(true);
+      requestAnimationFrame(() => setShow(true));
+    } else {
+      setShow(false);
+      const timer = setTimeout(() => setRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -17,13 +33,22 @@ export function Sheet({ open, onOpenChange, children }) {
     };
   }, [open, onOpenChange]);
 
-  if (!open || typeof document === 'undefined') return null;
+  if (!render || typeof document === 'undefined') return null;
   return createPortal(
-    <div className="fixed inset-0 z-90 bg-checkers backdrop-blur-sm animate-fade-in" onClick={() => onOpenChange?.(false)}>
+    <div
+      className={cn(
+        'fixed inset-0 z-90 bg-checkers backdrop-blur-sm transition-opacity duration-300',
+        show ? 'opacity-100' : 'opacity-0',
+      )}
+      onClick={() => onOpenChange?.(false)}
+    >
       <div
         role="dialog"
         aria-modal="true"
-        className="absolute inset-y-0 right-0 flex w-[85%] max-w-sm flex-col bg-white shadow-2xl animate-slide-in-right"
+        className={cn(
+          'absolute inset-y-0 right-0 flex w-[85%] max-w-sm flex-col bg-white shadow-2xl transition-transform duration-300',
+          show ? 'translate-x-0' : 'translate-x-full',
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         <button

@@ -50,6 +50,7 @@ function makePro(i) {
     phone: `+24206${String(1000000 + i * 137913).slice(0, 7)}`,
     whatsapp: null,
     image: IMAGES[i % IMAGES.length],
+    avatarUrl: IMAGES[(i + 3) % IMAGES.length],
     ratingAverage: ratingCount ? Math.round((3.5 + ((i * 7) % 15) / 10) * 10) / 10 : null,
     ratingCount,
     photos: [0, 1, 2].map((k) => ({
@@ -130,6 +131,7 @@ export function getProDetailMock(id) {
       yearsExperience: p.yearsExperience,
       isAvailable: p.isAvailable,
       phone: p.phone,
+      avatarUrl: p.avatarUrl,
       whatsapp: p.whatsapp ?? p.phone,
       zones: p.zones,
       tags: tagsByTrade[p.tradeId] ?? [],

@@ -36,7 +36,7 @@ router.get(
 // US-14 
 router.post(
   '/professionals/:id/reviews',
-  requireRole('client'),
+  requireRole('client', 'professional'),
   validate(idParamSchema, 'params'),
   validate(createReviewSchema),
   controller.create,

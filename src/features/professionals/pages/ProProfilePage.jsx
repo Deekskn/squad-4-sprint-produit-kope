@@ -175,7 +175,7 @@ export function ProProfilePage() {
           <Card className="p-0 overflow-hidden">
             <div className="p-5 pb-4 bg-gradient-to-r from-primary-50 to-kop-mint/60">
               <div className="flex items-center gap-4">
-                <UserAvatar user={user} name={displayName} className="h-14 w-14" />
+                <UserAvatar user={user} src={profile?.avatarUrl ?? undefined} name={displayName} className="h-14 w-14" />
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-gray-900">{displayName}</p>
                   <p className="text-xs text-gray-500">{profile?.tradeName || 'Professionnel'}</p>

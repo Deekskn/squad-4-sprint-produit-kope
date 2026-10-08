@@ -9,13 +9,16 @@ export function getSummary(professionalId) {
 }
 
 export async function canReview(viewer, professionalId) {
-  if (viewer?.role !== 'client') return false;
+  if (!viewer || viewer.role === 'admin') return false;
+  if (String(viewer.id) === String(professionalId)) return false;
   return !(await repository.exists(viewer.id, professionalId));
 }
 
 export async function createReview(clientId, professionalId, { rating, comment }) {
   if (!(await professionalsRepository.existsPublished(professionalId)))
     throw ApiError.notFound('Profil introuvable');
+  if (String(clientId) === String(professionalId))
+    throw ApiError.forbidden();
 
 
   try {
