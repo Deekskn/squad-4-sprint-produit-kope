@@ -1,8 +1,7 @@
 import path from 'node:path';
 try {
   process.loadEnvFile();
-} catch {
-}
+} catch { /* ignore */ }
 
 const required = ['DATABASE_URL', 'SESSION_SECRET'];
 

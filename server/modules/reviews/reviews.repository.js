@@ -33,7 +33,8 @@ export async function listByProfessional(professionalId, { limit, offset }, db =
     `SELECT r.id, r.rating, r.comment, r.created_at AS "createdAt",
             json_build_object(
               'firstName', u.first_name,
-              'lastName', COALESCE(UPPER(LEFT(u.last_name, 1)), '')
+              'lastName', COALESCE(UPPER(LEFT(u.last_name, 1)), ''),
+              'avatarUrl', u.avatar_url
             ) AS client,
             COUNT(*) OVER()::int AS total
        FROM reviews r

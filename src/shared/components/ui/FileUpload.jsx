@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { Button } from './Button.jsx';
 import { Input } from './Input.jsx';
+import { Edit, Trash2 } from 'lucide-react';
 import { cn } from '@/shared/utils';
 import { ALLOWED_MIME, MAX_FILE_SIZE_BYTES } from '@/shared/lib/constants.js';
-import { Edit, Trash, Trash2 } from 'lucide-react';
 
 function formatSize(n) {
   if (n < 1024) return `${n} o`;

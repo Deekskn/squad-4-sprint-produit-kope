@@ -14,7 +14,7 @@ export function RadioGroup({ name, value, onChange, children, className }) {
   );
 }
 
-export function Radio({ value, label, className, ...rest }) {
+export function Radio({ value, label, className, children, ...rest }) {
   const ctx = useContext(RadioGroupContext);
   if (!ctx) throw new Error('Radio must be used inside <RadioGroup>');
   const id = `radio-${ctx.name}-${String(value)}`;
@@ -35,10 +35,10 @@ export function Radio({ value, label, className, ...rest }) {
         value={value}
         checked={checked}
         onChange={() => ctx.onChange?.(value)}
-        className="h-4 w-4 border-gray-300 text-primary-600 focus-ring"
+        className={children ? 'sr-only' : 'h-4 w-4 border-gray-300 text-primary-600 focus-ring'}
         {...rest}
       />
-      <span>{label}</span>
+      {children ?? <span>{label}</span>}
     </label>
   );
 }

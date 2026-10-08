@@ -86,7 +86,7 @@ export function mockReviewsFor(proId) {
     comment: r.comment,
     isHidden: false,
     createdAt: new Date(Date.now() - (proId + i) * 86400000 * 3).toISOString(),
-    client: { firstName: FIRST[(proId + i) % FIRST.length], lastName: LAST[(proId + i + 2) % LAST.length] },
+    client: { firstName: FIRST[(proId + i) % FIRST.length], lastName: LAST[(proId + i + 2) % LAST.length], avatarUrl: null },
   }));
 }
 

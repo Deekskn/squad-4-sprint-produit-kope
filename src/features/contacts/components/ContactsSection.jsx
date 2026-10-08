@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { Phone, Users } from 'lucide-react';
+import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getMyContacts } from '../services/contacts.service.js';
 import { Card } from '@/shared/components/ui/Card.jsx';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
@@ -61,18 +61,11 @@ function ContactRow({ contact }) {
 }
 
 export function ContactsSection() {
-  const [items, setItems] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    getMyContacts()
-      .then((data) => { if (!cancelled) setItems(data.items || []); })
-      .catch(() => { if (!cancelled) setItems([]); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+  const { data: itemsData, loading } = useAsyncData(async () => {
+    const data = await getMyContacts();
+    return data.items || [];
   }, []);
+  const items = itemsData ?? [];
 
   return (
     <div className="space-y-4">
@@ -82,7 +75,7 @@ export function ContactsSection() {
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
         </div>
-      ) : (items?.length ?? 0) === 0 ? (
+      ) : items.length === 0 ? (
         <EmptyState
           icon={Users}
           title="Aucun contact pour le moment"

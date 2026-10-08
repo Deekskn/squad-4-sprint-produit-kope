@@ -35,6 +35,7 @@ const [revealContact, setRevealContact] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const [activeSection, setActiveSection] = useState('profile');
   const [reviewsOpen, setReviewsOpen] = useState(false);
+  const [reviewFormOpen, setReviewFormOpen] = useState(false);
   const [tabContactOpen, setTabContactOpen] = useState(false);
   const detail = useAsyncData(() => getPublishedDetail(id), [id]);
   const canReviewState = useAsyncData(() => canReview(id), [id, user?.id]);
@@ -263,23 +264,21 @@ const [revealContact, setRevealContact] = useState(false);
             )}
           </section>
 
-          {count > 0 && (
           <section id="avis" className="space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Les retours de ses clients</h2>
             <RatingSummary rating={rating} />
-            {canLeaveReview && <ReviewForm professionalId={profile.id} onSuccess={refreshAfterReview} />}
-            {!user && (
-              <Button variant="secondary" onClick={() => openAuthModal('login')}>
-                Se connecter pour donner un avis
+            <ReviewList professionalId={profile.id} compact onViewAll={() => setReviewsOpen(true)} />
+            {canLeaveReview && (
+              <Button variant="primary" onClick={() => setReviewFormOpen(true)}>
+                Donner un avis
               </Button>
             )}
-            {count > 0 && (
-              <Button variant="secondary" onClick={() => setReviewsOpen(true)}>
-                Voir plus
+            {!user && (
+              <Button variant="secondary" onClick={() => openAuthModal('login')}>
+                Donner un avis
               </Button>
             )}
           </section>
-          )}
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-(--header-height) lg:self-start">
@@ -423,6 +422,22 @@ const [revealContact, setRevealContact] = useState(false);
             <DialogDescription>les avis clients laissés sur la fiche</DialogDescription>
           </DialogHeader>
           <ReviewList professionalId={profile.id} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={reviewFormOpen} onOpenChange={(o) => !o && setReviewFormOpen(false)}>
+        <DialogContent className="max-w-lg min-h-[45vh] p-5" onClose={() => setReviewFormOpen(false)}>
+          <DialogHeader>
+            <DialogTitle>Donner votre avis</DialogTitle>
+            <DialogDescription>Votre retour aide les autres clients à faire leur choix.</DialogDescription>
+          </DialogHeader>
+          <ReviewForm
+            professionalId={profile.id}
+            onSuccess={() => {
+              setReviewFormOpen(false);
+              refreshAfterReview();
+            }}
+          />
         </DialogContent>
       </Dialog>
 

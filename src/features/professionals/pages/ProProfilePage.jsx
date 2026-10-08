@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, LayoutDashboard, User, Image as ImageIcon, Phone, Star, Activity, MapPin, Clock, BadgeCheck } from 'lucide-react';
+import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getMyProfile, setAvailability } from '../services/professionals.service.js';
 import { listReviews, getClientReviews } from '@/features/reviews/services/reviews.service.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
@@ -14,6 +15,7 @@ import { PhotoManager } from '../components/PhotoManager.jsx';
 import { Card } from '@/shared/components/ui/Card.jsx';
 import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { SidebarNav } from '@/shared/components/ui/SidebarNav.jsx';
+import { fullNameInitials } from '@/shared/utils';
 import { BottomNav } from '@/shared/components/ui/BottomNav.jsx';
 import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
 import { ROUTES, PROFILE_STATUS, PROFILE_STATUS_LABELS } from '@/shared/lib/constants.js';
@@ -27,21 +29,12 @@ const NAV_ITEMS = [
 ];
 
 function ProReviewsSection({ professionalId }) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useAsyncData(async () => {
+    if (!professionalId) return null;
+    return listReviews(professionalId);
+  }, [professionalId]);
   const [expanded, setExpanded] = useState(null);
   const [expandedData, setExpandedData] = useState({});
-
-  useEffect(() => {
-    if (!professionalId) return;
-    let cancelled = false;
-    setLoading(true);
-    listReviews(professionalId)
-      .then((d) => { if (!cancelled) setData(d); })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [professionalId]);
 
   const toggleClient = (clientId) => {
     if (expanded === clientId) {
@@ -70,7 +63,18 @@ function ProReviewsSection({ professionalId }) {
         (data.items || []).map((r) => (
           <Card key={r.id} className="p-4 space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <p className="font-semibold text-gray-900">{r.authorName || 'Client'}</p>
+              <div className="flex items-center gap-2.5">
+                <UserAvatar
+                  user={{
+                    firstName: r.client?.firstName,
+                    lastName: r.client?.lastName,
+                    avatarUrl: r.client?.avatarUrl,
+                  }}
+                  name={r.client?.displayName || fullNameInitials(r.client?.firstName, r.client?.lastName) || 'Client'}
+                  className="h-8 w-8"
+                />
+                <p className="font-semibold text-gray-900">{r.client?.displayName || fullNameInitials(r.client?.firstName, r.client?.lastName) || 'Client'}</p>
+              </div>
               <span className="text-sm font-bold text-amber-500">★ {r.rating}/5</span>
             </div>
             {r.comment && <p className="text-sm leading-6 text-gray-600">{r.comment}</p>}
@@ -123,6 +127,7 @@ export function ProProfilePage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
