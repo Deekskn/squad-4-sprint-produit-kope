@@ -10,7 +10,20 @@ import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
 import { cn } from '@/shared/utils';
 
-export function SearchFilters({ initial = {}, variant = "search", className, bare = false }) {
+export function SearchFiltersResponsive({ initial, className }) {
+  return (
+    <>
+      <div className="hidden lg:block">
+        <SearchFilters variant="sidebar" initial={initial} className={className} />
+      </div>
+      <div className="lg:hidden">
+        <SearchFilters variant="home-k" initial={initial} className={className} />
+      </div>
+    </>
+  );
+}
+
+export function SearchFilters({ initial = {}, variant = "search", className }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
@@ -36,7 +49,7 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
 
   const dense = variant === "sidebar";
   const home = variant === "home";
-  const suffix = home ? "hm" : "sb";
+  const homeK = variant === "home-k";
 
   if (loading)
     return (
@@ -53,7 +66,7 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
       <form
         onSubmit={onSubmit}
         className={cn(
-          'rounded-[22px] border border-[#dfe5e2] bg-white p-4 shadow-[0_10px_24px_-18px_rgba(16,42,32,0.4)] sm:p-5',
+          'rounded-[22px] border border-[#dfe5e2] bg-white p-4  sm:p-5',
           className,
         )}
         noValidate
@@ -65,7 +78,7 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
             placeholder="Recherche par mot-clé"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            className="h-[46px] rounded-[12px] border-[#dde4e1] bg-white pl-10 text-[15px] text-gray-900 placeholder:text-gray-500"
+            className="h-11.5 rounded-md border-[#dde4e1] bg-white pl-10 text-[15px] text-gray-900 placeholder:text-gray-500"
           />
         </div>
 
@@ -109,7 +122,7 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
     );
 
 
-  if (home)
+  if (home || homeK)
     return (
       <form
         onSubmit={onSubmit}
@@ -119,6 +132,18 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
         )}
         noValidate
       >
+        {homeK && (
+          <>
+            <Input
+              name="q"
+              placeholder="Recherche par mot-clé"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="sm:h-fit h-16 border-0! bg-transparent!"
+            />
+            <p className='opacity-10 sm:border-x border-y sm:border-y-0 w-[96%] sm:w-0 mx-auto sm:h-8'></p>
+          </>
+        )}
         <Select
           id="sf-trade-h"
           name="trade"
@@ -160,6 +185,7 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
 
   return (
     <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>
+
       <FormField label="Métier" error={error?.trade} id="sf-trade-d">
         <Select
           id="sf-trade-d"

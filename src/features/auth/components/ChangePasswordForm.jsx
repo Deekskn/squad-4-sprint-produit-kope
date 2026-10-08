@@ -40,7 +40,7 @@ export function ChangePasswordForm({ bare = false } = {}) {
   };
 
   return (
-    <div className={bare ? 'w-full px-6' : 'mx-auto w-full max-w-md px-6'}>
+    <div className={bare ? 'w-full px-5' : 'mx-auto w-full max-w-md px-5'}>
       <h2 className="text-2xl font-extrabold tracking-tight text-primary-500">Changer le mot de passe</h2>
       <p className="mb-6 mt-2 text-sm text-gray-500">Votre session reste active sur cet appareil. Les autres appareils seront invalidés.</p>
       <form className="space-y-5" onSubmit={onSubmit} noValidate>

@@ -50,7 +50,7 @@ export function ContactDialog({ open, onOpenChange, toUserId, recipientName }) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => (o ? onOpenChange?.(true) : close())}>
-      <DialogContent className="max-w-lg p-6" onClose={close}>
+      <DialogContent className="max-w-lg p-5" onClose={close}>
         <DialogHeader>
           <DialogTitle>Contacter {recipientName}</DialogTitle>
           <DialogDescription>
