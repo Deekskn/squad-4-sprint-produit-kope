@@ -67,7 +67,7 @@ export function HeroSection() {
 
       {/* 2. SEARCH WIDGET */}
       <aside className="container-kop relative -space-y-px z-10">
-        <p className="bg-[#F5F6F6] rounded-t-sm border border-[#B9C2BE]  px-4 py-2 inline-flex items-center gap-2 text-xs font-semibold text-gray-600">
+        <p className="bg-[#F5F6F6] rounded-t-sm border border-[#B9C2BE] border-b-transparent  px-4 py-2 inline-flex items-center gap-2 text-xs font-semibold text-gray-600">
           <span className="inline-flex items-center gap-2"><Search size={14} aria-hidden /> Recherche par mot-clé</span>
         </p>
         <div className="bg-white rounded-r-[16px] rounded-bl-[16px] border border-[#B9C2BE] p-3 sm:p-5">

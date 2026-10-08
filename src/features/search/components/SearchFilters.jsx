@@ -38,7 +38,7 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
   const home = variant === "home";
   const suffix = home ? "hm" : "sb";
 
-  if (loading) 
+  if (loading)
     return (
       <div className="space-y-3 py-2" aria-busy="true">
         <Skeleton className="h-11 w-full" />
@@ -46,9 +46,9 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
         <Skeleton className="h-11 w-40" />
       </div>
     );
-  
 
-  if (dense) 
+
+  if (dense)
     return (
       <form
         onSubmit={onSubmit}
@@ -107,71 +107,56 @@ export function SearchFilters({ initial = {}, variant = "search", className, bar
         </div>
       </form>
     );
-  
 
-   if (home) 
+
+  if (home)
     return (
       <form
         onSubmit={onSubmit}
         className={cn(
-          'flex flex-col items-stretch gap-2.5',
+          'md:flex items-center space-y-2 gap-2.5 border border-[#CDD8D3] p-2 rounded-md bg-[#F5F6F6]',
           className,
         )}
         noValidate
       >
-        <div className="relative">
-          <Search size={16} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-          <Input
-            name="q"
-            id="sf-keyword-h"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="Recherche par mot-clé"
-            className="h-[52px] rounded-[14px] border border-[#dfe5e2] bg-white pl-11 text-base text-gray-900 placeholder:text-gray-500 shadow-sm"
-          />
-        </div>
+        <Select
+          id="sf-trade-h"
+          name="trade"
+          defaultValue={trade}
+          error={error?.trade}
+          className="sm:h-fit h-16 border-0! bg-transparent! "
+        >
+          <option value="">Quel métier ?</option>
+          {trades.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </Select>
 
-        <div className="grid gap-2.5 md:grid-cols-[1fr_1fr_auto] md:items-center">
-          <div className="relative">
-            <Select
-              id="sf-trade-h"
-              name="trade"
-              defaultValue={trade}
-              error={error?.trade}
-              className="h-[52px] rounded-[14px] border border-[#dfe5e2] bg-white text-base text-gray-900 shadow-sm"
-            >
-              <option value="">Quel métier ?</option>
-              {trades.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </Select>
-          </div>
+        <p className='opacity-10 sm:border-x border-y sm:border-y-0 w-[96%] sm:w-0 mx-auto sm:h-8'></p>
 
-          <div className="relative">
-            <Select
-              id="sf-zone-h"
-              name="zone"
-              defaultValue={zone}
-              className="h-[52px] rounded-[14px] border border-[#dfe5e2] bg-white text-base text-gray-900 shadow-sm"
-            >
-              <option value="">Quel quartier ?</option>
-              {zones.map((z) => (
-                <option key={z.id} value={z.id}>{z.name}</option>
-              ))}
-            </Select>
-          </div>
+        <Select
+          id="sf-zone-h"
+          name="zone"
+          defaultValue={zone}
+          className=" sm:h-fit h-16 border-0! bg-transparent!"
+        >
+          <option value="">Quel quartier ?</option>
+          {zones.map((z) => (
+            <option key={z.id} value={z.id}>{z.name}</option>
+          ))}
+        </Select>
 
-          <Button
-            type="submit"
-            size="lg"
-            className="h-[52px] rounded-[14px] bg-[#214d3d] px-6 text-base font-bold text-white hover:bg-[#1a3d33]"
-          >
-            Rechercher <Search size={16} aria-hidden />
-          </Button>
-        </div>
+
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full sm:w-fit px-12!"
+        >
+          Rechercher <Search size={16} aria-hidden />
+        </Button>
       </form>
     );
-  
+
 
   return (
     <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>
