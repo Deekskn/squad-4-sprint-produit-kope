@@ -79,7 +79,7 @@ export function Modal({
             {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
           </div>
         )}
-        {children && <div className="px-5 py-4">{children}</div>}
+        {children && <div className="px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">{children}</div>}
         {actions && (
           <div className="flex flex-col-reverse gap-2 border-t border-gray-100 px-5 py-3 sm:flex-row sm:justify-end">
             {actions}

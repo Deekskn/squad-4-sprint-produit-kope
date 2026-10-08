@@ -311,7 +311,7 @@ function PhotoFormModal({ open, photo, onClose, onSubmit, submitting, remaining 
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) close(); }}>
-      <DialogContent className="max-w-lg p-6" onClose={close}>
+      <DialogContent className="max-w-lg p-5" onClose={close}>
         <DialogHeader>
           <DialogTitle>{photo ? 'Modifier la photo' : 'Ajouter une photo'}</DialogTitle>
           <DialogDescription>

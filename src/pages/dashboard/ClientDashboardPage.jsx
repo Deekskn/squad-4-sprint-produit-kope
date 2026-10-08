@@ -150,7 +150,7 @@ function ProfilSection({ user }) {
         </div>
 
         {editing ? (
-          <form onSubmit={save} className="grid gap-4 px-6 py-5 sm:grid-cols-2">
+          <form onSubmit={save} className="grid gap-4 px-5 py-5 sm:grid-cols-2">
             <div className="space-y-1">
               <label className="text-xs font-semibold text-gray-600">Prénom</label>
               <input

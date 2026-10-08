@@ -27,7 +27,7 @@ export function SearchResults({ data, listMode = true }) {
 
   if (items.length === 0)
     return (
-      <div className="rounded-[32px] border border-gray-200 bg-white p-10 sm:p-16 text-center min-h-[380px] flex flex-col items-center justify-center">
+      <div className=" p-10 sm:p-16 text-center min-h-95 flex flex-col items-center justify-center">
         <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-mint-100">
           <svg viewBox="0 0 24 24" className="h-10 w-10 text-primary-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="7"/>

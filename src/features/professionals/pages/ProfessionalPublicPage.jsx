@@ -364,7 +364,7 @@ const [revealContact, setRevealContact] = useState(false);
 
       {openIndex !== null && photos[openIndex] && (
         <Dialog open onOpenChange={(o) => !o && setOpenIndex(null)}>
-          <DialogContent className="max-w-3xl p-6" onClose={() => setOpenIndex(null)}>
+          <DialogContent className="max-w-3xl p-5" onClose={() => setOpenIndex(null)}>
             <DialogHeader>
               <DialogTitle>
                 {photos[openIndex].title || photos[openIndex].caption || `Photo ${openIndex + 1} / ${photos.length}`}
@@ -417,7 +417,7 @@ const [revealContact, setRevealContact] = useState(false);
         </Dialog>
       )}
       <Dialog open={reviewsOpen} onOpenChange={(o) => !o && setReviewsOpen(false)}>
-        <DialogContent className="max-w-3xl min-h-[50vh] p-6" onClose={() => setReviewsOpen(false)}>
+        <DialogContent className="max-w-3xl min-h-[50vh] p-5" onClose={() => setReviewsOpen(false)}>
           <DialogHeader>
             <DialogTitle>Avis ({count})</DialogTitle>
             <DialogDescription>les avis clients laissés sur la fiche</DialogDescription>
@@ -427,7 +427,7 @@ const [revealContact, setRevealContact] = useState(false);
       </Dialog>
 
       <Dialog open={tabContactOpen} onOpenChange={(o) => !o && setTabContactOpen(false)}>
-        <DialogContent className="max-w-lg min-h-[45vh] p-6" onClose={() => setTabContactOpen(false)}>
+        <DialogContent className="max-w-lg min-h-[45vh] p-5" onClose={() => setTabContactOpen(false)}>
           <DialogHeader>
             <DialogTitle>Contacter {firstName}</DialogTitle>
             <DialogDescription>

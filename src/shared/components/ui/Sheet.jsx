@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/shared/utils';
 
-export function Sheet({ open, onOpenChange, children }) {
+export function Sheet({ open, onOpenChange, side = 'right', children }) {
   const [render, setRender] = useState(open);
   const [show, setShow] = useState(open);
 
@@ -46,8 +46,12 @@ export function Sheet({ open, onOpenChange, children }) {
         role="dialog"
         aria-modal="true"
         className={cn(
-          'absolute inset-y-0 right-0 flex w-[85%] max-w-sm flex-col bg-white shadow-2xl transition-transform duration-300',
-          show ? 'translate-x-0' : 'translate-x-full',
+          side === 'bottom'
+            ? 'absolute inset-x-0 bottom-0 flex max-h-[80vh] w-full flex-col rounded-t-3xl bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl transition-transform duration-300'
+            : 'absolute inset-y-0 right-0 flex w-[85%] max-w-sm flex-col bg-white shadow-2xl',
+          show
+            ? side === 'bottom' ? 'translate-y-0' : 'translate-x-0'
+            : side === 'bottom' ? 'translate-y-full' : 'translate-x-full',
         )}
         onClick={(e) => e.stopPropagation()}
       >
