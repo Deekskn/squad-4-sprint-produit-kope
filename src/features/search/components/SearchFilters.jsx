@@ -10,32 +10,33 @@ import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
 import { cn } from '@/shared/utils';
 
-export function SearchFilters({ initial = {}, variant = 'search', className }) {
+export function SearchFilters({ initial = {}, variant = "search", className, bare = false }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
-  const [keyword, setKeyword] = useState(initial.keyword || '');
+  const [keyword, setKeyword] = useState(initial.keyword || "");
 
-  const trade = initial.trade ?? params.get('trade') ?? '';
-  const zone  = initial.zone  ?? params.get('zone')  ?? '';
+  const trade = initial.trade ?? params.get("trade") ?? "";
+  const zone = initial.zone ?? params.get("zone") ?? "";
   const error = initial.error;
 
   const onSubmit = (e) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const t = String(fd.get('trade') || '').trim();
-    const z = String(fd.get('zone') || '').trim();
-    const k = String(fd.get('q') || keyword || '').trim();
+    const t = String(fd.get("trade") || "").trim();
+    const z = String(fd.get("zone") || "").trim();
+    const k = String(fd.get("q") || keyword || "").trim();
     const next = new URLSearchParams();
-    if (t) next.set('trade', t);
-    if (z) next.set('zone',  z);
-    if (k) next.set('q',     k);
-    next.set('page', '1');
+    if (t) next.set("trade", t);
+    if (z) next.set("zone", z);
+    if (k) next.set("q", k);
+    next.set("page", "1");
     navigate(`${ROUTES.SEARCH}?${next.toString()}`);
   };
 
-  const dense  = variant === 'sidebar';
-  const home   = variant === 'home';
+  const dense = variant === "sidebar";
+  const home = variant === "home";
+  const suffix = home ? "hm" : "sb";
 
   if (loading) 
     return (
@@ -52,7 +53,9 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
       <form
         onSubmit={onSubmit}
         className={cn(
-          'rounded-[28px] border border-mint-200 bg-mint-50/60 p-4 sm:p-5 space-y-4',
+          bare
+            ? "space-y-4"
+            : "rounded-[28px] border border-mint-200 bg-mint-50/60 p-4 sm:p-5 space-y-4",
           className,
         )}
         noValidate
@@ -77,15 +80,23 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
           >
             <option value="">Sélectionner un métier</option>
             {trades.map((t) => (
-              <option key={t.id} value={t.id}>{t.name}</option>
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
             ))}
           </Select>
         </FormField>
-        <FormField label="Quelle ville ?" id="sf-zone-sb" help="Par défaut : toute la ville">
+        <FormField
+          label="Quelle ville ?"
+          id="sf-zone-sb"
+          help="Par défaut : toute la ville"
+        >
           <Select id="sf-zone-sb" name="zone" defaultValue={zone}>
             <option value="">Toute la ville</option>
             {zones.map((z) => (
-              <option key={z.id} value={z.id}>{z.name}</option>
+              <option key={z.id} value={z.id}>
+                {z.name}
+              </option>
             ))}
           </Select>
         </FormField>
@@ -94,7 +105,7 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
             Rechercher <Search size={16} aria-hidden />
           </Button>
         </div>
-        </form>
+      </form>
     );
   
 
@@ -103,31 +114,40 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
       <form
         onSubmit={onSubmit}
         className={cn(
-          'flex flex-col items-stretch gap-2 rounded-2xl bg-white p-2 md:flex-row md:items-center',
+          "flex flex-col items-stretch gap-2 rounded-2xl bg-white p-2 md:flex-row md:items-center",
           className,
         )}
         noValidate
       >
-        <FormField id="sf-trade-h" hideLabel className="flex-1">
+        <FormField id={`sf-trade-${suffix}`} hideLabel className="flex-1">
           <Select
             bordered={false}
-            id="sf-trade-h"
+            id={`sf-trade-${suffix}`}
             name="trade"
             defaultValue={trade}
             error={error?.trade}
           >
             <option value="">Quel métier ?</option>
             {trades.map((t) => (
-              <option key={t.id} value={t.id}>{t.name}</option>
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
             ))}
           </Select>
         </FormField>
         <span className="hidden opacity-20 md:inline">|</span>
-        <FormField id="sf-zone-h" hideLabel className="flex-1">
-          <Select bordered={false} id="sf-zone-h" name="zone" defaultValue={zone}>
+        <FormField id={`sf-zone-${suffix}`} hideLabel className="flex-1">
+          <Select
+            bordered={false}
+            id={`sf-zone-${suffix}`}
+            name="zone"
+            defaultValue={zone}
+          >
             <option value="">Quel quartier ?</option>
             {zones.map((z) => (
-              <option key={z.id} value={z.id}>{z.name}</option>
+              <option key={z.id} value={z.id}>
+                {z.name}
+              </option>
             ))}
           </Select>
         </FormField>
@@ -139,24 +159,39 @@ export function SearchFilters({ initial = {}, variant = 'search', className }) {
   
 
   return (
-    <form onSubmit={onSubmit} className={cn('space-y-4', className)} noValidate>
+    <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>
       <FormField label="Métier" error={error?.trade} id="sf-trade-d">
-        <Select id="sf-trade-d" name="trade" defaultValue={trade} error={error?.trade}>
+        <Select
+          id="sf-trade-d"
+          name="trade"
+          defaultValue={trade}
+          error={error?.trade}
+        >
           <option value="">Choisissez un métier</option>
           {trades.map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
           ))}
         </Select>
       </FormField>
-      <FormField label="Zone (facultatif)" help="Par défaut : toute la ville" id="sf-zone-d">
+      <FormField
+        label="Zone (facultatif)"
+        help="Par défaut : toute la ville"
+        id="sf-zone-d"
+      >
         <Select id="sf-zone-d" name="zone" defaultValue={zone}>
           <option value="">Toute la ville</option>
           {zones.map((z) => (
-            <option key={z.id} value={z.id}>{z.name}</option>
+            <option key={z.id} value={z.id}>
+              {z.name}
+            </option>
           ))}
         </Select>
       </FormField>
-      <Button type="submit" size="lg">Rechercher</Button>
+      <Button type="submit" size="lg">
+        Rechercher
+      </Button>
     </form>
   );
 }
