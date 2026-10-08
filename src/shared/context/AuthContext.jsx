@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMe();
   }, [fetchMe]);
 
@@ -33,9 +34,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try {
       await authService.logout();
-    } catch {
-  
-    } finally {
+    } catch { /* ignore */ } finally {
       setUser(null);
       setTimeout(() => redirect(ROUTES.HOME), 0);
     }
@@ -51,6 +50,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuthContext() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuthContext must be used inside <AuthProvider>');

@@ -5,6 +5,7 @@ import { Pagination } from '@/shared/components/ui/Pagination.jsx';
 import { StarRating } from '@/shared/components/ui/StarRating.jsx';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { Button } from '@/shared/components/ui/Button.jsx';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { formatDateFr, fullNameInitials } from '@/shared/utils';
 
 const PAGE_SIZE = 10;
@@ -16,9 +17,17 @@ function Author({ review }) {
   const name = review.client?.displayName || fullNameInitials(first, last) || 'Client';
   return (
     <div className="flex items-center gap-2.5">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mint-100 text-xs font-bold text-primary-700 ring-1 ring-mint-200">
-        {fullNameInitials(first, last).slice(0, 2) || '??'}
-      </span>
+      <UserAvatar
+        user={{
+          firstName: first,
+          lastName: last,
+          displayName: review.client?.displayName,
+          avatarUrl: review.client?.avatarUrl,
+        }}
+        name={name}
+        className="h-8 w-8"
+        fallbackClassName="bg-mint-100 text-primary-700 ring-1 ring-mint-200"
+      />
       <p className="text-sm font-bold text-gray-900 leading-5">{name}</p>
     </div>
   );

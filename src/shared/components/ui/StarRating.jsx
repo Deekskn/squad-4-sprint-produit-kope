@@ -37,7 +37,7 @@ function Stars({ count = 5, value = 0, onChange, size = 'md', readOnly = false }
           key={n}
           value={n}
           label={null}
-          className="!p-0 !bg-transparent !ring-0"
+          className="!p-0 !bg-transparent !ring-0 gap-0!"
           aria-label={`${n} étoile${n > 1 ? 's' : ''}`}
         >
           <Star filled={n <= value} className={cn(sizing, 'cursor-pointer')} />

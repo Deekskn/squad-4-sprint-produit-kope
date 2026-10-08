@@ -17,6 +17,7 @@ export function UserAvatar({ user, name, className = 'h-8 w-8', fallbackClassNam
   const photoUrl = src ?? user?.avatarUrl;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFailed(false);
   }, [photoUrl]);
 
