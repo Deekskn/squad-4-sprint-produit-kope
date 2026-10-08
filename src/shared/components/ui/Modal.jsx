@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/shared/utils';
 
@@ -12,6 +12,21 @@ export function Modal({
   size = 'md',
   dismissable = true,
 }) {
+  const [render, setRender] = useState(open);
+  const [show, setShow] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRender(true);
+      requestAnimationFrame(() => setShow(true));
+    } else {
+      setShow(false);
+      const timer = setTimeout(() => setRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -26,7 +41,7 @@ export function Modal({
     };
   }, [open, dismissable, onClose]);
 
-  if (!open || typeof document === 'undefined') return null;
+  if (!render || typeof document === 'undefined') return null;
   const widths = {
     sm: 'max-w-sm',
     md: 'max-w-md',
@@ -37,7 +52,10 @@ export function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[90] flex items-end justify-center bg-checkers p-0 animate-fade-in sm:items-center sm:p-4"
+      className={cn(
+        'fixed inset-0 z-[90] flex items-end justify-center bg-checkers p-0 sm:items-center sm:p-4 transition-opacity duration-300',
+        show ? 'opacity-100' : 'opacity-0',
+      )}
       onClick={() => dismissable && onClose?.()}
       role="dialog"
       aria-modal="true"
@@ -46,7 +64,8 @@ export function Modal({
       <div
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          'w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-[var(--shadow-pop)] animate-scale-in sm:rounded-2xl',
+          'w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-[var(--shadow-pop)] sm:rounded-2xl transition-opacity duration-300',
+          show ? 'opacity-100' : 'opacity-0',
           widths,
         )}
       >
