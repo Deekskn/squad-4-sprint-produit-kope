@@ -10,6 +10,8 @@ import { searchPublished } from '../server/modules/search/search.repository.js';
 
 describe('searchQuerySchema', () => {
   it.each([
+    [{}],
+    [{ q: '   ' }],
     [{ trade: '2' }],
     [{ zone: '3' }],
     [{ q: 'plombier' }],
@@ -18,7 +20,7 @@ describe('searchQuerySchema', () => {
     expect(searchQuerySchema.safeParse(query).success).toBe(true);
   });
 
-  it.each([{}, { q: '   ' }, { trade: 'invalid' }])('rejects invalid criteria %o', (query) => {
+  it.each([{ trade: 'invalid' }])('rejects invalid criteria %o', (query) => {
     expect(searchQuerySchema.safeParse(query).success).toBe(false);
   });
 });

@@ -10,20 +10,20 @@ import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
 import { cn } from '@/shared/utils';
 
-export function SearchFiltersResponsive({ initial, className }) {
+export function SearchFiltersResponsive({ initial, className, searching = false }) {
   return (
     <>
       <div className="hidden lg:block">
-        <SearchFilters variant="sidebar" initial={initial} className={className} />
+        <SearchFilters variant="sidebar" initial={initial} className={className} searching={searching} />
       </div>
       <div className="lg:hidden">
-        <SearchFilters variant="home-k" initial={initial} className={className} />
+        <SearchFilters variant="home-k" initial={initial} className={className} searching={searching} />
       </div>
     </>
   );
 }
 
-export function SearchFilters({ initial = {}, variant = "search", className }) {
+export function SearchFilters({ initial = {}, variant = "search", className, searching = false }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
@@ -90,7 +90,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
             error={error?.trade}
             className="h-[48px] rounded-[12px] border-[#dde4e1] bg-white text-[15px] text-gray-900"
           >
-            <option value="">Plombier</option>
+            <option value="">Tous les métiers</option>
             {trades.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -104,7 +104,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
             defaultValue={zone}
             className="h-[48px] rounded-[12px] border-[#dde4e1] bg-white text-[15px] text-gray-900"
           >
-            <option value="">Brazaville</option>
+            <option value="">Toutes les zones</option>
             {zones.map((z) => (
               <option key={z.id} value={z.id}>
                 {z.name}
@@ -114,7 +114,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
         </div>
 
         <div className="pt-4">
-          <Button type="submit" className="h-[48px] w-full rounded-[12px] bg-[#214d3d] text-base font-bold hover:bg-[#1a3d33]">
+          <Button type="submit" loading={searching} className="h-[48px] w-full rounded-[12px] bg-[#214d3d] text-base font-bold hover:bg-[#1a3d33]">
             Rechercher <Search size={16} aria-hidden />
           </Button>
         </div>
@@ -151,7 +151,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
           error={error?.trade}
           className="sm:h-fit h-16 border-0! bg-transparent! "
         >
-          <option value="">Quel métier ?</option>
+          <option value="">Tous les métiers</option>
           {trades.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
@@ -165,7 +165,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
           defaultValue={zone}
           className=" sm:h-fit h-16 border-0! bg-transparent!"
         >
-          <option value="">Quel quartier ?</option>
+          <option value="">Toutes les zones</option>
           {zones.map((z) => (
             <option key={z.id} value={z.id}>{z.name}</option>
           ))}
@@ -175,6 +175,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
         <Button
           type="submit"
           size="lg"
+          loading={searching}
           className="w-full sm:w-fit px-12!"
         >
           Rechercher <Search size={16} aria-hidden />
@@ -193,7 +194,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
           defaultValue={trade}
           error={error?.trade}
         >
-          <option value="">Choisissez un métier</option>
+          <option value="">Tous les métiers</option>
           {trades.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
@@ -215,7 +216,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
           ))}
         </Select>
       </FormField>
-      <Button type="submit" size="lg">
+      <Button type="submit" size="lg" loading={searching}>
         Rechercher
       </Button>
     </form>

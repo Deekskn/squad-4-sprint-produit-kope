@@ -9,7 +9,4 @@ export const searchQuerySchema = z.object({
     z.string().trim().max(100, '100 caractères maximum').optional(),
   ),
   page: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).default(1)),
-}).refine(({ trade, zone, q }) => trade || zone || q, {
-  message: 'Indiquez un métier, une zone ou un mot-clé',
-  path: ['trade'],
 });

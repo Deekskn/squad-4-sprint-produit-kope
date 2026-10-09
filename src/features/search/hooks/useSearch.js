@@ -26,12 +26,6 @@ export function useSearch({ trade, zone, q, page, sort }) {
   const [error, setError] = useState(null);
 
   const run = useCallback(async () => {
-    if (!trade) {
-      setResults({ items: [], total: 0, page: 1, pageSize: PAGE_SIZE });
-      setLoading(false);
-      setError(null);
-      return;
-    }
     setLoading(true);
     setError(null);
     try {

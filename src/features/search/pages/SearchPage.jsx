@@ -36,7 +36,7 @@ export function SearchPage() {
       <div className="container-kop page-padding">
         <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:items-start">
           <aside className="hidden lg:block lg:sticky lg:top-23 space-y-4">
-            <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} />
+            <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} searching={loading} />
           </aside>
 
           <section className="min-w-0 space-y-5">
@@ -106,7 +106,7 @@ export function SearchPage() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-gray-900">Filtres de recherche</h2>
             <div onSubmit={() => setFiltersOpen(false)}>
-              <SearchFilters variant="home-k" initial={{ trade, zone, keyword: q }} />
+              <SearchFilters variant="home-k" initial={{ trade, zone, keyword: q }} searching={loading} />
             </div>
           </div>
         </Sheet>

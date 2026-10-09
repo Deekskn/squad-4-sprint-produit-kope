@@ -23,7 +23,7 @@ describe('validators (zod)', () => {
     const ok = registerClientSchema.safeParse({
       firstName: 'Abel',
       lastName: 'Bouanga',
-      phone: '0612345678',
+      phone: '061234567',
       password: 'Password123!',
       consent: true,
     });
@@ -32,7 +32,7 @@ describe('validators (zod)', () => {
     const weak = registerClientSchema.safeParse({
       firstName: 'Abel',
       lastName: 'Bouanga',
-      phone: '0612345678',
+      phone: '061234567',
       password: '123',
       consent: true,
     });
