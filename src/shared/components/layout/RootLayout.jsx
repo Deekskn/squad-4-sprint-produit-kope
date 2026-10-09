@@ -6,7 +6,7 @@ import { useMockMode } from '@/shared/lib/dataSource.js';
 import { ROUTES } from '@/shared/lib/constants.js';
 import { cn } from '@/shared/utils';
 
-const BOTTOM_NAV_ROUTES = [ROUTES.DASHBOARD_PRO, ROUTES.DASHBOARD_CLIENT];
+const BOTTOM_NAV_ROUTES = [ROUTES.DASHBOARD_PRO, ROUTES.DASHBOARD_CLIENT, ROUTES.ADMIN];
 
 export function RootLayout() {
   const demo = useMockMode();

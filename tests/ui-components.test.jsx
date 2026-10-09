@@ -6,6 +6,7 @@ import { Table, TableRow, TableEmpty } from '../src/shared/components/ui/Table.j
 import { Skeleton } from '../src/shared/components/ui/Skeleton.jsx';
 import { FloatingCaption } from '../src/shared/components/ui/FloatingCaption.jsx';
 import { BottomNav } from '../src/shared/components/ui/BottomNav.jsx';
+import { Tooltip } from '../src/shared/components/ui/Tooltip.jsx';
 
 describe('Select', () => {
   it('a une bordure par défaut', () => {
@@ -98,5 +99,37 @@ describe('BottomNav', () => {
     const parts = html.split('aria-selected=');
     expect(parts[1]?.startsWith('"false"')).toBe(true);
     expect(parts[2]?.startsWith('"true"')).toBe(true);
+  });
+});
+
+describe('Tooltip', () => {
+  it('affiche le contenu avec role tooltip', () => {
+    const html = renderToStaticMarkup(
+      <Tooltip content="Voir la fiche">
+        <button type="button">Fiche</button>
+      </Tooltip>,
+    );
+    expect(html).toContain('role="tooltip"');
+    expect(html).toContain('Voir la fiche');
+    expect(html).toContain('group/tooltip');
+  });
+
+  it('rend uniquement les enfants si pas de contenu', () => {
+    const html = renderToStaticMarkup(
+      <Tooltip content="">
+        <button type="button">Action</button>
+      </Tooltip>,
+    );
+    expect(html).not.toContain('role="tooltip"');
+    expect(html).toContain('Action');
+  });
+
+  it('positionne selon side', () => {
+    const html = renderToStaticMarkup(
+      <Tooltip content="X" side="bottom">
+        <span>a</span>
+      </Tooltip>,
+    );
+    expect(html).toContain('top-full');
   });
 });

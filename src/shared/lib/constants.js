@@ -4,6 +4,11 @@ export const ROLES = {
   ADMIN: 'admin',
 };
 
+export const COUNTRIES = ['Congo'];
+export const CITIES = ['Brazzaville'];
+export const DEFAULT_COUNTRY = 'Congo';
+export const DEFAULT_CITY = 'Brazzaville';
+
 export const PAGE_SIZE = 10;
 export const MAX_PHOTOS = 10;
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;

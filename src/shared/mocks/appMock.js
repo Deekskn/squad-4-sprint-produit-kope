@@ -8,23 +8,40 @@ import hero from '@/shared/assets/hero.png';
 
 const IMAGES = [what1, what2, what3, user1, user2, hero];
 
+export const MOCK_TRADE_CATEGORIES = [
+  { id: 1, name: 'Bâtiment & gros œuvre' },
+  { id: 2, name: 'Électricité & plomberie' },
+  { id: 3, name: 'Bois & finitions' },
+  { id: 4, name: 'Services & entretien' },
+  { id: 5, name: 'Autre' },
+];
+
 export const MOCK_TRADES = [
-  { id: 1, name: 'Plombier' },
-  { id: 2, name: 'Électricien' },
-  { id: 3, name: 'Maçon' },
-  { id: 4, name: 'Menuisier' },
+  { id: 1, name: 'Plombier', categoryId: 2, createdAt: '2025-11-04T09:15:00.000Z' },
+  { id: 2, name: 'Électricien', categoryId: 2, createdAt: '2025-12-18T14:40:00.000Z' },
+  { id: 3, name: 'Maçon', categoryId: 1, createdAt: '2026-01-22T08:05:00.000Z' },
+  { id: 4, name: 'Menuisier', categoryId: 3, createdAt: '2026-02-09T17:30:00.000Z' },
+];
+
+export const MOCK_CITIES = [
+  { id: 1, name: 'Brazzaville' },
+  { id: 2, name: 'Pointe-Noire' },
+  { id: 3, name: 'Dolisie' },
+  { id: 4, name: 'Nkayi' },
 ];
 
 export const MOCK_ZONES = [
-  { id: 1, name: 'Makélékélé' },
-  { id: 2, name: 'Bacongo' },
-  { id: 3, name: 'Poto-Poto' },
-  { id: 4, name: 'Moungali' },
-  { id: 5, name: 'Ouenzé' },
-  { id: 6, name: 'Talangaï' },
-  { id: 7, name: 'Mfilou' },
-  { id: 8, name: 'Madibou' },
-  { id: 9, name: 'Djiri' },
+  { id: 1, name: 'Makélékélé', cityId: 1, createdAt: '2025-10-02T08:00:00.000Z' },
+  { id: 2, name: 'Bacongo', cityId: 1, createdAt: '2025-10-02T08:05:00.000Z' },
+  { id: 3, name: 'Poto-Poto', cityId: 1, createdAt: '2025-10-02T08:10:00.000Z' },
+  { id: 4, name: 'Moungali', cityId: 1, createdAt: '2025-10-02T08:15:00.000Z' },
+  { id: 5, name: 'Ouenzé', cityId: 1, createdAt: '2025-10-02T08:20:00.000Z' },
+  { id: 6, name: 'Talangaï', cityId: 1, createdAt: '2025-10-02T08:25:00.000Z' },
+  { id: 7, name: 'Mfilou', cityId: 1, createdAt: '2025-10-02T08:30:00.000Z' },
+  { id: 8, name: 'Madibou', cityId: 1, createdAt: '2025-10-02T08:35:00.000Z' },
+  { id: 9, name: 'Djiri', cityId: 1, createdAt: '2025-10-02T08:40:00.000Z' },
+  { id: 10, name: 'Koundzi', cityId: 2, createdAt: '2026-01-12T10:00:00.000Z' },
+  { id: 11, name: 'Maya-Maya', cityId: 2, createdAt: '2026-01-12T10:10:00.000Z' },
 ];
 
 const FIRST = ['Julien', 'Thomas', 'Sarah', 'Moussa', 'Amina', 'David', 'Grace', 'Patrick', 'Clarisse', 'Jean', 'Rod', 'Ruth'];
@@ -45,6 +62,8 @@ function makePro(i) {
     yearsExperience: (i % 15) + 2,
     isAvailable: i % 3 !== 0,
     isHidden: false,
+    city: 'Brazzaville',
+    country: 'Congo',
     description:
       'Artisan expérimenté basé à Brazzaville. Devis gratuit, travail soigné et garantie sur les interventions réalisées dans votre quartier.',
     phone: `+24206${String(1000000 + i * 137913).slice(0, 7)}`,
@@ -86,7 +105,11 @@ export function mockReviewsFor(proId) {
     comment: r.comment,
     isHidden: false,
     createdAt: new Date(Date.now() - (proId + i) * 86400000 * 3).toISOString(),
-    client: { firstName: FIRST[(proId + i) % FIRST.length], lastName: LAST[(proId + i + 2) % LAST.length], avatarUrl: null },
+    client: {
+      firstName: FIRST[(proId + i) % FIRST.length],
+      lastName: LAST[(proId + i + 2) % LAST.length],
+      avatarUrl: IMAGES[(proId + i + 5) % IMAGES.length],
+    },
   }));
 }
 
@@ -193,6 +216,332 @@ export function mockMyContacts({ page = 1, pageSize = 20 } = {}) {
     pageSize,
     totalPages: Math.ceil(items.length / pageSize),
   };
+}
+
+// ---------- Admin mock ----------
+
+const MOCK_CLIENTS = Array.from({ length: 6 }, (_, i) => ({
+  id: 100 + i,
+  role: 'client',
+  firstName: FIRST[(i + 2) % FIRST.length],
+  lastName: LAST[(i + 5) % LAST.length],
+  displayName: null,
+  avatarUrl: i % 2 ? null : IMAGES[(i + 2) % IMAGES.length],
+  phone: `+24206${String(5000000 + i * 321654).slice(0, 7)}`,
+  createdAt: new Date(Date.now() - (i + 1) * 86400000 * 5).toISOString(),
+}));
+
+function paginateMock(items, page = 1, pageSize = 20) {
+  const start = (page - 1) * pageSize;
+  return {
+    items: items.slice(start, start + pageSize),
+    total: items.length,
+    page,
+    pageSize,
+    totalPages: Math.ceil(items.length / pageSize) || 1,
+  };
+}
+
+function proStatus(p) {
+  if (p.isHidden) return 'hidden';
+  const complete = p.description && p.zones?.length && p.photos?.length;
+  return complete ? 'published' : 'incomplete';
+}
+
+export function mockAdminProfessionals({ page = 1, pageSize = 20, query = '', status, sort, city, country } = {}) {
+  const q = String(query || '').trim().toLowerCase();
+  let rows = MOCK_PROS.map((p) => ({
+    id: p.id,
+    displayName: p.displayName,
+    trade: p.trade,
+    phone: p.phone,
+    avatarUrl: p.avatarUrl,
+    city: p.city,
+    country: p.country,
+    status: proStatus(p),
+    createdAt: new Date(Date.now() - (p.id + 1) * 86400000).toISOString(),
+  }));
+  if (q) rows = rows.filter((p) => p.displayName.toLowerCase().includes(q) || (p.trade || '').toLowerCase().includes(q) || p.phone.includes(q));
+  if (status) rows = rows.filter((p) => p.status === status);
+  if (city) rows = rows.filter((p) => p.city === city);
+  if (country) rows = rows.filter((p) => p.country === country);
+  rows = [...rows].sort((a, b) =>
+    sort === 'recent'
+      ? new Date(b.createdAt) - new Date(a.createdAt)
+      : a.displayName.localeCompare(b.displayName),
+  );
+  return paginateMock(rows, page, pageSize);
+}
+
+export function mockAdminReviews({ page = 1, pageSize = 20, hidden, query = '' } = {}) {
+  const q = String(query || '').trim().toLowerCase();
+  let all = MOCK_PROS.flatMap((p) =>
+    mockReviewsFor(p.id).map((r) => ({
+      ...r,
+      professional: {
+        id: p.id,
+        displayName: p.displayName,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        avatarUrl: p.avatarUrl,
+      },
+    })),
+  );
+  if (typeof hidden === 'boolean') all = all.filter((r) => r.isHidden === hidden);
+  if (q) {
+    const rows = all.filter((r) => {
+      const client = `${r.client?.firstName || ''} ${r.client?.lastName || ''}`.toLowerCase();
+      return (
+        client.includes(q) ||
+        (r.professional?.displayName || '').toLowerCase().includes(q) ||
+        String(r.comment || '').toLowerCase().includes(q)
+      );
+    });
+    return paginateMock(rows, page, pageSize);
+  }
+  return paginateMock(all, page, pageSize);
+}
+
+export function mockAdminUsers({ page = 1, pageSize = 20, role, query = '' } = {}) {
+  const admins = [
+    {
+      id: 1,
+      role: 'admin',
+      firstName: 'Admin',
+      lastName: 'Kopé',
+      displayName: null,
+      phone: '+242060000000',
+      avatarUrl: null,
+      createdAt: new Date(Date.now() - 365 * 86400000).toISOString(),
+    },
+  ];
+  const pros = MOCK_PROS.map((p) => ({
+    id: p.id,
+    role: 'professional',
+    firstName: null,
+    lastName: null,
+    displayName: p.displayName,
+    avatarUrl: p.avatarUrl,
+    phone: p.phone,
+    createdAt: new Date(Date.now() - (p.id + 1) * 86400000 * 3).toISOString(),
+  }));
+  let rows = [...pros, ...MOCK_CLIENTS, ...admins].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
+  const q = String(query || '').trim().toLowerCase();
+  if (role) rows = rows.filter((u) => u.role === role);
+  if (q)
+    rows = rows.filter((u) =>
+      [u.firstName, u.lastName, u.displayName, u.phone].filter(Boolean).some((v) => String(v).toLowerCase().includes(q)),
+    );
+  return paginateMock(rows, page, pageSize);
+}
+
+export function mockAdminStats() {
+  const published = MOCK_PROS.filter((p) => proStatus(p) === 'published').length;
+  const hidden = MOCK_PROS.filter((p) => p.isHidden).length;
+  const incomplete = MOCK_PROS.length - published - hidden;
+  const reviews = MOCK_PROS.flatMap((p) => mockReviewsFor(p.id));
+  const ratings = reviews.filter((r) => !r.isHidden).map((r) => r.rating);
+  const ratingAverage = ratings.length
+    ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
+    : 0;
+  return {
+    users: MOCK_PROS.length + MOCK_CLIENTS.length + 1,
+    clients: MOCK_CLIENTS.length,
+    professionals: MOCK_PROS.length,
+    published,
+    hidden,
+    incomplete,
+    reviews: reviews.length,
+    reviewsHidden: reviews.filter((r) => r.isHidden).length,
+    ratingAverage,
+    contacts: 2,
+    recentProfessionals: [...MOCK_PROS]
+      .slice(-5)
+      .reverse()
+      .map((p) => ({ id: p.id, displayName: p.displayName, trade: p.trade, createdAt: new Date(Date.now() - p.id * 86400000).toISOString() })),
+  };
+}
+
+export function mockListTrades() {
+  return {
+    items: MOCK_TRADES.map((t) => ({
+      ...t,
+      category: MOCK_TRADE_CATEGORIES.find((c) => c.id === t.categoryId)?.name ?? null,
+      professionals: MOCK_PROS.filter((p) => p.tradeId === t.id).length,
+    })),
+  };
+}
+
+export function mockListTradeCategories() {
+  return {
+    items: MOCK_TRADE_CATEGORIES.map((c) => ({
+      ...c,
+      trades: MOCK_TRADES.filter((t) => t.categoryId === c.id).length,
+    })),
+  };
+}
+
+export function mockCreateTradeCategory(payload) {
+  const { name } = payload || {};
+  const clean = String(name || '').trim();
+  if (MOCK_TRADE_CATEGORIES.some((c) => c.name.toLowerCase() === clean.toLowerCase()))
+    throw new Error('Cette catégorie existe déjà');
+  const id = Math.max(0, ...MOCK_TRADE_CATEGORIES.map((c) => c.id)) + 1;
+  const item = { id, name: clean, trades: 0 };
+  MOCK_TRADE_CATEGORIES.push({ id, name: clean });
+  return item;
+}
+
+export function mockUpdateTradeCategory(id, payload) {
+  const { name } = payload || {};
+  const category = MOCK_TRADE_CATEGORIES.find((c) => c.id === Number(id));
+  if (!category) throw new Error('Catégorie introuvable');
+  if (name != null) category.name = String(name).trim();
+  return { id: category.id, name: category.name };
+}
+
+export function mockDeleteTradeCategory(id) {
+  const target = Number(id);
+  if (MOCK_TRADES.some((t) => t.categoryId === target))
+    throw new Error('Déplacez les métiers de cette catégorie avant de la supprimer');
+  const index = MOCK_TRADE_CATEGORIES.findIndex((c) => c.id === target);
+  if (index < 0) throw new Error('Catégorie introuvable');
+  MOCK_TRADE_CATEGORIES.splice(index, 1);
+  return { id: target };
+}
+
+export function mockReorderTradeCategories(ids) {
+  const order = ids.map(Number);
+  MOCK_TRADE_CATEGORIES.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  return { ids: order };
+}
+
+export function mockCreateTrade(payload) {
+  const { name, categoryId = null } = payload || {};
+  const id = Math.max(0, ...MOCK_TRADES.map((t) => t.id)) + 1;
+  const createdAt = new Date().toISOString();
+  const item = { id, name: String(name).trim(), categoryId: categoryId == null ? null : Number(categoryId), createdAt, professionals: 0 };
+  MOCK_TRADES.push({ id, name: item.name, categoryId: item.categoryId, createdAt });
+  return item;
+}
+
+export function mockUpdateTrade(id, payload) {
+  const { name, categoryId } = payload || {};
+  const trade = MOCK_TRADES.find((t) => t.id === Number(id));
+  if (!trade) throw new Error('Métier introuvable');
+  if (name != null) trade.name = String(name).trim();
+  if (categoryId !== undefined) trade.categoryId = categoryId == null ? null : Number(categoryId);
+  return { id: trade.id, name: trade.name, categoryId: trade.categoryId };
+}
+
+export function mockReorderTrades(ids) {
+  const order = ids.map(Number);
+  MOCK_TRADES.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  return { ids: order };
+}
+
+export function mockDeleteTrade(id) {
+  const target = Number(id);
+  if (MOCK_PROS.some((p) => p.tradeId === target))
+    throw new Error('Ce métier est utilisé par des professionnels');
+  const index = MOCK_TRADES.findIndex((t) => t.id === target);
+  if (index < 0) throw new Error('Métier introuvable');
+  MOCK_TRADES.splice(index, 1);
+  return { id };
+}
+
+export function mockListZones() {
+  return {
+    items: MOCK_ZONES.map((z) => ({
+      ...z,
+      city: MOCK_CITIES.find((c) => c.id === z.cityId)?.name ?? null,
+      professionals: MOCK_PROS.filter((p) => p.zones.some((z2) => z2.id === z.id)).length,
+    })),
+  };
+}
+
+export function mockListCities() {
+  return {
+    items: MOCK_CITIES.map((c) => ({
+      ...c,
+      zones: MOCK_ZONES.filter((z) => z.cityId === c.id).length,
+    })),
+  };
+}
+
+export function mockCreateCity(payload) {
+  const { name } = payload || {};
+  const clean = String(name || '').trim();
+  if (MOCK_CITIES.some((c) => c.name.toLowerCase() === clean.toLowerCase()))
+    throw new Error('Cette ville existe déjà');
+  const id = Math.max(0, ...MOCK_CITIES.map((c) => c.id)) + 1;
+  MOCK_CITIES.push({ id, name: clean });
+  return { id, name: clean, zones: 0 };
+}
+
+export function mockUpdateCity(id, payload) {
+  const { name } = payload || {};
+  const city = MOCK_CITIES.find((c) => c.id === Number(id));
+  if (!city) throw new Error('Ville introuvable');
+  if (name != null) city.name = String(name).trim();
+  return { id: city.id, name: city.name };
+}
+
+export function mockDeleteCity(id) {
+  const target = Number(id);
+  if (MOCK_ZONES.some((z) => z.cityId === target))
+    throw new Error('Déplacez les arrondissements de cette ville avant de la supprimer');
+  const index = MOCK_CITIES.findIndex((c) => c.id === target);
+  if (index < 0) throw new Error('Ville introuvable');
+  MOCK_CITIES.splice(index, 1);
+  return { id: target };
+}
+
+export function mockReorderCities(ids) {
+  const order = ids.map(Number);
+  MOCK_CITIES.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  return { ids: order };
+}
+
+export function mockCreateZone(payload) {
+  const { name, cityId = null } = payload || {};
+  const id = Math.max(0, ...MOCK_ZONES.map((z) => z.id)) + 1;
+  const createdAt = new Date().toISOString();
+  const item = {
+    id,
+    name: String(name).trim(),
+    cityId: cityId == null ? null : Number(cityId),
+    createdAt,
+  };
+  MOCK_ZONES.push(item);
+  return { ...item };
+}
+
+export function mockUpdateZone(id, payload) {
+  const { name, cityId } = payload || {};
+  const zone = MOCK_ZONES.find((z) => z.id === Number(id));
+  if (!zone) throw new Error('Zone introuvable');
+  if (name != null) zone.name = String(name).trim();
+  if (cityId !== undefined) zone.cityId = cityId == null ? null : Number(cityId);
+  return { id: zone.id, name: zone.name, cityId: zone.cityId };
+}
+
+export function mockReorderZones(ids) {
+  const order = ids.map(Number);
+  MOCK_ZONES.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  return { ids: order };
+}
+
+export function mockDeleteZone(id) {
+  const numeric = Number(id);
+  if (MOCK_PROS.some((p) => p.zones?.some((z) => z.id === numeric)))
+    throw new Error('Cette zone est utilisée par des professionnels');
+  const index = MOCK_ZONES.findIndex((z) => z.id === numeric);
+  if (index < 0) throw new Error('Zone introuvable');
+  MOCK_ZONES.splice(index, 1);
+  return { id: numeric };
 }
 
 // ---------- Session mock  ----------

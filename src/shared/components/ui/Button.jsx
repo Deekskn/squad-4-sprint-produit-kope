@@ -26,6 +26,7 @@ const SIZES = {
   md:   'h-11 px-5 text-sm rounded-[8px] gap-2 font-semibold',
   lg:   'h-[48px] px-[20px] text-[15px] rounded-[8px] gap-2 font-bold',
   icon: 'h-11 w-11 rounded-xl',
+  'icon-sm': 'h-8 w-8 rounded-[8px] gap-0 p-0',
 };
 
 export function Button({
