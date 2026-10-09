@@ -15,12 +15,15 @@ function toCard(row) {
     avatarUrl: row.avatarUrl ?? null,
   };
 }
-export async function search({ trade, zone, q, page }) {
+export async function search({ trade, zone, q, available, minRating, minExperience, page }) {
   const pagination = { page, pageSize: PAGE_SIZE };
   const rows = await repository.searchPublished({
     tradeId: trade ?? null,
     zoneId: zone ?? null,
     keyword: q ?? null,
+    available: available ?? null,
+    minRating: minRating ?? null,
+    minExperience: minExperience ?? null,
     limit: PAGE_SIZE,
     offset: offsetOf(pagination),
   });

@@ -78,21 +78,26 @@ body,
 *{
   corner-shape: superellipse(1.3);
 }
-body {
-  font-family: var(--font-sans);
-  background-color: #ffffff;
-  color: #101828;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv11', 'ss01';
-}
+/* Styles de base : placés dans @layer base pour que les utilitaires Tailwind
+   (ex. text-white sur un titre) puissent les surcharger. Hors layer, ils
+   l'emportent sur tous les utilitaires. */
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: #ffffff;
+    color: #101828;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01';
+  }
 
-h1,
-h2,
-h3,
-h4 {
-  color: #0f172a;
-  letter-spacing: -0.01em;
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: #0f172a;
+    letter-spacing: -0.01em;
+  }
 }
 
 p {

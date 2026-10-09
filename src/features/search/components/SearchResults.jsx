@@ -77,14 +77,14 @@ export function SearchResults({ data, listMode = true }) {
   return (
     <div className="space-y-5">
       {cards}
-      {total > PAGE_SIZE && (
-        <div className="flex flex-col items-center gap-2 pt-4">
-          <p className="text-center text-sm text-gray-500">
-            {((page - 1) * PAGE_SIZE) + 1}–{Math.min(page * PAGE_SIZE, total)} sur {total} professionnels · {PAGE_SIZE} par page
-          </p>
-          <Pagination page={page} pageSize={PAGE_SIZE} total={total} onPageChange={onPage} />
-        </div>
-      )}
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+        onPageChange={onPage}
+        variant="summary"
+        className="mt-4 rounded-md border border-gray-100 bg-white px-4 py-2"
+      />
     </div>
   );
 }

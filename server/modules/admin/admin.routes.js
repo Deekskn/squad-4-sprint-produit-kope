@@ -5,11 +5,13 @@ import { idParamSchema } from '../../utils/commonSchemas.js';
 import {
   categorySchema,
   citySchema,
+  createAdminSchema,
   listProfessionalsQuerySchema,
   listReviewsQuerySchema,
   listUsersQuerySchema,
   reorderSchema,
   tradeItemSchema,
+  userBlockedSchema,
   visibilitySchema,
   zoneItemSchema,
 } from './admin.schemas.js';
@@ -39,6 +41,13 @@ router.patch(
 );
 
 router.get('/admin/users', validate(listUsersQuerySchema, 'query'), controller.listUsers);
+router.patch(
+  '/admin/users/:id/blocked',
+  validate(idParamSchema, 'params'),
+  validate(userBlockedSchema),
+  controller.setUserBlocked,
+);
+router.post('/admin/users', validate(createAdminSchema), controller.createAdmin);
 
 router.get('/admin/trades', controller.listTrades);
 router.post('/admin/trades', validate(tradeItemSchema), controller.createTrade);

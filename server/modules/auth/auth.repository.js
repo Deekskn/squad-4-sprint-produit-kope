@@ -40,7 +40,8 @@ export async function getPasswordHash(userId, db = pool) {
 export async function findByPhone(phone, db = pool) {
   const { rows } = await db.query(
     `SELECT id, role, phone, password_hash AS "passwordHash",
-            first_name AS "firstName", last_name AS "lastName"
+            first_name AS "firstName", last_name AS "lastName",
+            blocked_at AS "blockedAt"
        FROM users
       WHERE phone = $1`,
     [phone],
@@ -48,11 +49,20 @@ export async function findByPhone(phone, db = pool) {
   return rows[0] ?? null;
 }
 
+export async function isBlocked(id, db = pool) {
+  const { rows } = await db.query(
+    'SELECT blocked_at AS "blockedAt" FROM users WHERE id = $1',
+    [id],
+  );
+  return Boolean(rows[0]?.blockedAt);
+}
+
 export async function findById(id, db = pool) {
   const { rows } = await db.query(
     `SELECT u.id, u.role, u.phone,
             u.first_name AS "firstName", u.last_name AS "lastName",
             u.avatar_url AS "avatarUrl",
+            u.blocked_at AS "blockedAt",
             p.display_name AS "displayName"
        FROM users u
        LEFT JOIN professionals p ON p.user_id = u.id

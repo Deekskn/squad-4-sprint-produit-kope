@@ -37,7 +37,7 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
 
   if (mode === 'grid') 
     return (
-      <Card className="group border-[#BDC0C8]! flex h-full flex-col overflow-hidden relative aspect-4/5.5 ">
+      <Card className="group border-[#BDC0C8]! flex h-full cursor-pointer flex-col overflow-hidden relative aspect-4/5.5 ">
           <img
             src={imgSrc}
             alt={item.displayName}
@@ -70,7 +70,7 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
               </div>
               <Link
                 to={ROUTES.PROFESSIONAL(item.id)}
-                className="text-[12px] font-bold text-primary-500 rounded p-1 -mr-1"
+                className="relative text-[12px] font-bold text-primary-500 rounded p-1 -mr-1 after:absolute after:inset-0 after:z-10 after:content-['']"
               >
                 Voir le profil <ChevronRight size={14} className="inline" aria-hidden />
               </Link>
@@ -83,7 +83,7 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
   return (
     <li>
       <Card className={cn(
-        'group flex h-full flex-col overflow-hidden gap-0 border border-gray-200 bg-white transition hover:border-primary-200 sm:flex-row',
+        'group relative flex h-full cursor-pointer flex-col overflow-hidden gap-0 border border-gray-200 bg-white transition hover:border-primary-200 hover:shadow-sm sm:flex-row',
       )}>
         <div className="relative block aspect-[3/3.5] w-full shrink-0 overflow-hidden bg-gray-100 sm:h-auto sm:w-[170px]">
           <img
@@ -128,7 +128,7 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
             <Availability isAvailable={item.isAvailable} />
             <Link
               to={ROUTES.PROFESSIONAL(item.id)}
-              className="inline-flex items-center justify-center rounded-[10px] border border-[#dfe5e2] bg-[#f5f7f6] px-4 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-white"
+              className="relative inline-flex items-center justify-center rounded-[10px] border border-[#dfe5e2] bg-[#f5f7f6] px-4 py-2.5 text-sm font-bold text-gray-900 transition group-hover:bg-white after:absolute after:inset-0 after:z-10 after:content-['']"
             >
               Afficher le profil
             </Link>

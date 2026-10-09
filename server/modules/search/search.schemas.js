@@ -8,5 +8,16 @@ export const searchQuerySchema = z.object({
     (value) => (typeof value === 'string' && value.trim() ? value : undefined),
     z.string().trim().max(100, '100 caractères maximum').optional(),
   ),
+  available: z.preprocess(
+    (value) => {
+      if (value === 'true') return true;
+      if (value === 'false') return false;
+      if (value === '' || value == null) return undefined;
+      return value; // valeur invalide : laissée à z.boolean() pour être rejetée
+    },
+    z.boolean().optional(),
+  ),
+  minRating: z.preprocess(emptyToUndefined, z.coerce.number().min(1).max(5).optional()),
+  minExperience: z.preprocess(emptyToUndefined, z.coerce.number().int().min(0).max(60).optional()),
   page: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).default(1)),
 });

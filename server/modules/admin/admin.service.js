@@ -1,6 +1,10 @@
+import bcrypt from 'bcryptjs';
 import { ApiError } from '../../utils/ApiError.js';
 import { offsetOf, paginate } from '../../utils/pagination.js';
 import * as repository from './admin.repository.js';
+import * as refreshTokensRepository from '../auth/refreshTokens.repository.js';
+
+const BCRYPT_ROUNDS = 10;
 
 export async function listProfessionals(query) {
   const rows = await repository.listProfessionals({
@@ -31,6 +35,32 @@ export async function listUsers(query) {
     q: query.q,
   });
   return paginate(rows, query);
+}
+
+/** Bloque ou débloque un compte utilisateur. */
+export async function setUserBlocked(actorId, id, blocked) {
+  if (Number(actorId) === Number(id)) throw ApiError.badRequest('Vous ne pouvez pas bloquer votre propre compte');
+
+  const target = blocked ? await repository.findUserById(id) : null;
+  if (blocked && !target) throw ApiError.notFound('Utilisateur introuvable');
+  if (blocked && target.role === 'admin' && (await repository.countActiveAdmins(id)) === 0)
+    throw ApiError.badRequest('Impossible de bloquer le dernier administrateur actif');
+
+  const updated = await repository.setUserBlocked(id, blocked);
+  if (!updated) throw ApiError.notFound('Utilisateur introuvable');
+  if (blocked) await refreshTokensRepository.revokeAllForUser(id);
+  return updated;
+}
+
+/** Crée un compte administrateur. */
+export async function createAdmin({ firstName, lastName, phone, password }) {
+  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+  try {
+    return await repository.createAdminUser({ firstName, lastName, phone, passwordHash });
+  } catch (err) {
+    if (err?.code === '23505') throw ApiError.conflict('Ce numéro est déjà utilisé');
+    throw err;
+  }
 }
 
 export async function getStats() {

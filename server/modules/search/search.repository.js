@@ -1,5 +1,9 @@
 import { pool } from '../../db/pool.js';
-export async function searchPublished({ tradeId, zoneId, keyword, limit, offset }, db = pool) {
+
+export async function searchPublished(
+  { tradeId, zoneId, keyword, available, minRating, minExperience, limit, offset },
+  db = pool,
+) {
   const { rows } = await db.query(
     `SELECT p.user_id AS id,
             p.display_name AS "displayName",
@@ -30,10 +34,22 @@ export async function searchPublished({ tradeId, zoneId, keyword, limit, offset 
         AND ($3::text IS NULL
              OR p.display_name ILIKE '%' || $3 || '%'
              OR t.name ILIKE '%' || $3 || '%')
+        AND ($4::boolean IS NULL OR p.is_available = $4)
+        AND ($5::numeric IS NULL OR p.years_experience >= $5)
       GROUP BY p.user_id, p.display_name, p.years_experience, p.is_available, p.updated_at, t.name, u.avatar_url
+     HAVING ($6::numeric IS NULL OR AVG(r.rating) >= $6)
       ORDER BY p.is_available DESC, AVG(r.rating) DESC NULLS LAST, p.updated_at DESC, p.user_id
-      LIMIT $4 OFFSET $5`,
-    [tradeId, zoneId, keyword ?? null, limit, offset],
+      LIMIT $7 OFFSET $8`,
+    [
+      tradeId ?? null,
+      zoneId ?? null,
+      keyword ?? null,
+      available ?? null,
+      minExperience ?? null,
+      minRating ?? null,
+      limit,
+      offset,
+    ],
   );
   return rows;
 }

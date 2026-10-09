@@ -1,7 +1,18 @@
 import { z } from 'zod';
-import { idSchema, paginationSchema, requiredText } from '../../utils/commonSchemas.js';
+import { idSchema, paginationSchema, passwordSchema, phoneSchema, requiredText } from '../../utils/commonSchemas.js';
 
 const emptyToUndefined = (value) => (value === '' || value == null ? undefined : value);
+
+export const userBlockedSchema = z.object({
+  blocked: z.boolean({ error: 'Valeur invalide' }),
+});
+
+export const createAdminSchema = z.object({
+  firstName: requiredText(60, 'Le prénom est obligatoire'),
+  lastName: requiredText(60, 'Le nom est obligatoire'),
+  phone: phoneSchema,
+  password: passwordSchema,
+});
 
 export const visibilitySchema = z.object({
   hidden: z.boolean({ error: 'Valeur invalide' }),

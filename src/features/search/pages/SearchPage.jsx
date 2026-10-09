@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/Button.jsx';
-import { Select } from '@/shared/components/ui/Select.jsx';
 import { SearchFilters } from '../components/SearchFilters.jsx';
+import { SearchRefineFilters } from '../components/SearchRefineFilters.jsx';
 import { Sheet } from '@/shared/components/ui/Sheet.jsx';
 import { Search } from 'lucide-react';
 import { SearchResults } from '../components/SearchResults.jsx';
@@ -10,17 +10,20 @@ import { useSearch } from '../hooks/useSearch.js';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
 
-const SORTS = [
-  { value: 'recommended', label: 'Tri recommandé' },
-  { value: 'rating', label: 'Mieux notés' },
-  { value: 'experience', label: "Plus d'expérience" },
-];
-
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
-  const { trade, zone, page, q } = Object.fromEntries(params.entries());
+  const { trade, zone, page, q, available, minRating, minExperience } = Object.fromEntries(params.entries());
   const [sort, setSort] = useState(params.get('sort') || 'recommended');
-  const { results, loading, error } = useSearch({ trade, zone, q, page, sort });
+  const { results, loading, error } = useSearch({
+    trade,
+    zone,
+    q,
+    available,
+    minRating,
+    minExperience,
+    page,
+    sort,
+  });
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const onChangeSort = (val) => {
@@ -31,39 +34,58 @@ export function SearchPage() {
     setParams(next);
   };
 
+  const refineDirty = Boolean(available || minRating || minExperience);
+
+  const onRefineChange = (patch) => {
+    const next = new URLSearchParams(params);
+    for (const [key, value] of Object.entries(patch)) {
+      const empty = value === '' || value == null;
+      if (empty) next.delete(key);
+      else next.set(key, String(value));
+    }
+    next.set('page', '1');
+    setParams(next);
+  };
+
+  const resetRefine = () => {
+    const next = new URLSearchParams(params);
+    next.delete('available');
+    next.delete('minRating');
+    next.delete('minExperience');
+    next.set('page', '1');
+    setParams(next);
+  };
+
+  const refinePanel = (
+    <SearchRefineFilters
+      available={available ?? ''}
+      minRating={minRating ?? ''}
+      minExperience={minExperience ?? ''}
+      sort={sort}
+      onChange={onRefineChange}
+      onSortChange={onChangeSort}
+      onReset={resetRefine}
+      dirty={refineDirty}
+    />
+  );
+
   return (
     <div>
       <div className="container-kop page-padding">
-        <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:items-start">
+        <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)_minmax(0,260px)] lg:items-start">
           <aside className="hidden lg:block lg:sticky lg:top-23 space-y-4">
             <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} searching={loading} />
           </aside>
 
           <section className="min-w-0 space-y-5">
             {results?.total > 0 && (
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div >
-                  <p className="text-md font-semibold uppercase tracking-[0.12em] ">
-                    {results?.total ?? 0} Résultats
-                  </p>
-                  <p className='text-xs'>Disponibles d'abord, puis note et date de mise à jour décroissantes.</p>
-
-                </div>
-                <div className="w-full sm:w-auto">
-                  <Select
-                    value={sort}
-                    onChange={(e) => onChangeSort(e.target.value)}
-                    className="h-10.5! rounded-[10px]! border-[#dde4e1] bg-white text-[14px]"
-                  >
-                    {SORTS.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                  </Select>
-                </div>
+              <div>
+                <p className="text-md font-semibold uppercase tracking-[0.12em]">
+                  {results?.total ?? 0} Résultats
+                </p>
+                <p className="text-xs">Disponibles d'abord, puis note et date de mise à jour décroissantes.</p>
               </div>
-            )
-
-            }
+            )}
 
             {loading && (
               <div className="space-y-4" aria-busy="true">
@@ -91,6 +113,10 @@ export function SearchPage() {
               <SearchResults data={results} listMode />
             )}
           </section>
+
+          <aside className="hidden lg:block lg:sticky lg:top-23 space-y-4">
+            {refinePanel}
+          </aside>
         </div>
 
         <Button
@@ -103,11 +129,12 @@ export function SearchPage() {
         </Button>
 
         <Sheet open={filtersOpen} onOpenChange={setFiltersOpen} side="bottom">
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto">
             <h2 className="text-lg font-bold text-gray-900">Filtres de recherche</h2>
             <div onSubmit={() => setFiltersOpen(false)}>
               <SearchFilters variant="home-k" initial={{ trade, zone, keyword: q }} searching={loading} />
             </div>
+            {refinePanel}
           </div>
         </Sheet>
       </div>

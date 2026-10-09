@@ -20,6 +20,16 @@ export async function listUsers(req, res) {
   res.json(await service.listUsers(req.validated.query));
 }
 
+export async function setUserBlocked(req, res) {
+  res.json(
+    await service.setUserBlocked(req.user.id, req.validated.params.id, req.validated.body.blocked),
+  );
+}
+
+export async function createAdmin(req, res) {
+  res.status(201).json(await service.createAdmin(req.validated.body));
+}
+
 export async function getStats(req, res) {
   res.json(await service.getStats());
 }

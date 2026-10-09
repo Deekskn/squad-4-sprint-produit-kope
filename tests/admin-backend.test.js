@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   categorySchema,
   citySchema,
+  createAdminSchema,
   listProfessionalsQuerySchema,
   listReviewsQuerySchema,
   listUsersQuerySchema,
   reorderSchema,
   tradeItemSchema,
+  userBlockedSchema,
   zoneItemSchema,
 } from '../server/modules/admin/admin.schemas.js';
 import {
@@ -15,6 +17,8 @@ import {
   MOCK_TRADE_CATEGORIES,
   MOCK_ZONES,
   mockAdminProfessionals,
+  mockAdminUsers,
+  mockCreateAdmin,
   mockCreateCity,
   mockCreateTrade,
   mockCreateTradeCategory,
@@ -28,6 +32,7 @@ import {
   mockReorderCities,
   mockReorderTradeCategories,
   mockReorderTrades,
+  mockSetUserBlocked,
   mockUpdateTrade,
   mockUpdateTradeCategory,
   mockUpdateZone,
@@ -92,11 +97,55 @@ describe('admin schemas', () => {
     expect(categorySchema.safeParse({}).success).toBe(false);
   });
 
+  it('userBlockedSchema exige un booléen', () => {
+    expect(userBlockedSchema.safeParse({ blocked: true }).data.blocked).toBe(true);
+    expect(userBlockedSchema.safeParse({ blocked: false }).success).toBe(true);
+    expect(userBlockedSchema.safeParse({ blocked: 'oui' }).success).toBe(false);
+    expect(userBlockedSchema.safeParse({}).success).toBe(false);
+  });
+
+  it('createAdminSchema valide les identifiants', () => {
+    const base = { firstName: 'Ada', lastName: 'Kopé', phone: '+242061234567', password: 'motdepasse1' };
+    expect(createAdminSchema.safeParse(base).success).toBe(true);
+    expect(createAdminSchema.safeParse({ ...base, firstName: '  ' }).success).toBe(false);
+    expect(createAdminSchema.safeParse({ ...base, phone: '123' }).success).toBe(false);
+    expect(createAdminSchema.safeParse({ ...base, password: 'court' }).success).toBe(false);
+  });
+
   it('reorderSchema exige une liste d’identifiants', () => {
     expect(reorderSchema.safeParse({ ids: [1, 2, 3] }).success).toBe(true);
     expect(reorderSchema.safeParse({ ids: [] }).success).toBe(false);
     expect(reorderSchema.safeParse({ ids: ['2'] }).data.ids).toEqual([2]);
     expect(reorderSchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe('admin mock - blocage et administrateurs', () => {
+  it('bloque puis débloque un utilisateur', () => {
+    const target = mockAdminUsers({ pageSize: 50 }).items.find((u) => u.role === 'client');
+    expect(target.blockedAt).toBeNull();
+
+    mockSetUserBlocked(1, target.id, true);
+    const blocked = mockAdminUsers({ pageSize: 50 }).items.find((u) => u.id === target.id);
+    expect(blocked.blockedAt).not.toBeNull();
+
+    mockSetUserBlocked(1, target.id, false);
+    const unblocked = mockAdminUsers({ pageSize: 50 }).items.find((u) => u.id === target.id);
+    expect(unblocked.blockedAt).toBeNull();
+  });
+
+  it('refuse de bloquer son propre compte', () => {
+    const admin = mockAdminUsers({ pageSize: 50 }).items.find((u) => u.role === 'admin');
+    expect(() => mockSetUserBlocked(admin.id, admin.id, true)).toThrow();
+  });
+
+  it('crée un administrateur et refuse un numéro déjà utilisé', () => {
+    const created = mockCreateAdmin({ firstName: 'Ada', lastName: 'Kopé', phone: '+242069999999' });
+    expect(created.role).toBe('admin');
+    expect(
+      mockAdminUsers({ pageSize: 50, role: 'admin' }).items.some((u) => u.phone === '+242069999999'),
+    ).toBe(true);
+    expect(() => mockCreateAdmin({ firstName: 'Ada', lastName: 'Kopé', phone: '+242069999999' })).toThrow();
   });
 });
 

@@ -126,10 +126,13 @@ export function toSearchItem(p) {
   };
 }
 
-export function searchMock({ trade, zone, q, page = 1, pageSize = 10 } = {}) {
+export function searchMock({ trade, zone, q, available, minRating, minExperience, page = 1, pageSize = 10 } = {}) {
   let rows = MOCK_PROS.filter((p) => !p.isHidden);
   if (trade) rows = rows.filter((p) => String(p.tradeId) === String(trade));
   if (zone) rows = rows.filter((p) => p.zones.some((z) => String(z.id) === String(zone)));
+  if (typeof available === 'boolean') rows = rows.filter((p) => p.isAvailable === available);
+  if (minExperience != null) rows = rows.filter((p) => (p.yearsExperience ?? 0) >= Number(minExperience));
+  if (minRating != null) rows = rows.filter((p) => (p.ratingAverage ?? 0) >= Number(minRating));
   if (q) {
     const qNorm = String(q).trim().toLowerCase();
     rows = rows.filter((p) =>
@@ -229,6 +232,7 @@ const MOCK_CLIENTS = Array.from({ length: 6 }, (_, i) => ({
   avatarUrl: i % 2 ? null : IMAGES[(i + 2) % IMAGES.length],
   phone: `+24206${String(5000000 + i * 321654).slice(0, 7)}`,
   createdAt: new Date(Date.now() - (i + 1) * 86400000 * 5).toISOString(),
+  blockedAt: null,
 }));
 
 function paginateMock(items, page = 1, pageSize = 20) {
@@ -302,19 +306,21 @@ export function mockAdminReviews({ page = 1, pageSize = 20, hidden, query = '' }
   return paginateMock(all, page, pageSize);
 }
 
+const MOCK_ADMINS = [
+  {
+    id: 1,
+    role: 'admin',
+    firstName: 'Admin',
+    lastName: 'Kopé',
+    displayName: null,
+    phone: '+242060000000',
+    avatarUrl: null,
+    createdAt: new Date(Date.now() - 365 * 86400000).toISOString(),
+    blockedAt: null,
+  },
+];
+
 export function mockAdminUsers({ page = 1, pageSize = 20, role, query = '' } = {}) {
-  const admins = [
-    {
-      id: 1,
-      role: 'admin',
-      firstName: 'Admin',
-      lastName: 'Kopé',
-      displayName: null,
-      phone: '+242060000000',
-      avatarUrl: null,
-      createdAt: new Date(Date.now() - 365 * 86400000).toISOString(),
-    },
-  ];
   const pros = MOCK_PROS.map((p) => ({
     id: p.id,
     role: 'professional',
@@ -324,8 +330,9 @@ export function mockAdminUsers({ page = 1, pageSize = 20, role, query = '' } = {
     avatarUrl: p.avatarUrl,
     phone: p.phone,
     createdAt: new Date(Date.now() - (p.id + 1) * 86400000 * 3).toISOString(),
+    blockedAt: null,
   }));
-  let rows = [...pros, ...MOCK_CLIENTS, ...admins].sort(
+  let rows = [...pros, ...MOCK_CLIENTS, ...MOCK_ADMINS].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
   );
   const q = String(query || '').trim().toLowerCase();
@@ -337,8 +344,54 @@ export function mockAdminUsers({ page = 1, pageSize = 20, role, query = '' } = {
   return paginateMock(rows, page, pageSize);
 }
 
-export function mockAdminStats() {
-  const published = MOCK_PROS.filter((p) => proStatus(p) === 'published').length;
+function findMockUser(id) {
+  const target = Number(id);
+  if (MOCK_ADMINS.some((u) => u.id === target)) return MOCK_ADMINS.find((u) => u.id === target);
+  const pro = MOCK_PROS.find((p) => p.id === target);
+  if (pro) return { ...pro, firstName: null, lastName: null, role: 'professional' };
+  const client = MOCK_CLIENTS.find((c) => c.id === target);
+  return client ? { ...client, role: 'client' } : null;
+}
+
+export function mockSetUserBlocked(actorId, id, blocked) {
+  if (Number(actorId) === Number(id)) throw new Error('Vous ne pouvez pas bloquer votre propre compte');
+  const user = findMockUser(id);
+  if (!user) throw new Error('Utilisateur introuvable');
+
+  const persist = user.role === 'admin' ? MOCK_ADMINS : user.role === 'client' ? MOCK_CLIENTS : null;
+  if (blocked && user.role === 'admin') {
+    const others = MOCK_ADMINS.filter((a) => a.id !== Number(id) && !a.blockedAt);
+    if (others.length === 0) throw new Error('Impossible de bloquer le dernier administrateur actif');
+  }
+  if (persist) persist.find((u) => u.id === Number(id)).blockedAt = blocked ? new Date().toISOString() : null;
+  return { id: Number(id), role: user.role, blockedAt: blocked ? new Date().toISOString() : null };
+}
+
+export function mockCreateAdmin({ firstName, lastName, phone }) {
+  const clean = String(phone || '').trim();
+  const exists =
+    MOCK_ADMINS.some((a) => a.phone === clean) ||
+    MOCK_CLIENTS.some((c) => c.phone === clean) ||
+    MOCK_PROS.some((p) => p.phone === clean);
+  if (exists) throw new Error('Ce numéro est déjà utilisé');
+
+  const id = Math.max(0, ...MOCK_ADMINS.map((a) => a.id)) + 500;
+  const created = {
+    id,
+    role: 'admin',
+    firstName: String(firstName || '').trim(),
+    lastName: String(lastName || '').trim(),
+    displayName: null,
+    phone: clean,
+    avatarUrl: null,
+    createdAt: new Date().toISOString(),
+    blockedAt: null,
+  };
+  MOCK_ADMINS.push(created);
+  return created;
+}
+
+export function mockAdminStats() {  const published = MOCK_PROS.filter((p) => proStatus(p) === 'published').length;
   const hidden = MOCK_PROS.filter((p) => p.isHidden).length;
   const incomplete = MOCK_PROS.length - published - hidden;
   const reviews = MOCK_PROS.flatMap((p) => mockReviewsFor(p.id));

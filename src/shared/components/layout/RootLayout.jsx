@@ -8,14 +8,18 @@ import { cn } from '@/shared/utils';
 
 const BOTTOM_NAV_ROUTES = [ROUTES.DASHBOARD_PRO, ROUTES.DASHBOARD_CLIENT, ROUTES.ADMIN];
 
+// Pages qui partagent le fond pointillé des tableaux de bord.
+const DOTTED_BG_ROUTES = [...BOTTOM_NAV_ROUTES, ROUTES.SEARCH];
+
 export function RootLayout() {
   const demo = useMockMode();
   const { pathname } = useLocation();
   const hasBottomNav = BOTTOM_NAV_ROUTES.includes(pathname);
+  const hasDottedBg = DOTTED_BG_ROUTES.includes(pathname);
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <Navbar />
-      <main id="main-content" className={cn('flex-1', hasBottomNav && 'bg-dots')}>
+      <main id="main-content" className={cn('flex-1', hasDottedBg && 'bg-dots')}>
         <div className=" animate-fade-in">
           <Outlet />
         </div>

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { MapPin, Search, Wrench } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { FormField } from '@/shared/components/ui/FormField.jsx';
 import { Select } from '@/shared/components/ui/Select.jsx';
+import { CustomSelect } from '@/shared/components/ui/CustomSelect.jsx';
+import { SearchInput } from '@/shared/components/ui/SearchInput.jsx';
 import { Input } from '@/shared/components/ui/Input.jsx';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
@@ -32,6 +34,8 @@ export function SearchFilters({ initial = {}, variant = "search", className, sea
   const trade = initial.trade ?? params.get("trade") ?? "";
   const zone = initial.zone ?? params.get("zone") ?? "";
   const error = initial.error;
+  const [tradeValue, setTradeValue] = useState(trade);
+  const [zoneValue, setZoneValue] = useState(zone);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -42,6 +46,19 @@ export function SearchFilters({ initial = {}, variant = "search", className, sea
     const next = new URLSearchParams();
     if (t) next.set("trade", t);
     if (z) next.set("zone", z);
+    if (k) next.set("q", k);
+    next.set("page", "1");
+    navigate(`${ROUTES.SEARCH}?${next.toString()}`);
+  };
+
+  // La sidebar utilise des CustomSelect (pas de champ natif "name") :
+  // la soumission se fait donc depuis l'état, pas depuis un FormData.
+  const submitRefined = (e) => {
+    e.preventDefault();
+    const next = new URLSearchParams();
+    if (tradeValue) next.set("trade", tradeValue);
+    if (zoneValue) next.set("zone", zoneValue);
+    const k = keyword.trim();
     if (k) next.set("q", k);
     next.set("page", "1");
     navigate(`${ROUTES.SEARCH}?${next.toString()}`);
@@ -64,57 +81,61 @@ export function SearchFilters({ initial = {}, variant = "search", className, sea
   if (dense)
     return (
       <form
-        onSubmit={onSubmit}
-        className={cn(
-          'rounded-[22px] border border-[#dfe5e2] bg-white p-4  sm:p-5',
-          className,
-        )}
+        onSubmit={submitRefined}
+        className={cn('rounded-md border border-gray-200 bg-white p-2', className)}
         noValidate
       >
-        <div className="relative">
-          <Search size={16} aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
-          <Input
-            name="q"
-            placeholder="Recherche par mot-clé"
+        <div className="flex items-center justify-between px-2 py-2">
+          <h2 className="text-sm font-bold text-gray-900">Recherche</h2>
+        </div>
+
+        <div className="space-y-4 p-2">
+          <SearchInput
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            className="h-11.5 rounded-md border-[#dde4e1] bg-white pl-10 text-[15px] text-gray-900 placeholder:text-gray-500"
+            placeholder="Nom du professionnel ou métier"
+            aria-label="Recherche par mot-clé"
           />
+
+          <div>
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              <Wrench className="h-3 w-3" aria-hidden />
+              Métier
+            </p>
+            <CustomSelect
+              id="sf-trade-sb"
+              value={tradeValue}
+              onChange={setTradeValue}
+              options={[
+                { value: '', label: 'Tous les métiers' },
+                ...trades.map((t) => ({ value: String(t.id), label: t.name })),
+              ]}
+              className="mt-2 w-full"
+              aria-label="Filtrer par métier"
+            />
+          </div>
+
+          <div>
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              <MapPin className="h-3 w-3" aria-hidden />
+              Zone
+            </p>
+            <CustomSelect
+              id="sf-zone-sb"
+              value={zoneValue}
+              onChange={setZoneValue}
+              options={[
+                { value: '', label: 'Toutes les zones' },
+                ...zones.map((z) => ({ value: String(z.id), label: z.name })),
+              ]}
+              className="mt-2 w-full"
+              aria-label="Filtrer par zone"
+            />
+          </div>
         </div>
 
-        <div className="mt-4 space-y-3">
-          <Select
-            id="sf-trade-sb"
-            name="trade"
-            defaultValue={trade}
-            error={error?.trade}
-            className="h-[48px] rounded-[12px] border-[#dde4e1] bg-white text-[15px] text-gray-900"
-          >
-            <option value="">Tous les métiers</option>
-            {trades.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </Select>
-
-          <Select
-            id="sf-zone-sb"
-            name="zone"
-            defaultValue={zone}
-            className="h-[48px] rounded-[12px] border-[#dde4e1] bg-white text-[15px] text-gray-900"
-          >
-            <option value="">Toutes les zones</option>
-            {zones.map((z) => (
-              <option key={z.id} value={z.id}>
-                {z.name}
-              </option>
-            ))}
-          </Select>
-        </div>
-
-        <div className="pt-4">
-          <Button type="submit" loading={searching} className="h-[48px] w-full rounded-[12px] bg-[#214d3d] text-base font-bold hover:bg-[#1a3d33]">
+        <div className="border-t border-gray-100 p-2">
+          <Button type="submit" size="sm" loading={searching} className="w-full">
             Rechercher <Search size={16} aria-hidden />
           </Button>
         </div>

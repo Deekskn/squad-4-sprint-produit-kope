@@ -7,9 +7,34 @@ import {
   AdminSectionLayout,
 } from './AdminSectionLayout.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { formatDateFr } from '@/shared/utils';
+import { cn, formatDateFr } from '@/shared/utils';
 
 const key = (groupId) => (groupId == null ? null : Number(groupId));
+
+
+const GROUP_TINTS = [
+  { band: 'bg-primary-500', dot: 'bg-primary-200' },
+  { band: 'bg-primary-400', dot: 'bg-primary-100' },
+  { band: 'bg-[#6d8a58]', dot: 'bg-[#c3d6b4]' },
+  { band: 'bg-[#3f8a78]', dot: 'bg-[#b6dbd1]' },
+  { band: 'bg-[#5b7fa8]', dot: 'bg-[#bcd0e4]' },
+  { band: 'bg-[#7a8098]', dot: 'bg-[#c8ccd8]' },
+  { band: 'bg-[#8b6d9a]', dot: 'bg-[#d2c0dc]' },
+  { band: 'bg-[#9b6157]', dot: 'bg-[#e2c4bd]' },
+  { band: 'bg-[#a17a3c]', dot: 'bg-[#e6d2ab]' },
+  { band: 'bg-[#9b6d82]', dot: 'bg-[#dfc6d2]' },
+  { band: 'bg-[#7b8b98]', dot: 'bg-[#c8d4dc]' },
+  { band: 'bg-[#8a7d58]', dot: 'bg-[#d8d0b6]' },
+];
+
+/** Attribue une teinte stable à un groupe, selon son nom. */
+function tintFor(name) {
+  let hash = 0;
+  const seed = String(name || '');
+  for (let i = 0; i < seed.length; i += 1)
+    hash = (hash * 31 + seed.charCodeAt(i)) % 1000003;
+  return GROUP_TINTS[hash % GROUP_TINTS.length];
+}
 
 const usedBy = (count) => `Utilisé par ${count} pro${count > 1 ? 's' : ''}`;
 
@@ -69,15 +94,7 @@ function PositionBadge({ value, muted = false }) {
   );
 }
 
-/**
- * Board d'administration : des groupes (villes, catégories de métiers…) contenant
- * des items (arrondissements, métiers…).
- *
- * Pendant un déplacement, la carte d'origine reste montée et devient un emplacement
- * vide (`gap`) ; une copie (`preview`) marque la position d'arrivée dans le groupe
- * survolé. Les numéros se recalculent en direct et les cartes se décalent avec une
- * animation FLIP.
- */
+
 export function AdminCatalogBoard({
   rightContainer = null,
   groupLabel = 'groupe',
@@ -413,9 +430,9 @@ export function AdminCatalogBoard({
           e.stopPropagation();
           if (canReorder) handleDrop(groupKey, index);
         }}
-        className={`rounded-md border bg-white p-2.5 ${
+        className={`overflow-hidden rounded-md border bg-white p-2.5 ${
           isPreview
-            ? 'relative z-20 cursor-grabbing border-primary-400 border-dashed shadow-lg'
+            ? 'relative z-20 cursor-grabbing border-primary-500 border-2 border-dashed shadow-lg'
             : isGap
               ? 'border-2 border-dashed border-primary-300 bg-primary-50'
               : 'cursor-grab border-gray-200 active:cursor-grabbing'
@@ -438,39 +455,43 @@ export function AdminCatalogBoard({
               className="flex-1"
             />
           ) : (
-            <>
-              <p className="min-w-0 flex-1 break-words text-sm font-semibold text-gray-900">{item.name}</p>
-              <div className="flex shrink-0 items-center gap-1">
-                <Tooltip content="Modifier">
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditingItemId(item.id);
-                      setItemName(item.name);
-                    }}
-                    aria-label={`Modifier ${item.name}`}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                </Tooltip>
-                <Tooltip content="Supprimer">
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    className="text-rose-600 hover:bg-rose-50"
-                    onClick={() => setConfirm({ kind: 'item', target: item })}
-                    aria-label={`Supprimer ${item.name}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </Tooltip>
-              </div>
-            </>
+            <p className="min-w-0 flex-1 break-words text-sm font-semibold text-gray-900">{item.name}</p>
           )}
         </div>
 
         {editingItemId !== item.id ? itemFooter(item) : null}
+
+        <div
+          className={`-mx-2.5 -mb-2.5 mt-3 flex items-center justify-end gap-1 rounded-b-md border-t border-gray-100 bg-gray-50/80 px-2.5 py-1.5 ${
+            isGap ? 'invisible' : ''
+          }`}
+        >
+          <Tooltip content="Modifier">
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              className="text-primary-600 hover:bg-mint-100"
+              onClick={() => {
+                setEditingItemId(item.id);
+                setItemName(item.name);
+              }}
+              aria-label={`Modifier ${item.name}`}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Supprimer">
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              className="text-rose-600 hover:bg-rose-50"
+              onClick={() => setConfirm({ kind: 'item', target: item })}
+              aria-label={`Supprimer ${item.name}`}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </Tooltip>
+        </div>
       </article>
     );
   };
@@ -481,12 +502,13 @@ export function AdminCatalogBoard({
     const realCount = cardsOf(groupKey).length;
     const filteredOut = Boolean(groupFilter) && groupFilter !== String(group.id);
     const draft = drafts[group.id] || '';
+    const tint = tintFor(group.name);
 
     return (
       <section
         key={group.id}
         aria-label={group.name}
-        className="flex flex-col rounded-lg border border-gray-200 bg-gray-50/70"
+        className={cn('flex flex-col overflow-hidden rounded-lg border border-transparent', tint.band)}
         onDragOver={(e) => {
           e.preventDefault();
           showPreview(groupKey, realCount);
@@ -507,9 +529,11 @@ export function AdminCatalogBoard({
             e.dataTransfer.setData('text/plain', `group-${group.id}`);
           }}
           onDragEnd={resetDrag}
-          className="flex items-center gap-2 border-b border-gray-200 px-3 py-2.5"
+          className="flex items-center gap-2 border-b border-white/25 px-3 py-2.5"
         >
-          {canReorder && <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-gray-400" aria-hidden />}
+          {canReorder && <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-white/70" aria-hidden />}
+
+          <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', tint.dot)} aria-hidden />
 
           {editingGroupId === group.id ? (
             <InlineInput
@@ -522,14 +546,15 @@ export function AdminCatalogBoard({
             />
           ) : (
             <>
-              <h3 className="min-w-0 flex-1 truncate text-sm font-bold text-gray-900">{group.name}</h3>
-              <span className="shrink-0 rounded-full bg-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700">
+              <h3 className="min-w-0 flex-1 truncate text-sm font-bold text-white">{group.name}</h3>
+              <span className="shrink-0 rounded-full border border-white/30 bg-white/20 px-2 py-0.5 text-[11px] font-semibold text-white">
                 {realCount}
               </span>
               <Tooltip content={`Modifier le ${groupNoun}`}>
                 <Button
                   size="icon-sm"
                   variant="ghost"
+                  className="text-white hover:bg-white/20"
                   onClick={() => {
                     setEditingGroupId(group.id);
                     setGroupName(group.name);
@@ -546,7 +571,7 @@ export function AdminCatalogBoard({
             <Button
               size="icon-sm"
               variant="ghost"
-              className="text-rose-600 hover:bg-rose-50"
+              className="text-white hover:bg-white/20"
               onClick={() => setConfirm({ kind: 'group', target: group })}
               aria-label={`Supprimer ${group.name}`}
             >
@@ -555,7 +580,7 @@ export function AdminCatalogBoard({
           </Tooltip>
         </header>
 
-        <div className="flex min-h-16 flex-col gap-2 p-2">
+        <div className="flex min-h-16 flex-col gap-2 bg-white/10 p-2">
           {filteredOut ? (
             <p className="px-1 py-2 text-xs text-gray-400">Masqué par le filtre</p>
           ) : entries.length === 0 ? (
@@ -565,7 +590,7 @@ export function AdminCatalogBoard({
           )}
         </div>
 
-        <div className="border-t border-gray-200 p-2">
+        <div className="border-t border-white/25 p-2">
           {addingTo === group.id ? (
             <InlineInput
               value={draft}
@@ -582,7 +607,7 @@ export function AdminCatalogBoard({
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-gray-600"
+              className="w-full justify-start text-white hover:bg-white/20"
               onClick={() => setAddingTo(group.id)}
             >
               <Plus className="h-4 w-4" />
@@ -599,8 +624,7 @@ export function AdminCatalogBoard({
       <div className="space-y-3 pb-2">
         {groups.map(renderGroup)}
 
-        <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50/70 p-2">
-          {newGroup == null ? (
+        <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50/70 p-2">          {newGroup == null ? (
             <Button
               variant="ghost"
               size="sm"

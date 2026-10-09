@@ -1,7 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { requireAuth } from '../server/middlewares/requireAuth.js';
 import { requireRole } from '../server/middlewares/requireRole.js';
 import { signToken } from '../server/utils/tokens.js';
+
+// requireAuth vérifie en base si le compte est bloqué : on isole cette dépendance.
+vi.mock('../server/modules/auth/auth.repository.js', () => ({
+  isBlocked: vi.fn().mockResolvedValue(false),
+}));
+
+const { isBlocked } = await import('../server/modules/auth/auth.repository.js');
 
 // requireAuth/requireRole utilisent env.ACCESS_TOKEN_SECRET - on génère le token avec le même env.
 import { env } from '../server/config/env.js';
@@ -10,40 +17,56 @@ function bearer(payload) {
   return { headers: { authorization: `Bearer ${signToken(payload, env.ACCESS_TOKEN_SECRET, 3600)}` } };
 }
 
+function run(req) {
+  return new Promise((resolve, reject) => {
+    requireAuth(req, {}, (err) => (err ? reject(err) : resolve()));
+  });
+}
+
 describe('requireAuth', () => {
-  it('accepte un Bearer token valide et remplit req.user', () => {
+  beforeEach(() => {
+    isBlocked.mockResolvedValue(false);
+  });
+
+  it('accepte un Bearer token valide et remplit req.user', async () => {
     const req = bearer({ sub: 7, role: 'client' });
-    let called = false;
-    requireAuth(req, {}, () => { called = true; });
-    expect(called).toBe(true);
+    await run(req);
     expect(req.user).toEqual({ id: 7, role: 'client' });
   });
 
-  it('Bearer invalide + session valide : retombe sur la session (flag bearerExpired)', () => {
+  it('Bearer invalide + session valide : retombe sur la session (flag bearerExpired)', async () => {
     const req = { headers: { authorization: 'Bearer abc.def.ghi' }, session: { user: { id: 5, role: 'client' } } };
-    let called = false;
-    requireAuth(req, {}, () => { called = true; });
-    expect(called).toBe(true);
+    await run(req);
     expect(req.user.id).toBe(5);
     expect(req.bearerExpired).toBe(true);
   });
 
-  it('Bearer invalide + sans session : 401 Connexion requise', () => {
+  it('Bearer invalide + sans session : 401 Connexion requise', async () => {
     const req = { headers: { authorization: 'Bearer abc.def.ghi' }, session: {} };
-    expect(() => requireAuth(req, {}, () => {})).toThrow(/Connexion requise/);
+    await expect(run(req)).rejects.toThrow(/Connexion requise/);
   });
 
-  it('rejette sans session ni token', () => {
+  it('rejette sans session ni token', async () => {
     const req = { headers: {}, session: {} };
-    expect(() => requireAuth(req, {}, () => {})).toThrow(/Connexion requise/);
+    await expect(run(req)).rejects.toThrow(/Connexion requise/);
   });
 
-  it('accepte la session cookie en fallback', () => {
+  it('accepte la session cookie en fallback', async () => {
     const req = { headers: {}, session: { user: { id: 3, role: 'admin' } } };
-    let called = false;
-    requireAuth(req, {}, () => { called = true; });
-    expect(called).toBe(true);
+    await run(req);
     expect(req.user.role).toBe('admin');
+  });
+
+  it('refuse un compte bloqué même avec un token valide', async () => {
+    isBlocked.mockResolvedValue(true);
+    const req = bearer({ sub: 7, role: 'client' });
+    await expect(run(req)).rejects.toThrow(/bloqué/);
+  });
+
+  it('refuse un compte bloqué sur une session existante', async () => {
+    isBlocked.mockResolvedValue(true);
+    const req = { headers: {}, session: { user: { id: 9, role: 'client' } } };
+    await expect(run(req)).rejects.toThrow(/bloqué/);
   });
 });
 

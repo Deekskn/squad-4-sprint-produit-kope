@@ -76,6 +76,7 @@ export async function listUsers({ limit, offset, role, q }, db = pool) {
             u.last_name AS "lastName",
             u.avatar_url AS "avatarUrl",
             u.created_at AS "createdAt",
+            u.blocked_at AS "blockedAt",
             COUNT(*) OVER()::int AS total
        FROM users u
       WHERE ($1::text IS NULL OR u.role = $1)
@@ -124,6 +125,44 @@ export async function listRecentProfessionals(limit = 5, db = pool) {
     [limit],
   );
   return rows;
+}
+
+export async function findUserById(id, db = pool) {
+  const { rows } = await db.query('SELECT id, role, blocked_at AS "blockedAt" FROM users WHERE id = $1', [id]);
+  return rows[0] ?? null;
+}
+
+export async function setUserBlocked(id, blocked, db = pool) {
+  const { rows } = await db.query(
+    `UPDATE users
+        SET blocked_at = CASE WHEN $2::boolean THEN now() ELSE NULL END
+      WHERE id = $1
+      RETURNING id, role, phone, blocked_at AS "blockedAt"`,
+    [id, blocked],
+  );
+  return rows[0] ?? null;
+}
+
+export async function countActiveAdmins(excludeId, db = pool) {
+  const { rows } = await db.query(
+    `SELECT COUNT(*)::int AS count
+       FROM users
+      WHERE role = 'admin'
+        AND blocked_at IS NULL
+        AND id <> $1`,
+    [excludeId],
+  );
+  return rows[0].count;
+}
+
+export async function createAdminUser({ firstName, lastName, phone, passwordHash }, db = pool) {
+  const { rows } = await db.query(
+    `INSERT INTO users (role, phone, password_hash, first_name, last_name, consented_at)
+     VALUES ('admin', $1, $2, $3, $4, now())
+     RETURNING id, role, phone, first_name AS "firstName", last_name AS "lastName", created_at AS "createdAt"`,
+    [phone, passwordHash, firstName, lastName],
+  );
+  return rows[0];
 }
 
 export async function listTrades(db = pool) {

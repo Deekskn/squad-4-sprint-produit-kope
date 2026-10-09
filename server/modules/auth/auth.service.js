@@ -9,6 +9,7 @@ import * as refreshTokensRepository from './refreshTokens.repository.js';
 const BCRYPT_ROUNDS = 10;
 const DUPLICATE_PHONE = 'Ce numéro est déjà utilisé';
 const INVALID_CREDENTIALS = 'Numéro ou mot de passe incorrect';
+const ACCOUNT_BLOCKED = 'Ce compte a été bloqué par un administrateur. Contactez le support.';
 
 const DUMMY_HASH = bcrypt.hashSync('mot-de-passe-factice', BCRYPT_ROUNDS);
 
@@ -48,8 +49,9 @@ export async function login({ phone, password }) {
 
   const passwordMatches = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
   if (!user || !passwordMatches) throw ApiError.unauthorized(INVALID_CREDENTIALS);
+  if (user.blockedAt) throw ApiError.forbidden(ACCOUNT_BLOCKED);
 
-  const { passwordHash: _passwordHash, ...publicUser } = user;
+  const { passwordHash: _passwordHash, blockedAt: _blockedAt, ...publicUser } = user;
   return publicUser;
 }
 

@@ -1,13 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Calendar, Phone } from 'lucide-react';
-import { Badge, CustomSelect, Pagination, SearchInput, DataState, UserAvatar } from '@/shared/components/ui';
+import { Ban, Calendar, Check, Phone, Plus, ShieldCheck, UserPlus, X } from 'lucide-react';
+import {
+  Badge,
+  Button,
+  CustomSelect,
+  Pagination,
+  SearchInput,
+  DataState,
+  UserAvatar,
+  Tooltip,
+  Modal,
+} from '@/shared/components/ui';
 import {
   AdminFilterGroup,
   AdminFilterPanel,
   AdminSectionLayout,
 } from './AdminSectionLayout.jsx';
 import { useAdminPage } from '../hooks/useAdminPage.js';
-import { listUsers } from '../services/admin.service.js';
+import { useAuthContext } from '@/shared/context/AuthContext.jsx';
+import { useNotification } from '@/shared/context/NotificationContext.jsx';
+import { createAdmin, listUsers, setUserBlocked } from '../services/admin.service.js';
 import { ROLES } from '@/shared/lib/constants.js';
 import { formatDateFr } from '@/shared/utils';
 
@@ -32,7 +44,11 @@ const ROLE_OPTIONS = [
   { value: ROLES.ADMIN, label: 'Administrateurs' },
 ];
 
+const EMPTY_ADMIN = { firstName: '', lastName: '', phone: '', password: '' };
+
 export function AdminUsersTable({ rightContainer = null }) {
+  const { user: currentUser } = useAuthContext();
+  const { toast } = useNotification();
   const [page, changePage, setPage] = useAdminPage();
   const [role, setRole] = useState('');
   const [query, setQuery] = useState('');
@@ -40,6 +56,11 @@ export function AdminUsersTable({ rightContainer = null }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [confirm, setConfirm] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(null);
+  const [formError, setFormError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -73,6 +94,54 @@ export function AdminUsersTable({ rightContainer = null }) {
 
   const total = Number(data?.total || 0);
   const dirty = Boolean(query || search || role);
+
+  const applyBlock = async () => {
+    if (!confirm) return;
+    setSaving(true);
+    try {
+      await setUserBlocked(currentUser?.id, confirm.target.id, confirm.blocked);
+      toast({
+        message: confirm.blocked ? 'Utilisateur bloqué.' : 'Utilisateur débloqué.',
+        type: 'success',
+      });
+      setConfirm(null);
+      load();
+    } catch (err) {
+      toast({ message: err?.message || 'Erreur.', type: 'error' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const submitAdmin = async (e) => {
+    e.preventDefault();
+    if (!creating) return;
+    if (!creating.firstName.trim() || !creating.lastName.trim() || !creating.phone.trim()) {
+      setFormError('Prénom, nom et numéro sont obligatoires');
+      return;
+    }
+    if (creating.password.length < 8) {
+      setFormError('Le mot de passe doit contenir au moins 8 caractères');
+      return;
+    }
+    setFormError('');
+    setSaving(true);
+    try {
+      await createAdmin({
+        firstName: creating.firstName.trim(),
+        lastName: creating.lastName.trim(),
+        phone: creating.phone.trim(),
+        password: creating.password,
+      });
+      toast({ message: 'Administrateur créé.', type: 'success' });
+      setCreating(null);
+      load();
+    } catch (err) {
+      setFormError(err?.message || 'Erreur.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const renderFilters = (searchId) => (
     <AdminFilterPanel dirty={dirty} onReset={resetFilters}>
@@ -118,9 +187,16 @@ export function AdminUsersTable({ rightContainer = null }) {
                 u.displayName ||
                 [u.firstName, u.lastName].filter(Boolean).join(' ') ||
                 `#${u.id}`;
+              const blocked = Boolean(u.blockedAt);
+              const isSelf = currentUser?.id === u.id;
               return (
-                <li key={u.id} className="flex flex-col rounded-lg border border-gray-200 bg-white p-4">
-                  <div className="flex items-start gap-3">
+                <li
+                  key={u.id}
+                  className={`flex flex-col overflow-hidden rounded-lg border bg-white ${
+                    blocked ? 'border-rose-200 bg-rose-50/40' : 'border-gray-200'
+                  }`}
+                >
+                  <div className="flex items-start gap-3 p-4">
                     <UserAvatar
                       user={{ firstName: u.firstName, lastName: u.lastName, avatarUrl: u.avatarUrl }}
                       name={name}
@@ -134,22 +210,56 @@ export function AdminUsersTable({ rightContainer = null }) {
                           <span className="truncate">{u.phone}</span>
                         </p>
                       )}
+                      {u.createdAt && (
+                        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-400">
+                          <Calendar className="h-3.5 w-3.5 shrink-0" />
+                          Inscrit le {formatDateFr(u.createdAt)}
+                        </p>
+                      )}
                     </div>
-                    <Badge variant={ROLE_VARIANTS[u.role] || 'neutral'}>
-                      {ROLE_LABELS[u.role] || u.role}
-                    </Badge>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <Badge variant={ROLE_VARIANTS[u.role] || 'neutral'}>
+                        {ROLE_LABELS[u.role] || u.role}
+                      </Badge>
+                      {blocked && <Badge variant="danger">Bloqué</Badge>}
+                    </div>
                   </div>
-                  {u.createdAt && (
-                    <p className="mt-3 flex items-center gap-1.5 border-t border-gray-100 pt-3 text-xs text-gray-400">
-                      <Calendar className="h-3.5 w-3.5 shrink-0" />
-                      Inscrit le {formatDateFr(u.createdAt)}
-                    </p>
-                  )}
+
+                  <div className="-mx-4 -mb-4 flex items-center justify-end gap-1 border-t border-gray-100 bg-gray-50/80 px-4 py-1.5">
+                    {isSelf ? (
+                      <span className="text-xs text-gray-400">Votre compte</span>
+                    ) : blocked ? (
+                      <Tooltip content="Débloquer le compte">
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          className="text-primary-600 hover:bg-mint-100"
+                          onClick={() => setConfirm({ target: u, blocked: false })}
+                          aria-label={`Débloquer ${name}`}
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </Button>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip content="Bloquer le compte">
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          className="text-rose-600 hover:bg-rose-50"
+                          onClick={() => setConfirm({ target: u, blocked: true })}
+                          aria-label={`Bloquer ${name}`}
+                        >
+                          <Ban className="h-3.5 w-3.5" />
+                        </Button>
+                      </Tooltip>
+                    )}
+                  </div>
                 </li>
               );
             })
           )}
         </ul>
+
         <Pagination
           page={Number(data?.page || page)}
           pageSize={Number(data?.pageSize || PAGE_SIZE)}
@@ -158,6 +268,74 @@ export function AdminUsersTable({ rightContainer = null }) {
           variant="summary"
           className="mt-4"
         />
+
+        {creating ? (
+          <form
+            onSubmit={submitAdmin}
+            className="mt-4 rounded-lg border border-primary-200 bg-primary-50 p-4"
+          >
+            <p className="mb-3 flex items-center gap-2 text-sm font-bold text-primary-700">
+              <UserPlus className="h-4 w-4" />
+              Nouvel administrateur
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input
+                autoFocus
+                value={creating.firstName}
+                onChange={(e) => setCreating((prev) => ({ ...prev, firstName: e.target.value }))}
+                placeholder="Prénom"
+                aria-label="Prénom"
+                className="h-9 rounded-sm border border-gray-300 bg-white px-2.5 text-sm outline-none focus:border-primary-500"
+              />
+              <input
+                value={creating.lastName}
+                onChange={(e) => setCreating((prev) => ({ ...prev, lastName: e.target.value }))}
+                placeholder="Nom"
+                aria-label="Nom"
+                className="h-9 rounded-sm border border-gray-300 bg-white px-2.5 text-sm outline-none focus:border-primary-500"
+              />
+              <input
+                value={creating.phone}
+                onChange={(e) => setCreating((prev) => ({ ...prev, phone: e.target.value }))}
+                placeholder="Téléphone (+242…)"
+                aria-label="Téléphone"
+                className="h-9 rounded-sm border border-gray-300 bg-white px-2.5 text-sm outline-none focus:border-primary-500"
+              />
+              <input
+                type="password"
+                value={creating.password}
+                onChange={(e) => setCreating((prev) => ({ ...prev, password: e.target.value }))}
+                placeholder="Mot de passe (8 caractères min.)"
+                aria-label="Mot de passe"
+                className="h-9 rounded-sm border border-gray-300 bg-white px-2.5 text-sm outline-none focus:border-primary-500"
+              />
+            </div>
+            {formError && <p className="mt-2 text-sm text-danger-500">{formError}</p>}
+            <div className="mt-3 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setCreating(null);
+                  setFormError('');
+                }}
+              >
+                <X className="h-4 w-4" />
+                Annuler
+              </Button>
+              <Button type="submit" size="sm" loading={saving}>
+                <ShieldCheck className="h-4 w-4" />
+                Créer
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <Button variant="secondary" size="sm" className="mt-4" onClick={() => setCreating(EMPTY_ADMIN)}>
+            <Plus className="h-4 w-4" />
+            Nouvel administrateur
+          </Button>
+        )}
       </>
     </DataState>
   );
@@ -172,6 +350,28 @@ export function AdminUsersTable({ rightContainer = null }) {
       searchId="usr-search"
     >
       {list}
+
+      <Modal
+        open={Boolean(confirm)}
+        onClose={() => !saving && setConfirm(null)}
+        dismissable={!saving}
+        title={confirm?.blocked ? 'Bloquer cet utilisateur ?' : 'Débloquer cet utilisateur ?'}
+        description={
+          confirm?.blocked
+            ? 'Son compte ne pourra plus se connecter et ses sessions seront fermées immédiatement.'
+            : 'L’utilisateur pourra de nouveau se connecter à la plateforme.'
+        }
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setConfirm(null)} disabled={saving}>
+              Annuler
+            </Button>
+            <Button variant={confirm?.blocked ? 'danger' : 'primary'} onClick={applyBlock} loading={saving}>
+              {confirm?.blocked ? 'Bloquer' : 'Débloquer'}
+            </Button>
+          </>
+        }
+      />
     </AdminSectionLayout>
   );
 }

@@ -4,6 +4,7 @@ import {
   mockAdminProfessionals,
   mockAdminStats,
   mockAdminUsers,
+  mockCreateAdmin,
   mockCreateCity,
   mockCreateTrade,
   mockCreateTradeCategory,
@@ -21,6 +22,7 @@ import {
   mockReorderTradeCategories,
   mockReorderTrades,
   mockReorderZones,
+  mockSetUserBlocked,
   mockUpdateCity,
   mockUpdateTrade,
   mockUpdateTradeCategory,
@@ -97,6 +99,20 @@ export function listUsers({ page = 1, pageSize = 20, role = '', query = '' } = {
       return api.get('/admin/users', params);
     },
     async () => mockAdminUsers({ page, pageSize, role, query }),
+  );
+}
+
+export function setUserBlocked(actorId, id, blocked) {
+  return callApi(
+    () => api.patchJson(`/admin/users/${id}/blocked`, { blocked }),
+    async () => mockSetUserBlocked(actorId, id, blocked),
+  );
+}
+
+export function createAdmin(payload) {
+  return callApi(
+    () => api.postJson('/admin/users', payload),
+    async () => mockCreateAdmin(payload),
   );
 }
 
