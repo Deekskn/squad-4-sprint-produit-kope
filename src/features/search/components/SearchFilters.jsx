@@ -120,8 +120,7 @@ export function SearchFilters({ initial = {}, variant = "search", className }) {
       </form>
     );
 
-
-  if (home || homeK)
+  if (home)
     return (
       <form
         onSubmit={onSubmit}
