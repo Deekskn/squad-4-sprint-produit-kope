@@ -1,8 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { cn } from '@/shared/utils';
 
-export function Sheet({ open, onOpenChange, children }) {
+export function Sheet({ open, onOpenChange, side = 'right', children }) {
+  const [render, setRender] = useState(open);
+  const [show, setShow] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRender(true);
+      requestAnimationFrame(() => setShow(true));
+    } else {
+      setShow(false);
+      const timer = setTimeout(() => setRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -17,13 +33,26 @@ export function Sheet({ open, onOpenChange, children }) {
     };
   }, [open, onOpenChange]);
 
-  if (!open || typeof document === 'undefined') return null;
+  if (!render || typeof document === 'undefined') return null;
   return createPortal(
-    <div className="fixed inset-0 z-90 bg-checkers backdrop-blur-sm animate-fade-in" onClick={() => onOpenChange?.(false)}>
+    <div
+      className={cn(
+        'fixed inset-0 z-90 bg-checkers backdrop-blur-sm transition-opacity duration-300',
+        show ? 'opacity-100' : 'opacity-0',
+      )}
+      onClick={() => onOpenChange?.(false)}
+    >
       <div
         role="dialog"
         aria-modal="true"
-        className="absolute inset-y-0 right-0 flex w-[85%] max-w-sm flex-col bg-white shadow-2xl animate-slide-in-right"
+        className={cn(
+          side === 'bottom'
+            ? 'absolute inset-x-0 bottom-0 flex max-h-[90dvh] w-full flex-col rounded-t-3xl bg-white p-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-2xl transition-transform duration-300'
+            : 'absolute inset-y-0 right-0 flex w-[85%] max-w-sm flex-col bg-white shadow-2xl',
+          show
+            ? side === 'bottom' ? 'translate-y-0' : 'translate-x-0'
+            : side === 'bottom' ? 'translate-y-full' : 'translate-x-full',
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         <button

@@ -55,7 +55,7 @@ export function LoginForm({ bare = false } = {}) {
   };
 
   return (
-    <div className={`${bare ? 'w-full px-6' : 'mx-auto w-full max-w-md px-12'} space-y-4 `}>
+    <div className={`${bare ? 'w-full px-5' : 'mx-auto w-full max-w-md px-5'} space-y-4 `}>
 
       <h1 className="text-3xl font-extrabold tracking-tight text-primary-500!">Connexion</h1>
       <p className=" text-sm mb-8 text-gray-500">

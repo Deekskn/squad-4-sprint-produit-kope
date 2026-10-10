@@ -50,18 +50,21 @@ function makePro(i) {
     phone: `+24206${String(1000000 + i * 137913).slice(0, 7)}`,
     whatsapp: null,
     image: IMAGES[i % IMAGES.length],
+    avatarUrl: IMAGES[(i + 3) % IMAGES.length],
     ratingAverage: ratingCount ? Math.round((3.5 + ((i * 7) % 15) / 10) * 10) / 10 : null,
     ratingCount,
-    photos: [0, 1].map((k) => ({
+    photos: [0, 1, 2].map((k) => ({
       id: i * 10 + k + 1,
       url: IMAGES[(i + k) % IMAGES.length],
       thumbUrl: IMAGES[(i + k) % IMAGES.length],
-      caption: k === 0 ? 'Chantier récent' : 'Réalisation',
-      title: k === 0 ? 'Chantier récent' : 'Réalisation',
+      caption: k === 0 ? 'Chantier récent' : k === 1 ? 'Réalisation' : 'Prestation',
+      title: k === 0 ? 'Chantier récent' : k === 1 ? 'Réalisation' : 'Prestation',
       description:
         k === 0
           ? 'Intervention complète réalisée en une journée, avec nettoyage du chantier et contrôle final.'
-          : 'Prestation réalisée dans les règles de l\'art, client satisfait et recommandation reçue.',
+          : k === 1
+            ? 'Prestation réalisée dans les règles de l\'art, client satisfait et recommandation reçue.'
+            : 'Installation soignée et mise en service, avec conseils d\'entretien remis au client.',
       createdAt: new Date(Date.now() - (i + k) * 86400000).toISOString(),
     })),
   };
@@ -70,10 +73,10 @@ function makePro(i) {
 export const MOCK_PROS = Array.from({ length: 12 }, (_, i) => makePro(i));
 
 const REVIEWS_POOL = [
-  { rating: 5, comment: 'Travail impeccable, rapide et propre. Je recommande.' },
-  { rating: 4, comment: 'Bon artisan, ponctuel. À recontacter.' },
-  { rating: 5, comment: 'Très professionnel, bon rapport qualité-prix.' },
-  { rating: 3, comment: 'Devis correct, intervention un jour plus tard que prévu.' },
+  { rating: 5, comment: 'Un échange clair et une intervention soignée. Julien a pris le temps de m\'expliquer l\'origine de la fuite.' },
+  { rating: 5, comment: 'Très bon contact pour le remplacement de ma robinetterie. Travail propre et conseils utiles.' },
+  { rating: 4, comment: 'Punctuel, efficace et courtois. Je recommande.' },
+  { rating: 5, comment: 'Devis détaillé, respect des délais, résultat impeccable.' },
 ];
 
 export function mockReviewsFor(proId) {
@@ -83,7 +86,7 @@ export function mockReviewsFor(proId) {
     comment: r.comment,
     isHidden: false,
     createdAt: new Date(Date.now() - (proId + i) * 86400000 * 3).toISOString(),
-    client: { firstName: FIRST[(proId + i) % FIRST.length], lastName: LAST[(proId + i + 2) % LAST.length] },
+    client: { firstName: FIRST[(proId + i) % FIRST.length], lastName: LAST[(proId + i + 2) % LAST.length], avatarUrl: null },
   }));
 }
 
@@ -100,10 +103,18 @@ export function toSearchItem(p) {
   };
 }
 
-export function searchMock({ trade, zone, page = 1, pageSize = 10 } = {}) {
+export function searchMock({ trade, zone, q, page = 1, pageSize = 10 } = {}) {
   let rows = MOCK_PROS.filter((p) => !p.isHidden);
   if (trade) rows = rows.filter((p) => String(p.tradeId) === String(trade));
   if (zone) rows = rows.filter((p) => p.zones.some((z) => String(z.id) === String(zone)));
+  if (q) {
+    const qNorm = String(q).trim().toLowerCase();
+    rows = rows.filter((p) =>
+      p.displayName.toLowerCase().includes(qNorm) ||
+      p.trade.toLowerCase().includes(qNorm) ||
+      p.zones.some((z) => z.name.toLowerCase().includes(qNorm)),
+    );
+  }
   rows = [...rows].sort((a, b) => Number(b.isAvailable) - Number(a.isAvailable) || (b.ratingAverage ?? 0) - (a.ratingAverage ?? 0));
   const total = rows.length;
   const items = rows.slice((page - 1) * pageSize, page * pageSize).map(toSearchItem);
@@ -113,6 +124,12 @@ export function searchMock({ trade, zone, page = 1, pageSize = 10 } = {}) {
 export function getProDetailMock(id) {
   const p = MOCK_PROS.find((x) => String(x.id) === String(id));
   if (!p) return null;
+  const tagsByTrade = {
+    1: ['Recherche de fuites', 'Robinetterie', 'Salle de bains'],
+    2: ['Installation de tableaux', 'Mise en sécurité', 'Luminaires'],
+    3: ['Béton', 'Fondations', 'Ravalement'],
+    4: ['Menuiseries sur mesure', 'Rangements', 'Volets'],
+  };
   return {
     profile: {
       id: p.id,
@@ -122,8 +139,11 @@ export function getProDetailMock(id) {
       yearsExperience: p.yearsExperience,
       isAvailable: p.isAvailable,
       phone: p.phone,
+      avatarUrl: p.avatarUrl,
       whatsapp: p.whatsapp ?? p.phone,
       zones: p.zones,
+      tags: tagsByTrade[p.tradeId] ?? [],
+      updatedAt: new Date(Date.now() - p.id * 86400000).toISOString(),
     },
     photos: p.photos,
     rating: { average: p.ratingAverage ?? 0, count: p.ratingCount },

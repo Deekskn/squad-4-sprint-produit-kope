@@ -1,21 +1,14 @@
 export function normalizePhone(raw) {
   if (raw == null) return null;
-  const digits = String(raw).replace(/\D/g, '');
-  if (!digits) return null;
+  let digits = String(raw).replace(/[\s().-]/g, '');
 
-  if (digits.startsWith('00242')) return `+242${digits.slice(5)}`;
-  if (digits.startsWith('242')) return `+${digits}`;
-  if (digits.startsWith('+')) {
-    const d = digits.slice(1);
-    if (d.startsWith('242')) return `+${d}`;
-    return null;
-  }
+  if (digits.startsWith('+')) digits = digits.slice(1);
+  else if (digits.startsWith('00')) digits = digits.slice(2);
 
-  if (digits.length === 9 && digits.startsWith('0')) return `+242${digits.slice(1)}`;
-  if (digits.length === 8) return `+242${digits}`;
-  if (digits.length === 10 && digits.startsWith('0')) return digits;
-  if (digits.length >= 9) return `+242${digits.slice(-9)}`;
-  return null;
+  if (digits.startsWith('242') && digits.length === 12) digits = digits.slice(3);
+
+  if (!/^0\d{8}$/.test(digits)) return null;
+  return `+242${digits}`;
 }
 
 export function isPhoneValid(raw) {

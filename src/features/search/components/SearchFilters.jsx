@@ -10,12 +10,20 @@ import { Skeleton } from "@/shared/components/ui/Skeleton.jsx";
 import { ROUTES } from "@/shared/lib/constants.js";
 import { cn } from "@/shared/utils";
 
-export function SearchFilters({
-  initial = {},
-  variant = "search",
-  className,
-  bare = false,
-}) {
+export function SearchFiltersResponsive({ initial, className }) {
+  return (
+    <>
+      <div className="hidden lg:block">
+        <SearchFilters variant="sidebar" initial={initial} className={className} />
+      </div>
+      <div className="lg:hidden">
+        <SearchFilters variant="home-k" initial={initial} className={className} />
+      </div>
+    </>
+  );
+}
+
+export function SearchFilters({ initial = {}, variant = "search", className }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { trades, zones, loading } = useReferenceData();
@@ -41,7 +49,7 @@ export function SearchFilters({
 
   const dense = variant === "sidebar";
   const home = variant === "home";
-  const suffix = home ? "hm" : "sb";
+  const homeK = variant === "home-k";
 
   if (loading)
     return (
@@ -57,104 +65,117 @@ export function SearchFilters({
       <form
         onSubmit={onSubmit}
         className={cn(
-          bare
-            ? "space-y-4"
-            : "rounded-[28px] border border-mint-200 bg-mint-50/60 p-4 sm:p-5 space-y-4",
+          'rounded-[22px] border border-[#dfe5e2] bg-white p-4  sm:p-5',
           className,
         )}
         noValidate
       >
-        <div>
-          <label className="mb-2 inline-flex items-center gap-2 text-xs font-bold text-gray-600">
-            <Search size={14} aria-hidden /> Recherche par mot-clé
-          </label>
+        <div className="relative">
+          <Search size={16} aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
           <Input
             name="q"
-            placeholder="Nom, entreprise, mot-clé..."
+            placeholder="Recherche par mot-clé"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
+            className="h-11.5 rounded-md border-[#dde4e1] bg-white pl-10 text-[15px] text-gray-900 placeholder:text-gray-500"
           />
         </div>
-        <FormField label="Quel métier ?" error={error?.trade} id="sf-trade-sb">
+
+        <div className="mt-4 space-y-3">
           <Select
             id="sf-trade-sb"
             name="trade"
             defaultValue={trade}
             error={error?.trade}
+            className="h-[48px] rounded-[12px] border-[#dde4e1] bg-white text-[15px] text-gray-900"
           >
-            <option value="">Sélectionner un métier</option>
+            <option value="">Plombier</option>
             {trades.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
               </option>
             ))}
           </Select>
-        </FormField>
-        <FormField
-          label="Quelle ville ?"
-          id="sf-zone-sb"
-          help="Par défaut : toute la ville"
-        >
-          <Select id="sf-zone-sb" name="zone" defaultValue={zone}>
-            <option value="">Toute la ville</option>
+
+          <Select
+            id="sf-zone-sb"
+            name="zone"
+            defaultValue={zone}
+            className="h-[48px] rounded-[12px] border-[#dde4e1] bg-white text-[15px] text-gray-900"
+          >
+            <option value="">Brazaville</option>
             {zones.map((z) => (
               <option key={z.id} value={z.id}>
                 {z.name}
               </option>
             ))}
           </Select>
-        </FormField>
-        <div className="pt-1">
-          <Button type="submit" className="w-full!">
+        </div>
+
+        <div className="pt-4">
+          <Button type="submit" className="h-[48px] w-full rounded-[12px] bg-[#214d3d] text-base font-bold hover:bg-[#1a3d33]">
             Rechercher <Search size={16} aria-hidden />
           </Button>
         </div>
       </form>
     );
 
-  if (home)
+
+  if (home || homeK)
     return (
       <form
         onSubmit={onSubmit}
         className={cn(
-          "flex flex-col items-stretch gap-2 rounded-2xl bg-white p-2 md:flex-row md:items-center",
+          'md:flex items-center space-y-2 gap-2.5 border border-[#CDD8D3] p-2 rounded-md bg-[#F5F6F6]',
           className,
         )}
         noValidate
       >
-        <FormField id={`sf-trade-${suffix}`} hideLabel className="flex-1">
-          <Select
-            bordered={false}
-            id={`sf-trade-${suffix}`}
-            name="trade"
-            defaultValue={trade}
-            error={error?.trade}
-          >
-            <option value="">Quel métier ?</option>
-            {trades.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </Select>
-        </FormField>
-        <span className="hidden opacity-20 md:inline">|</span>
-        <FormField id={`sf-zone-${suffix}`} hideLabel className="flex-1">
-          <Select
-            bordered={false}
-            id={`sf-zone-${suffix}`}
-            name="zone"
-            defaultValue={zone}
-          >
-            <option value="">Quel quartier ?</option>
-            {zones.map((z) => (
-              <option key={z.id} value={z.id}>
-                {z.name}
-              </option>
-            ))}
-          </Select>
-        </FormField>
-        <Button type="submit" size="lg" className="w-full! md:w-auto!">
+        {homeK && (
+          <>
+            <Input
+              name="q"
+              placeholder="Recherche par mot-clé"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="sm:h-fit h-16 border-0! bg-transparent!"
+            />
+            <p className='opacity-10 sm:border-x border-y sm:border-y-0 w-[96%] sm:w-0 mx-auto sm:h-8'></p>
+          </>
+        )}
+        <Select
+          id="sf-trade-h"
+          name="trade"
+          defaultValue={trade}
+          error={error?.trade}
+          className="sm:h-fit h-16 border-0! bg-transparent! "
+        >
+          <option value="">Quel métier ?</option>
+          {trades.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </Select>
+
+        <p className='opacity-10 sm:border-x border-y sm:border-y-0 w-[96%] sm:w-0 mx-auto sm:h-8'></p>
+
+        <Select
+          id="sf-zone-h"
+          name="zone"
+          defaultValue={zone}
+          className=" sm:h-fit h-16 border-0! bg-transparent!"
+        >
+          <option value="">Quel quartier ?</option>
+          {zones.map((z) => (
+            <option key={z.id} value={z.id}>{z.name}</option>
+          ))}
+        </Select>
+
+
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full sm:w-fit px-12!"
+        >
           Rechercher <Search size={16} aria-hidden />
         </Button>
       </form>
@@ -162,6 +183,7 @@ export function SearchFilters({
 
   return (
     <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>
+
       <FormField label="Métier" error={error?.trade} id="sf-trade-d">
         <Select
           id="sf-trade-d"

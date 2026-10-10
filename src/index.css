@@ -181,7 +181,6 @@ p {
   padding-block: 2.75rem;
 }
 
-/* Grille de petits carrés pour les overlays (Modal, Sheet) */
 .bg-checkers {
   background-color: rgb(0 0 0 / 0.45);
   background-image:
@@ -190,7 +189,6 @@ p {
   background-size: 7px 7px;
 }
 
-/* Barre d'indication active dans la navbar (anime: 10% -> 40%) */
 .nav-link-active::after {
   content: '';
   position: absolute;
@@ -208,7 +206,6 @@ p {
   to { width: 40%; left: 30%; }
 }
 
-/* Motif de points subtil pour les espaces dashboards */
 .bg-dots {
   background-color: var(--color-gray-100);
   background-image: radial-gradient(
@@ -233,23 +230,21 @@ p {
   text-underline-offset: 3px;
 }
 
-/* Mobile: paddings réduits */
 @media (max-width: 768px) {
   .container-kop {
     padding-inline: 1.25rem;
   }
 }
 
-/* Respect strict 360px layouts */
+
 @media (max-width: 380px) {
   .container-kop {
     padding-inline: 0.875rem;
   }
 }
 
-/* Subtle paper sections */
 .bg-kop-mint {
-  background: #CDD8D3;
+  background: #dfe7e3;
 }
 
 .bg-kop-cream {

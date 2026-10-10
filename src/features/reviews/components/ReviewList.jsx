@@ -5,6 +5,7 @@ import { Pagination } from '@/shared/components/ui/Pagination.jsx';
 import { StarRating } from '@/shared/components/ui/StarRating.jsx';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { Button } from '@/shared/components/ui/Button.jsx';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { formatDateFr, fullNameInitials } from '@/shared/utils';
 
 const PAGE_SIZE = 10;
@@ -16,15 +17,23 @@ function Author({ review }) {
   const name = review.client?.displayName || fullNameInitials(first, last) || 'Client';
   return (
     <div className="flex items-center gap-2.5">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mint-100 text-xs font-bold text-primary-700 ring-1 ring-mint-200">
-        {fullNameInitials(first, last).slice(0, 2) || '??'}
-      </span>
+      <UserAvatar
+        user={{
+          firstName: first,
+          lastName: last,
+          displayName: review.client?.displayName,
+          avatarUrl: review.client?.avatarUrl,
+        }}
+        name={name}
+        className="h-8 w-8"
+        fallbackClassName="bg-mint-100 text-primary-700 ring-1 ring-mint-200"
+      />
       <p className="text-sm font-bold text-gray-900 leading-5">{name}</p>
     </div>
   );
 }
 
-export function ReviewList({ professionalId, compact }) {
+export function ReviewList({ professionalId, compact, onViewAll }) {
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,16 +94,21 @@ export function ReviewList({ professionalId, compact }) {
                 </div>
               </div>
               {r.comment && (
-                <p className="mt-2 text-sm leading-6 text-gray-700 whitespace-pre-wrap">
+                <p className="mt-2 line-clamp-3 text-sm leading-6 text-gray-700">
                   {r.comment}
                 </p>
               )}
             </article>
           ))}
         </div>
-        {total > COMPACT_COUNT && (
+        {total > COMPACT_COUNT && onViewAll && (
           <div className="mt-3">
-            <Button variant="ghost" size="sm" className="!text-primary-700 !font-bold !pl-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="!text-primary-700 !font-bold !pl-0"
+              onClick={onViewAll}
+            >
               Voir les {total} avis <ChevronRight size={14} className="inline" aria-hidden />
             </Button>
           </div>
@@ -107,7 +121,7 @@ export function ReviewList({ professionalId, compact }) {
     <div className="space-y-4">
       <ul className="space-y-3">
         {items.map((r) => (
-          <li key={r.id} className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm">
+          <li key={r.id} className="rounded-md border border-gray-200 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <Author review={r} />
               <div className="flex items-center gap-2">
@@ -116,7 +130,7 @@ export function ReviewList({ professionalId, compact }) {
               </div>
             </div>
             {r.comment && (
-              <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-gray-700">
+              <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-[15px] leading-7 text-gray-700">
                 {r.comment}
               </p>
             )}

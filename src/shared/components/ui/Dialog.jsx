@@ -1,9 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useState, isValidElement, cloneElement } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/shared/utils';
 
 export function Dialog({ open, onOpenChange, children }) {
+  const [render, setRender] = useState(open);
+  const [show, setShow] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRender(true);
+      requestAnimationFrame(() => setShow(true));
+    } else {
+      setShow(false);
+      const timer = setTimeout(() => setRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -18,13 +33,27 @@ export function Dialog({ open, onOpenChange, children }) {
     };
   }, [open, onOpenChange]);
 
-  if (!open || typeof document === 'undefined') return null;
+  if (!render || typeof document === 'undefined') return null;
+
+  let body = children;
+  if (isValidElement(children))
+    body = cloneElement(children, {
+      className: cn(
+        children.props.className,
+        'transition-opacity duration-300',
+        show ? 'opacity-100' : 'opacity-0',
+      ),
+    });
+
   return createPortal(
     <div
-      className="fixed inset-0 z-90 flex items-end justify-center bg-checkers backdrop-blur p-0 animate-fade-in sm:items-center sm:p-2"
+      className={cn(
+        'fixed inset-0 z-90 flex items-end justify-center bg-checkers backdrop-blur p-0 sm:items-center sm:p-2 transition-opacity duration-300',
+        show ? 'opacity-100' : 'opacity-0',
+      )}
       onClick={() => onOpenChange?.(false)}
     >
-      {children}
+      {body}
     </div>,
     document.body,
   );
@@ -36,7 +65,7 @@ export function DialogContent({ className, children, onClose }) {
       role="dialog"
       aria-modal="true"
       className={cn(
-        'relative w-full rounded-t-3xl bg-white p-2 shadow-(--shadow-pop) animate-scale-in sm:rounded-3xl',
+        'relative w-full rounded-t-3xl bg-white p-2 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-(--shadow-pop) animate-scale-in sm:rounded-3xl',
         className,
       )}
       onClick={(e) => e.stopPropagation()}

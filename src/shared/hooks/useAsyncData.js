@@ -5,7 +5,9 @@ export function useAsyncData(loader, deps = []) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const loaderRef = useRef(loader);
-  loaderRef.current = loader;
+  useEffect(() => {
+    loaderRef.current = loader;
+  }, [loader]);
 
   const load = async () => {
     setLoading(true);
@@ -24,9 +26,11 @@ export function useAsyncData(loader, deps = []) {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load().catch(() => {
-      
+
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
   return { data, loading, error, reload: load };

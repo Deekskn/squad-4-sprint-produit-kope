@@ -22,12 +22,12 @@ function fallbackPortrait(seed, prompt) {
 }
 
 function coverImage(item) {
-  return item.image || item.coverUrl || item.photoUrl || item.avatarUrl || fallbackPortrait(item.id, item.featuredPrompt);
+  return item.avatarUrl || item.image || item.coverUrl || item.photoUrl || fallbackPortrait(item.id, item.featuredPrompt);
 }
 
 function Availability({ isAvailable }) {
   if (isAvailable === false) return <Badge variant="warning">Indisponible</Badge>;
-  return <Badge variant="neutral">Disponible</Badge>;
+  return <Badge variant="success">Disponible</Badge>;
 }
 
 export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
@@ -83,9 +83,9 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
   return (
     <li>
       <Card className={cn(
-        'group flex h-full flex-col sm:flex-row overflow-hidden gap-0 !rounded-[28px] !border-gray-200 hover:!border-primary-200 hover:shadow-[0_14px_36px_-20px_rgba(45,92,74,0.3)] transition',
+        'group flex h-full flex-col overflow-hidden gap-0 border border-gray-200 bg-white transition hover:border-primary-200 sm:flex-row',
       )}>
-        <div className="relative block sm:w-[200px] shrink-0 aspect-[5/4] sm:aspect-auto overflow-hidden bg-gray-100">
+        <div className="relative block aspect-[3/3.5] w-full shrink-0 overflow-hidden bg-gray-100 sm:h-auto sm:w-[170px]">
           <img
             src={imgSrc}
             alt={item.displayName}
@@ -98,10 +98,10 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
             </div>
           )}
         </div>
-        <div className="flex-1 flex flex-col p-5 sm:p-6 gap-3">
+        <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-1.5 min-w-0">
-              <div className="text-xl font-extrabold tracking-tight text-gray-900 -ml-1 pl-1">
+            <div className="min-w-0 space-y-1.5">
+              <div className="text-[20px] font-extrabold tracking-tight text-gray-900">
                 {item.displayName}
               </div>
               <p className="text-sm text-gray-700">
@@ -122,15 +122,13 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
                 )}
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <Availability isAvailable={item.isAvailable} />
-            </div>
           </div>
 
-          <div className="mt-auto flex flex-wrap items-center justify-end gap-3 pt-2">
+          <div className="mt-auto flex items-center justify-between pt-1">
+            <Availability isAvailable={item.isAvailable} />
             <Link
               to={ROUTES.PROFESSIONAL(item.id)}
-              className="inline-flex items-center justify-center rounded-[14px] border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-900 shadow-sm hover:bg-gray-50 transition"
+              className="inline-flex items-center justify-center rounded-[10px] border border-[#dfe5e2] bg-[#f5f7f6] px-4 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-white"
             >
               Afficher le profil
             </Link>

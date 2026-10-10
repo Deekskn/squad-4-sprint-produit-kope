@@ -62,7 +62,7 @@ export function BecomeProForm({ bare = false } = {}) {
   };
 
   return (
-    <Card className={bare ? 'p-6 border-0 shadow-none' : 'p-6 sm:p-8'}>
+    <Card className={bare ? 'p-5 border-0 shadow-none' : 'p-6 sm:p-8'}>
       <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Faites connaître votre métier.</h1>
       <p className="mt-1 text-sm text-gray-500">
         Commencez par l'essentiel. Vous compléterez votre profil ensuite.
