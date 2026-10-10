@@ -70,11 +70,10 @@ export function NotificationProvider({ children }) {
   );
 }
 
+// Le Provider et son hook vivent ensemble : c'est le pattern React advocated.
 // eslint-disable-next-line react-refresh/only-export-components
 export function useNotification() {
   const ctx = useContext(NotificationContext);
   if (!ctx) throw new Error('useNotification must be used inside <NotificationProvider>');
   return ctx;
 }
-
-export default NotificationContext;

@@ -40,11 +40,3 @@ export function useReferenceData() {
 
   return { trades, zones, loading, error, reload };
 }
-
-export function useTrades() {
-  return useReferenceData().trades;
-}
-
-export function useZones() {
-  return useReferenceData().zones;
-}

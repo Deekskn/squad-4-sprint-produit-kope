@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Check, Flag, X } from 'lucide-react';
 import {
@@ -6,13 +6,15 @@ import {
   CustomSelect,
   SearchInput,
   Pagination,
-  Modal,
   DataState,
   Tooltip,
   UserAvatar,
 } from '@/shared/components/ui';
 import { AdminFilterGroup, AdminFilterPanel, AdminSectionLayout } from './AdminSectionLayout.jsx';
+import { AdminConfirmModal } from './AdminConfirmModal.jsx';
 import { useAdminPage } from '../hooks/useAdminPage.js';
+import { useAdminFilters } from '../hooks/useAdminFilters.js';
+import { useAdminList } from '../hooks/useAdminList.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listReports, setReportStatus, setUserBlocked, setUserSuspended } from '../services/admin.service.js';
@@ -83,33 +85,17 @@ export function AdminReportsTable({ rightContainer = null }) {
   const { user: currentUser } = useAuthContext();
   const { toast } = useNotification();
   const [page, changePage, setPage] = useAdminPage();
-  const [query, setQuery] = useState('');
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const [unblock, setUnblock] = useState(null);
   const [unsuspend, setUnsuspend] = useState(null);
   const [saving, setSaving] = useState(false);
+  const { draft, applied, dirty, set, submit, reset } = useAdminFilters({ query: '', status: '' });
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setData(await listReports({ page, pageSize: PAGE_SIZE, status: status || undefined, query: search }));
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, status, search]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
+  const fetchList = useCallback(
+    () => listReports({ page, pageSize: PAGE_SIZE, status: applied.status || undefined, query: applied.query }),
+    [page, applied.status, applied.query],
+  );
+  const { data, loading, error, reload } = useAdminList(fetchList);
 
   const apply = async () => {
     if (!confirm) return;
@@ -120,7 +106,7 @@ export function AdminReportsTable({ rightContainer = null }) {
         type: 'success',
       });
       setConfirm(null);
-      load();
+      reload();
     } catch (err) {
       toast({ message: err?.message || 'Erreur.', type: 'error' });
     }
@@ -133,7 +119,7 @@ export function AdminReportsTable({ rightContainer = null }) {
       await setUserBlocked(currentUser?.id, unblock.id, false);
       toast({ message: 'Compte débloqué.', type: 'success' });
       setUnblock(null);
-      load();
+      reload();
     } catch (err) {
       toast({ message: err?.message || 'Erreur.', type: 'error' });
     } finally {
@@ -148,7 +134,7 @@ export function AdminReportsTable({ rightContainer = null }) {
       await setUserSuspended(currentUser?.id, unsuspend.id, false);
       toast({ message: 'Suspension levée, le compte est à nouveau actif.', type: 'success' });
       setUnsuspend(null);
-      load();
+      reload();
     } catch (err) {
       toast({ message: err?.message || 'Erreur.', type: 'error' });
     } finally {
@@ -156,31 +142,27 @@ export function AdminReportsTable({ rightContainer = null }) {
     }
   };
 
-  const submitSearch = (e) => {
-    e.preventDefault();
+  const applyFilters = () => {
     setPage(1);
-    setSearch(query.trim());
+    submit();
   };
 
   const resetFilters = () => {
-    setQuery('');
-    setSearch('');
-    setStatus('');
+    reset();
     setPage(1);
   };
 
   const total = Number(data?.total || 0);
-  const dirty = Boolean(query || search || status);
 
   const renderFilters = (searchId) => (
     <AdminFilterPanel dirty={dirty} onReset={resetFilters}>
-      <form onSubmit={submitSearch} className="divide-y divide-gray-100">
+      <form onSubmit={applyFilters} className="divide-y divide-gray-100">
         <AdminFilterGroup title="Recherche">
           <SearchInput
             id={searchId}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onClear={() => setQuery('')}
+            value={draft.query}
+            onChange={(e) => set('query', e.target.value)}
+            onClear={() => set('query', '')}
             placeholder="Professionnel, auteur ou contenu..."
             aria-label="Rechercher un signalement"
           />
@@ -188,9 +170,9 @@ export function AdminReportsTable({ rightContainer = null }) {
 
         <AdminFilterGroup title="Statut">
           <CustomSelect
-            value={status}
+            value={draft.status}
             onChange={(v) => {
-              setStatus(v);
+              set('status', v, { immediate: true });
               setPage(1);
             }}
             options={REPORT_STATUS_OPTIONS}
@@ -311,79 +293,50 @@ export function AdminReportsTable({ rightContainer = null }) {
     <AdminSectionLayout
       rightContainer={rightContainer}
       total={total}
-      noun="Signalements"
+      noun="Signalement"
+      nounPlural="Signalements"
       dirty={dirty}
       filters={renderFilters}
       searchId="rep-search"
     >
       {list}
 
-      <Modal
-        open={!!confirm}
-        onClose={() => setConfirm(null)}
+      <AdminConfirmModal
+        open={Boolean(confirm)}
+        onCancel={() => setConfirm(null)}
+        onConfirm={apply}
+        danger={confirm?.action === 'dismiss'}
         title={confirm?.action === 'resolve' ? 'Marquer ce signalement comme traité ?' : 'Rejeter ce signalement ?'}
         description={
-          confirm
-            ? confirm.action === 'resolve'
-              ? 'Le signalement sera archivé et retiré de la file en attente.'
-              : 'Le signalement sera rejeté. Le profil ne sera pas sanctionné.'
-            : ''
+          confirm?.action === 'resolve'
+            ? 'Le signalement sera archivé et retiré de la file en attente.'
+            : 'Le signalement sera rejeté. Le profil ne sera pas sanctionné.'
         }
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setConfirm(null)}>
-              Annuler
-            </Button>
-            <Button variant={confirm?.action === 'resolve' ? 'primary' : 'danger'} onClick={apply}>
-              {confirm?.action === 'resolve' ? 'Marquer traité' : 'Rejeter'}
-            </Button>
-          </>
-        }
+        confirmLabel={confirm?.action === 'resolve' ? 'Marquer traité' : 'Rejeter'}
       />
 
-      <Modal
+      <AdminConfirmModal
         open={Boolean(unblock)}
-        onClose={() => !saving && setUnblock(null)}
-        dismissable={!saving}
+        onCancel={() => setUnblock(null)}
+        onConfirm={applyUnblock}
+        saving={saving}
         title="Débloquer ce compte ?"
-        description={
-          unblock
-            ? `${unblock.name} pourra de nouveau se connecter. Les signalements resteront visibles.`
-            : ''
-        }
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setUnblock(null)} disabled={saving}>
-              Annuler
-            </Button>
-            <Button variant="primary" onClick={applyUnblock} loading={saving}>
-              Débloquer
-            </Button>
-          </>
-        }
+        description={unblock ? `${unblock.name} pourra de nouveau se connecter. Les signalements resteront visibles.` : ''}
+        confirmLabel="Débloquer"
       />
 
-      <Modal
+      <AdminConfirmModal
         open={Boolean(unsuspend)}
-        onClose={() => !saving && setUnsuspend(null)}
-        dismissable={!saving}
+        onCancel={() => setUnsuspend(null)}
+        onConfirm={applyUnsuspend}
+        saving={saving}
         title="Lever la suspension ?"
         description={
           unsuspend
             ? `${unsuspend.name} pourra de nouveau se connecter et réapparaîtra dans l'annuaire public.`
             : ''
         }
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setUnsuspend(null)} disabled={saving}>
-              Annuler
-            </Button>
-            <Button variant="primary" onClick={applyUnsuspend} loading={saving}>
-              Lever la suspension
-            </Button>
-          </>
-        }
+        confirmLabel="Lever la suspension"
       />
-    </AdminSectionLayout>
-  );
+    </AdminSectionLayout>  );
 }

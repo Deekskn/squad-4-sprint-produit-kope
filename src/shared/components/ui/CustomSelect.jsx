@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/shared/utils';
+import { toOption, useListboxNavigation, useScrollActiveIntoView } from './listbox.js';
 
 const SIZES = {
   sm: 'h-9 text-[13px]',
@@ -11,10 +12,6 @@ const SIZES = {
 const MARGIN = 8;
 const MENU_MAX_HEIGHT = 320;
 const MENU_FADE_MS = 150;
-
-function toOption(raw) {
-  return typeof raw === 'string' ? { value: raw, label: raw } : raw;
-}
 
 
 export function CustomSelect({
@@ -33,6 +30,7 @@ export function CustomSelect({
 }) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   // `mounted` garde le menu dans le DOM pendant la fermeture pour pouvoir
   // jouer l'animation de sortie ; `shown` pilote opacité et translation.
   const [mounted, setMounted] = useState(false);
@@ -41,7 +39,36 @@ export function CustomSelect({
   const menuRef = useRef(null);
   const generatedId = useId();
   const triggerId = id || generatedId;
-  const selected = options.map(toOption).find((o) => String(o.value) === String(value));
+  const normalizedOptions = options.map(toOption);
+  const selected = normalizedOptions.find((o) => String(o.value) === String(value));
+  const menuId = `${triggerId}-list`;
+
+  useScrollActiveIntoView({
+    open,
+    activeIndex,
+    optionId: `${triggerId}-opt-${activeIndex}`,
+  });
+
+  const close = useCallback(() => setOpen(false), []);
+
+  const handleSelect = (next) => {
+    onChange?.(next);
+    setOpen(false);
+  };
+
+  const onKeyDown = useListboxNavigation({
+    open,
+    itemCount: normalizedOptions.length,
+    activeIndex,
+    setActiveIndex,
+    onOpen: () => setOpen(true),
+    onClose: close,
+    onSelect: (index) => {
+      const option = normalizedOptions[index];
+      if (option) handleSelect(option.value);
+    },
+    disabled,
+  });
 
   const measure = useCallback(() => {
     const node = rootRef.current;
@@ -120,15 +147,11 @@ export function CustomSelect({
     };
   }, [open]);
 
-  const handleSelect = (next) => {
-    onChange?.(next);
-    setOpen(false);
-  };
-
   const menu =
     mounted && coords && typeof document !== 'undefined'      ? createPortal(
           <div
             ref={menuRef}
+            id={menuId}
             role="listbox"
             aria-labelledby={triggerId}
             style={{
@@ -147,22 +170,25 @@ export function CustomSelect({
               menuClassName,
             )}
           >
-            {options.length === 0 ? (
+            {normalizedOptions.length === 0 ? (
               <p className="px-2 py-1.5 text-sm text-gray-500">Aucune option</p>
             ) : (
-              options.map((raw) => {
-                const o = toOption(raw);
+              normalizedOptions.map((o, index) => {
                 const isSel = String(o.value) === String(value);
                 return (
                   <button
                     key={o.value}
+                    id={`${triggerId}-opt-${index}`}
                     type="button"
                     role="option"
                     aria-selected={isSel}
+                    onMouseMove={() => setActiveIndex(index)}
                     onClick={() => handleSelect(o.value)}
                     className={cn(
                       'flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-2 text-left text-[14px] transition-colors',
-                      isSel ? 'bg-mint-50 text-primary-700' : 'text-gray-700 hover:bg-gray-100',
+                      index === activeIndex && !isSel && 'bg-gray-100',
+                      isSel && 'bg-mint-50 text-primary-700',
+                      index !== activeIndex && !isSel && 'text-gray-700 hover:bg-gray-100',
                     )}
                   >
                     <Check className={cn('h-4 w-4 shrink-0', isSel ? 'opacity-100' : 'opacity-0')} />
@@ -182,12 +208,16 @@ export function CustomSelect({
         <button
           type="button"
           id={triggerId}
+          role="combobox"
           disabled={disabled}
           aria-haspopup="listbox"
           aria-expanded={open}
+          aria-controls={menuId}
+          aria-activedescendant={open && normalizedOptions.length ? `${triggerId}-opt-${activeIndex}` : undefined}
           aria-label={typeof ariaLabel === 'string' ? ariaLabel : undefined}
           {...rest}
           onClick={() => !disabled && setOpen((o) => !o)}
+          onKeyDown={onKeyDown}
           className={cn(
             'relative flex w-full items-center justify-between gap-2 rounded-sm border border-gray-200 bg-white px-3 text-left text-gray-900 transition-colors hover:border-gray-300 focus-ring disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400',
             SIZES[size] || SIZES.md,

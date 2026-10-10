@@ -1,11 +1,10 @@
 import { api } from '@/shared/lib/api.js';
 import { callApi } from '@/shared/lib/dataSource.js';
 import { getDemoUser, setDemoUser } from '@/shared/mocks/appMock.js';
-import { setTokens, clearTokens, getRefreshToken, getAccessToken } from '@/shared/lib/authTokens.js';
 
 export function registerClient(payload) {
   return callApi(
-    () => api.postJson('/auth/register/client', payload).then((r) => { setTokens(r); return r?.user; }),
+    () => api.postJson('/auth/register/client', payload).then((r) => r?.user),
     async () => {
       const user = {
         id: Date.now() % 100000,
@@ -22,7 +21,7 @@ export function registerClient(payload) {
 
 export function registerProfessional(payload) {
   return callApi(
-    () => api.postJson('/auth/register/professional', payload).then((r) => { setTokens(r); return r?.user; }),
+    () => api.postJson('/auth/register/professional', payload).then((r) => r?.user),
     async () => {
       const user = {
         id: Date.now() % 100000,
@@ -38,7 +37,7 @@ export function registerProfessional(payload) {
 
 export function login(payload) {
   return callApi(
-    () => api.postJson('/auth/login', payload).then((r) => { setTokens(r); return r?.user; }),
+    () => api.postJson('/auth/login', payload).then((r) => r?.user),
     async () => {
       const user = {
         id: Date.now() % 100000,
@@ -56,15 +55,15 @@ export function login(payload) {
 export function logout() {
   return callApi(
     async () => {
+      // Le serveur détruit la session côté serveur et efface le cookie httpOnly.
       try {
-        await api.postJson('/auth/logout', { refreshToken: getRefreshToken() });
+        await api.postJson('/auth/logout', {});
       } finally {
-        clearTokens();
         setDemoUser(null);
       }
       return {};
     },
-    async () => { clearTokens(); setDemoUser(null);
+    async () => { setDemoUser(null);
       return {};
     },
   );
@@ -72,18 +71,17 @@ export function logout() {
 
 export function getCurrentUser() {
   const demoUser = getDemoUser();
-  if (demoUser && !getAccessToken()) 
-    return Promise.resolve(demoUser);
-  
+  if (demoUser) return Promise.resolve(demoUser);
+
   return callApi(
-    () => api.get('/auth/me').then((r) => { setTokens(r); return r?.user; }),
+    () => api.get('/auth/me').then((r) => r?.user),
     async () => getDemoUser(),
   );
 }
 
 export function becomeProfessional(payload) {
   return callApi(
-    () => api.postJson('/auth/become-professional', payload).then((r) => { setTokens(r); return r?.user; }),
+    () => api.postJson('/auth/become-professional', payload).then((r) => r?.user),
     async () => {
       const user = {
         ...(getDemoUser() || { id: Date.now() % 100000 }),
@@ -123,8 +121,6 @@ export function uploadAvatar(file, onProgress) {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/auth/avatar');
         xhr.withCredentials = true;
-        const token = getAccessToken();
-        if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable && onProgress) 
             onProgress(Math.round((e.loaded / e.total) * 100));
@@ -157,14 +153,3 @@ export function uploadAvatar(file, onProgress) {
     },
   );
 }
-
-export default {
-  registerClient,
-  registerProfessional,
-  login,
-  logout,
-  getCurrentUser,
-  becomeProfessional,
-  updateAccount,
-  changePassword,
-};

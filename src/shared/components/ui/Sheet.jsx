@@ -1,37 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/shared/utils';
+import { useOverlay } from './useOverlay.js';
 
 export function Sheet({ open, onOpenChange, side = 'right', children }) {
-  const [render, setRender] = useState(open);
-  const [show, setShow] = useState(open);
+  const innerRef = useRef(null);
+  const { render, show, panelRef } = useOverlay({
+    open,
+    onClose: () => onOpenChange?.(false),
+  });
 
-  useEffect(() => {
-    if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRender(true);
-      requestAnimationFrame(() => setShow(true));
-    } else {
-      setShow(false);
-      const timer = setTimeout(() => setRender(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => {
-      if (e.key === 'Escape') onOpenChange?.(false);
-    };
-    document.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [open, onOpenChange]);
+  // Le hook expose une ref unique : on la relaie vers le panneau rendu.
+  const setRefs = (node) => {
+    panelRef.current = node;
+    innerRef.current = node;
+  };
 
   if (!render || typeof document === 'undefined') return null;
   return createPortal(
@@ -43,6 +27,7 @@ export function Sheet({ open, onOpenChange, side = 'right', children }) {
       onClick={() => onOpenChange?.(false)}
     >
       <div
+        ref={setRefs}
         role="dialog"
         aria-modal="true"
         className={cn(

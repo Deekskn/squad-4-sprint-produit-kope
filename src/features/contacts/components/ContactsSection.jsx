@@ -2,7 +2,7 @@ import { Phone, Users } from 'lucide-react';
 import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getMyContacts } from '../services/contacts.service.js';
 import { Card } from '@/shared/components/ui/Card.jsx';
-import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { DataState } from '@/shared/components/ui/DataState.jsx';
 import { EmptyState } from '@/shared/components/ui/EmptyState.jsx';
 import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { Badge } from '@/shared/components/ui/Badge.jsx';
@@ -61,7 +61,7 @@ function ContactRow({ contact }) {
 }
 
 export function ContactsSection() {
-  const { data: itemsData, loading } = useAsyncData(async () => {
+  const { data: itemsData, loading, error } = useAsyncData(async () => {
     const data = await getMyContacts();
     return data.items || [];
   }, []);
@@ -70,22 +70,19 @@ export function ContactsSection() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mes contacts</h2>
-      {loading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      ) : items.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title="Aucun contact pour le moment"
-          description="Les clients et les professionnels que vous contactez apparaîtront ici."
-        />
-      ) : (
-        <ul className="space-y-3">
-          {items.map((c) => <ContactRow key={c.id} contact={c} />)}
-        </ul>
-      )}
+      <DataState loading={loading} error={error} errorPrefix="Impossible de charger vos contacts">
+        {items.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title="Aucun contact pour le moment"
+            description="Les clients et les professionnels que vous contactez apparaîtront ici."
+          />
+        ) : (
+          <ul className="space-y-3">
+            {items.map((c) => <ContactRow key={c.id} contact={c} />)}
+          </ul>
+        )}
+      </DataState>
     </div>
   );
 }

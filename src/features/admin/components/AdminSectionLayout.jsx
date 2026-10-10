@@ -46,38 +46,40 @@ export function AdminSectionLayout({
   rightContainer = null,
   total = 0,
   noun,
+  nounPlural,
   dirty = false,
   filters,
   searchId = 'admin-search',
   children,
 }) {
   const [open, setOpen] = useState(false);
-  const panel = filters(searchId);
+  const label = total > 1 && nounPlural ? nounPlural : noun;
 
   return (
     <div className="space-y-4">
       <div className="-mt-3 flex items-center justify-between gap-3">
-        <p className="text-sm text-gray-500">
-          {total} {noun}
-          {total > 1 ? 's' : ''}
+        <p className="text-sm text-gray-500" aria-live="polite">
+          {total} {label}
         </p>
         <Button variant="secondary" size="sm" className="lg:hidden" onClick={() => setOpen(true)}>
           <SlidersHorizontal className="h-4 w-4" />
           Filtres
-          {dirty && <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />}
+          {dirty && (
+            <span className="h-1.5 w-1.5 rounded-full bg-primary-500" aria-label="Filtres actifs" />
+          )}
         </Button>
       </div>
 
+      {/* `children` est toujours dans la même position du DOM : le passage de
+          `rightContainer` de null à l'élément réel ne le démonte donc plus,
+          ce qui déclenchait un second appel API. */}
+      <div className="min-w-0">{children}</div>
       {rightContainer ? (
-        <>
-          <div className="min-w-0">{children}</div>
-          {createPortal(panel, rightContainer)}
-        </>
+        createPortal(filters(searchId), rightContainer)
       ) : (
-        <div className="lg:flex lg:items-start lg:gap-6">
-          <div className="min-w-0 flex-1">{children}</div>
-          <aside className="hidden lg:block lg:w-72 lg:shrink-0 lg:sticky lg:top-23">{panel}</aside>
-        </div>
+        <aside className="hidden lg:block lg:w-72 lg:shrink-0 lg:sticky lg:top-23">
+          {filters(searchId)}
+        </aside>
       )}
 
       <Sheet open={open} onOpenChange={setOpen} side="right">

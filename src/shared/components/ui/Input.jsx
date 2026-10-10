@@ -12,7 +12,9 @@ export function Input({ className, error, id, type = 'text', ...rest }) {
       aria-describedby={error ? `${id}-error` : undefined}
       className={cn(
         BASE,
-        error ? 'border-danger-500 focus:border-danger-500 bg-danger-50/30' : 'border-gray-200 focus:border-primary-500 bg-white hover:border-gray-300',
+        error
+          ? 'is-invalid border-danger-500 focus:border-danger-500 bg-danger-50/30'
+          : 'border-gray-200 focus:border-primary-500 bg-white hover:border-gray-300',
         className,
       )}
       {...rest}

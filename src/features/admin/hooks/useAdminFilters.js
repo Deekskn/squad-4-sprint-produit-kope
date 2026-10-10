@@ -1,0 +1,30 @@
+import { useState } from 'react';
+
+/**
+ * Filtres d'un tableau admin : brouillon (saisie) et valeurs appliquées à la requête.
+ * Toute modification du brouillon renvoie à la page 1.
+ */
+export function useAdminFilters(initial = {}) {
+  const [draft, setDraft] = useState(initial);
+  const [applied, setApplied] = useState(initial);
+
+  const dirty = Object.keys(initial).some((key) => String(draft[key] ?? '') !== String(initial[key] ?? ''));
+
+  /** Met à jour le brouillon ; `immediate` applique aussi (sélecteurs). */
+  const set = (key, value, { immediate = false } = {}) => {
+    setDraft((prev) => ({ ...prev, [key]: value }));
+    if (immediate) setApplied((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const submit = (event) => {
+    event?.preventDefault();
+    setApplied({ ...draft });
+  };
+
+  const reset = () => {
+    setDraft(initial);
+    setApplied(initial);
+  };
+
+  return { draft, applied, dirty, set, submit, reset };
+}

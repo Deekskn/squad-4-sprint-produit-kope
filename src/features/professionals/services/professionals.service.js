@@ -83,5 +83,3 @@ export function reportProfessional(id, payload) {
     async () => mockReportProfessional({ professionalId: id, ...payload }),
   );
 }
-
-export default { getMyProfile, updateMyProfile, setAvailability, getPublishedDetail, canReview, reportProfessional };

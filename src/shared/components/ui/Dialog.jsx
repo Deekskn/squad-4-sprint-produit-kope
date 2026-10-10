@@ -1,43 +1,18 @@
-import { useEffect, useState, isValidElement, cloneElement } from 'react';
+import { isValidElement, cloneElement } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/shared/utils';
+import { useOverlay } from './useOverlay.js';
 
 export function Dialog({ open, onOpenChange, children }) {
-  const [render, setRender] = useState(open);
-  const [show, setShow] = useState(open);
-
-  useEffect(() => {
-    if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRender(true);
-      requestAnimationFrame(() => setShow(true));
-    } else {
-      setShow(false);
-      const timer = setTimeout(() => setRender(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => {
-      if (e.key === 'Escape') onOpenChange?.(false);
-    };
-    document.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [open, onOpenChange]);
+  const { render, show, panelRef } = useOverlay({ open, onClose: () => onOpenChange?.(false) });
 
   if (!render || typeof document === 'undefined') return null;
 
   let body = children;
   if (isValidElement(children))
     body = cloneElement(children, {
+      ref: panelRef,
       className: cn(
         children.props.className,
         'transition-opacity duration-300',
@@ -59,9 +34,10 @@ export function Dialog({ open, onOpenChange, children }) {
   );
 }
 
-export function DialogContent({ className, children, onClose }) {
+export function DialogContent({ className, children, onClose, ref: forwardedRef }) {
   return (
     <div
+      ref={forwardedRef}
       role="dialog"
       aria-modal="true"
       className={cn(

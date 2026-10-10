@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Ban, Calendar, Check, Phone, Plus, ShieldCheck, UserPlus, X } from 'lucide-react';
 import {
@@ -10,14 +10,16 @@ import {
   DataState,
   UserAvatar,
   Tooltip,
-  Modal,
 } from '@/shared/components/ui';
 import {
   AdminFilterGroup,
   AdminFilterPanel,
   AdminSectionLayout,
 } from './AdminSectionLayout.jsx';
+import { AdminConfirmModal } from './AdminConfirmModal.jsx';
 import { useAdminPage } from '../hooks/useAdminPage.js';
+import { useAdminFilters } from '../hooks/useAdminFilters.js';
+import { useAdminList } from '../hooks/useAdminList.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { createAdmin, listUsers, setUserBlocked } from '../services/admin.service.js';
@@ -51,50 +53,30 @@ export function AdminUsersTable({ rightContainer = null }) {
   const { user: currentUser } = useAuthContext();
   const { toast } = useNotification();
   const [page, changePage, setPage] = useAdminPage();
-  const [role, setRole] = useState('');
-  const [query, setQuery] = useState('');
-  const [search, setSearch] = useState('');
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { draft, applied, dirty, set, submit, reset } = useAdminFilters({ query: '', role: '' });
 
   const [confirm, setConfirm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(null);
   const [formError, setFormError] = useState('');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setData(await listUsers({ page, pageSize: PAGE_SIZE, role, query: search }));
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, role, search]);
+  const fetchList = useCallback(
+    () => listUsers({ page, pageSize: PAGE_SIZE, role: applied.role, query: applied.query }),
+    [page, applied.role, applied.query],
+  );
+  const { data, loading, error, reload } = useAdminList(fetchList);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
-
-  const submitSearch = (e) => {
-    e.preventDefault();
+  const applyFilters = () => {
     setPage(1);
-    setSearch(query.trim());
+    submit();
   };
 
   const resetFilters = () => {
-    setQuery('');
-    setSearch('');
-    setRole('');
+    reset();
     setPage(1);
   };
 
   const total = Number(data?.total || 0);
-  const dirty = Boolean(query || search || role);
 
   const applyBlock = async () => {
     if (!confirm) return;
@@ -106,7 +88,7 @@ export function AdminUsersTable({ rightContainer = null }) {
         type: 'success',
       });
       setConfirm(null);
-      load();
+      reload();
     } catch (err) {
       toast({ message: err?.message || 'Erreur.', type: 'error' });
     } finally {
@@ -136,7 +118,7 @@ export function AdminUsersTable({ rightContainer = null }) {
       });
       toast({ message: 'Administrateur créé.', type: 'success' });
       setCreating(null);
-      load();
+      reload();
     } catch (err) {
       setFormError(err?.message || 'Erreur.');
     } finally {
@@ -146,13 +128,13 @@ export function AdminUsersTable({ rightContainer = null }) {
 
   const renderFilters = (searchId) => (
     <AdminFilterPanel dirty={dirty} onReset={resetFilters}>
-      <form onSubmit={submitSearch} className="divide-y divide-gray-100">
+      <form onSubmit={applyFilters} className="divide-y divide-gray-100">
         <AdminFilterGroup title="Recherche">
           <SearchInput
             id={searchId}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onClear={() => setQuery('')}
+            value={draft.query}
+            onChange={(e) => set('query', e.target.value)}
+            onClear={() => set('query', '')}
             placeholder="Nom ou téléphone..."
             aria-label="Rechercher un utilisateur"
           />
@@ -160,9 +142,9 @@ export function AdminUsersTable({ rightContainer = null }) {
 
         <AdminFilterGroup title="Rôle">
           <CustomSelect
-            value={role}
+            value={draft.role}
             onChange={(v) => {
-              setRole(v);
+              set('role', v, { immediate: true });
               setPage(1);
             }}
             options={ROLE_OPTIONS}
@@ -376,26 +358,19 @@ export function AdminUsersTable({ rightContainer = null }) {
     >
       {list}
 
-      <Modal
+      <AdminConfirmModal
         open={Boolean(confirm)}
-        onClose={() => !saving && setConfirm(null)}
-        dismissable={!saving}
+        onCancel={() => setConfirm(null)}
+        onConfirm={applyBlock}
+        saving={saving}
+        danger={confirm?.blocked}
         title={confirm?.blocked ? 'Bloquer cet utilisateur ?' : 'Débloquer cet utilisateur ?'}
         description={
           confirm?.blocked
             ? 'Son compte ne pourra plus se connecter et ses sessions seront fermées immédiatement.'
             : 'L’utilisateur pourra de nouveau se connecter à la plateforme.'
         }
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setConfirm(null)} disabled={saving}>
-              Annuler
-            </Button>
-            <Button variant={confirm?.blocked ? 'danger' : 'primary'} onClick={applyBlock} loading={saving}>
-              {confirm?.blocked ? 'Bloquer' : 'Débloquer'}
-            </Button>
-          </>
-        }
+        confirmLabel={confirm?.blocked ? 'Bloquer' : 'Débloquer'}
       />
     </AdminSectionLayout>
   );

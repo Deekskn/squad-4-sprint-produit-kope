@@ -129,5 +129,3 @@ export function useSearch({ trade, zone, q, available, minRating, minExperience,
 
   return { results, loading, error, refresh: run };
 }
-
-export default { searchProfessionals, useSearch };

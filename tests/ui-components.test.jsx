@@ -1,50 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { User, Star } from 'lucide-react';
-import { Select } from '../src/shared/components/ui/Select.jsx';
-import { Table, TableRow, TableEmpty } from '../src/shared/components/ui/Table.jsx';
 import { Skeleton } from '../src/shared/components/ui/Skeleton.jsx';
 import { FloatingCaption } from '../src/shared/components/ui/FloatingCaption.jsx';
 import { BottomNav } from '../src/shared/components/ui/BottomNav.jsx';
 import { Tooltip } from '../src/shared/components/ui/Tooltip.jsx';
-
-describe('Select', () => {
-  it('a une bordure par défaut', () => {
-    const html = renderToStaticMarkup(<Select><option>a</option></Select>);
-    expect(html).toContain('border');
-    expect(html).toContain('bg-white');
-  });
-
-  it('peut retirer la bordure (searchbar home)', () => {
-    const html = renderToStaticMarkup(<Select bordered={false}><option>a</option></Select>);
-    expect(html).toContain('border-0');
-    expect(html).not.toContain('border-gray-200');
-  });
-
-  it('utilise le même rayon que les inputs (rounded-sm)', () => {
-    const html = renderToStaticMarkup(<Select><option>a</option></Select>);
-    expect(html).toContain('rounded-sm');
-  });
-});
-
-describe('Table', () => {
-  it('rend une cellule vide avec colSpan', () => {
-    const html = renderToStaticMarkup(
-      <Table>
-        <tbody>
-          <TableRow>
-            <TableEmpty colSpan={5}>Aucun résultat.</TableEmpty>
-          </TableRow>
-        </tbody>
-      </Table>,
-    );
-    // TableEmpty rend déjà un <tr><td colSpan>, on teste sa sortie directe
-    const empty = renderToStaticMarkup(<table><tbody><TableEmpty colSpan={5}>Vide</TableEmpty></tbody></table>);
-    expect(empty).toMatch(/colspan="5"|colSpan="5"/);
-    expect(empty).toContain('Vide');
-    expect(html).toContain('<table');
-  });
-});
 
 describe('Skeleton', () => {
   it('a l animation pulse', () => {
@@ -92,13 +52,14 @@ describe('BottomNav', () => {
     expect(html).toContain('Mes avis');
   });
 
-  it('marque l onglet actif via aria-selected', () => {
+  it('marque l’entrée active via aria-current, sans rôle tab', () => {
     const html = renderToStaticMarkup(
       <BottomNav items={items} active="avis" onChange={() => {}} />,
     );
-    const parts = html.split('aria-selected=');
-    expect(parts[1]?.startsWith('"false"')).toBe(true);
-    expect(parts[2]?.startsWith('"true"')).toBe(true);
+    // `role="tab"` était invalide : pas de tablist ni de tabpanel.
+    expect(html).not.toContain('role="tab"');
+    expect(html).not.toContain('aria-selected');
+    expect(html.split('aria-current="page"').length - 1).toBe(1);
   });
 });
 

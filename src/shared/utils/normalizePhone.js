@@ -10,7 +10,3 @@ export function normalizePhone(raw) {
   if (!/^0\d{8}$/.test(digits)) return null;
   return `+242${digits}`;
 }
-
-export function isPhoneValid(raw) {
-  return Boolean(normalizePhone(raw));
-}

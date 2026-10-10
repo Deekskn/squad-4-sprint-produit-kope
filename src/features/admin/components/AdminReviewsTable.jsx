@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Calendar, CornerDownRight, Eye, EyeOff } from 'lucide-react';
-import { Button, CustomSelect, SearchInput, Pagination, Modal, StarRating, DataState, Tooltip, UserAvatar } from '@/shared/components/ui';
+import { Button, CustomSelect, SearchInput, Pagination, StarRating, DataState, Tooltip, UserAvatar } from '@/shared/components/ui';
 import {
   AdminFilterGroup,
   AdminFilterPanel,
   AdminSectionLayout,
 } from './AdminSectionLayout.jsx';
+import { AdminConfirmModal } from './AdminConfirmModal.jsx';
 import { useAdminPage } from '../hooks/useAdminPage.js';
+import { useAdminFilters } from '../hooks/useAdminFilters.js';
+import { useAdminList } from '../hooks/useAdminList.js';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listReviews, setReviewHidden } from '../services/admin.service.js';
 import { formatDateFr, fullNameInitials } from '@/shared/utils';
@@ -22,37 +25,20 @@ const VISIBILITY_OPTIONS = [
 export function AdminReviewsTable({ rightContainer = null }) {
   const { toast } = useNotification();
   const [page, changePage, setPage] = useAdminPage();
-  const [query, setQuery] = useState('');
-  const [search, setSearch] = useState('');
-  const [hidden, setHidden] = useState('');
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [confirm, setConfirm] = useState(null);
+  const { draft, applied, dirty, set, submit, reset } = useAdminFilters({ query: '', hidden: '' });
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setData(
-        await listReviews({
-          page,
-          pageSize: PAGE_SIZE,
-          hidden: hidden === '' ? undefined : hidden === 'true',
-          query: search,
-        }),
-      );
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, hidden, search]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
+  const fetchList = useCallback(
+    () =>
+      listReviews({
+        page,
+        pageSize: PAGE_SIZE,
+        hidden: applied.hidden === '' ? undefined : applied.hidden === 'true',
+        query: applied.query,
+      }),
+    [page, applied.hidden, applied.query],
+  );
+  const { data, loading, error, reload } = useAdminList(fetchList);
 
   const apply = async () => {
     if (!confirm) return;
@@ -63,37 +49,33 @@ export function AdminReviewsTable({ rightContainer = null }) {
         type: 'success',
       });
       setConfirm(null);
-      load();
+      reload();
     } catch (err) {
       toast({ message: err?.message || 'Erreur.', type: 'error' });
     }
   };
 
-  const submitSearch = (e) => {
-    e.preventDefault();
+  const applyFilters = () => {
     setPage(1);
-    setSearch(query.trim());
+    submit();
   };
 
   const resetFilters = () => {
-    setQuery('');
-    setSearch('');
-    setHidden('');
+    reset();
     setPage(1);
   };
 
   const total = Number(data?.total || 0);
-  const dirty = Boolean(query || search || hidden);
 
   const renderFilters = (searchId) => (
     <AdminFilterPanel dirty={dirty} onReset={resetFilters}>
-      <form onSubmit={submitSearch} className="divide-y divide-gray-100">
+      <form onSubmit={applyFilters} className="divide-y divide-gray-100">
         <AdminFilterGroup title="Recherche">
           <SearchInput
             id={searchId}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onClear={() => setQuery('')}
+            value={draft.query}
+            onChange={(e) => set('query', e.target.value)}
+            onClear={() => set('query', '')}
             placeholder="Client, professionnel ou contenu..."
             aria-label="Rechercher un avis"
           />
@@ -101,9 +83,9 @@ export function AdminReviewsTable({ rightContainer = null }) {
 
         <AdminFilterGroup title="Visibilité">
           <CustomSelect
-            value={hidden}
+            value={draft.hidden}
             onChange={(v) => {
-              setHidden(v);
+              set('hidden', v, { immediate: true });
               setPage(1);
             }}
             options={VISIBILITY_OPTIONS}
@@ -221,27 +203,18 @@ export function AdminReviewsTable({ rightContainer = null }) {
     >
       {list}
 
-      <Modal
-        open={!!confirm}
-        onClose={() => setConfirm(null)}
-        title={confirm?.action === 'hide' ? 'Masquer cet avis ?' : "Rétablir cet avis ?"}
+      <AdminConfirmModal
+        open={Boolean(confirm)}
+        onCancel={() => setConfirm(null)}
+        onConfirm={apply}
+        danger={confirm?.action === 'hide'}
+        title={confirm?.action === 'hide' ? 'Masquer cet avis ?' : 'Rétablir cet avis ?'}
         description={
-          confirm
-            ? confirm.action === 'hide'
-              ? "L'avis disparaîtra de la fiche publique."
-              : "L'avis sera de nouveau visible sur la fiche du professionnel."
-            : ''
+          confirm?.action === 'hide'
+            ? "L'avis disparaîtra de la fiche publique."
+            : "L'avis sera de nouveau visible sur la fiche du professionnel."
         }
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setConfirm(null)}>
-              Annuler
-            </Button>
-            <Button variant={confirm?.action === 'hide' ? 'danger' : 'primary'} onClick={apply}>
-              {confirm?.action === 'hide' ? 'Masquer' : 'Rétablir'}
-            </Button>
-          </>
-        }
+        confirmLabel={confirm?.action === 'hide' ? 'Masquer' : 'Rétablir'}
       />
     </AdminSectionLayout>
   );

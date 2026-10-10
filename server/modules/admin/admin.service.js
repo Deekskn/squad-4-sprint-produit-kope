@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { ApiError } from '../../utils/ApiError.js';
 import { offsetOf, paginateSafely } from '../../utils/pagination.js';
 import * as repository from './admin.repository.js';
+import * as catalogRepository from './catalog.repository.js';
 import * as refreshTokensRepository from '../auth/refreshTokens.repository.js';
 
 const BCRYPT_ROUNDS = 10;
@@ -115,150 +116,113 @@ export async function setReviewHidden(id, hidden) {
   return { id, hidden };
 }
 
-export async function listTrades() {
-  return { items: await repository.listTrades() };
-}
-
-export async function createTrade({ name, categoryId }) {
-  try {
-    return await repository.createTrade(name, categoryId);
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Ce métier existe déjà');
-    if (err?.code === '23503') throw ApiError.badRequest('Catégorie inconnue');
+/**
+ * Fabrique des opérations d'un catalogue : les règles (doublon, clé étrangère
+ * inconnue, ressource encore utilisée) sont identiques pour les 4 entités.
+ *
+ * `fkLabel` active la gestion de la clé étrangère optionnelle.
+ */
+function makeCatalogService({ catalog, list, entity, duplicate, fkLabel, usedByProfessionals, usedByChildren }) {
+  const translate = (err) => {
+    if (err?.code === '23505') throw ApiError.conflict(duplicate);
+    if (err?.code === '23503') throw ApiError.badRequest(fkLabel);
     throw err;
-  }
+  };
+
+  return {
+    async create({ name, fkId }) {
+      try {
+        return await catalog.create(name, fkId);
+      } catch (err) {
+        translate(err);
+      }
+    },
+
+    // Le contrôle « introuvable » reste hors du try : capturé par son propre
+    // catch, il remontait par accident via le re-throw final.
+    async update(id, { name, fkId }) {
+      let updated;
+      try {
+        updated = await catalog.update(id, name, fkId);
+      } catch (err) {
+        translate(err);
+      }
+      if (!updated) throw ApiError.notFound(`${entity} introuvable`);
+      return updated;
+    },
+
+    async remove(id) {
+      if (await catalog.inUse(id)) throw ApiError.badRequest(usedByProfessionals || usedByChildren);
+      const deleted = await catalog.remove(id);
+      if (!deleted) throw ApiError.notFound(`${entity} introuvable`);
+      return { id };
+    },
+
+    async reorder(ids) {
+      await catalog.reorder(ids);
+      return { ids };
+    },
+
+    list: async () => ({ items: await list() }),
+  };
 }
 
-export async function updateTrade(id, { name, categoryId }) {
-  try {
-    const updated = await repository.updateTrade(id, name, categoryId);
-    if (!updated) throw ApiError.notFound('Métier introuvable');
-    return updated;
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Ce métier existe déjà');
-    if (err?.code === '23503') throw ApiError.badRequest('Catégorie inconnue');
-    throw err;
-  }
-}
+const tradeCategoryService = makeCatalogService({
+  catalog: catalogRepository.tradeCategories,
+  list: () => repository.listTradeCategories(),
+  entity: 'Catégorie',
+  duplicate: 'Cette catégorie existe déjà',
+  usedByChildren: 'Déplacez les métiers de cette catégorie avant de la supprimer',
+});
 
-export async function listTradeCategories() {
-  return { items: await repository.listTradeCategories() };
-}
+const tradeService = makeCatalogService({
+  catalog: catalogRepository.trades,
+  list: () => repository.listTrades(),
+  entity: 'Métier',
+  duplicate: 'Ce métier existe déjà',
+  fkLabel: 'Catégorie inconnue',
+  usedByProfessionals: 'Ce métier est utilisé par des professionnels',
+});
 
-export async function createTradeCategory({ name }) {
-  try {
-    return await repository.createTradeCategory(name);
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Cette catégorie existe déjà');
-    throw err;
-  }
-}
+const cityService = makeCatalogService({
+  catalog: catalogRepository.cities,
+  list: () => repository.listCities(),
+  entity: 'Ville',
+  duplicate: 'Cette ville existe déjà',
+  usedByChildren: 'Déplacez les arrondissements de cette ville avant de la supprimer',
+});
 
-export async function updateTradeCategory(id, { name }) {
-  try {
-    const updated = await repository.updateTradeCategory(id, name);
-    if (!updated) throw ApiError.notFound('Catégorie introuvable');
-    return updated;
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Cette catégorie existe déjà');
-    throw err;
-  }
-}
+const zoneService = makeCatalogService({
+  catalog: catalogRepository.zones,
+  list: () => repository.listZones(),
+  entity: 'Zone',
+  duplicate: 'Cette zone existe déjà',
+  fkLabel: 'Ville inconnue',
+  usedByProfessionals: 'Cette zone est utilisée par des professionnels',
+});
 
-export async function deleteTradeCategory(id) {
-  if (await repository.tradeCategoryInUse(id))
-    throw ApiError.badRequest('Déplacez les métiers de cette catégorie avant de la supprimer');
-  const deleted = await repository.deleteTradeCategory(id);
-  if (!deleted) throw ApiError.notFound('Catégorie introuvable');
-  return { id };
-}
+export const listTradeCategories = tradeCategoryService.list;
+export const createTradeCategory = tradeCategoryService.create;
+export const updateTradeCategory = tradeCategoryService.update;
+export const deleteTradeCategory = tradeCategoryService.remove;
+export const reorderTradeCategories = tradeCategoryService.reorder;
 
-export async function reorderTradeCategories(ids) {
-  await repository.reorderTradeCategories(ids);
-  return { ids };
-}
+export const listTrades = tradeService.list;
+export const createTrade = tradeService.create;
+export const updateTrade = tradeService.update;
+export const deleteTrade = tradeService.remove;
+export const reorderTrades = tradeService.reorder;
 
-export async function deleteTrade(id) {
-  if (await repository.tradeInUse(id)) throw ApiError.badRequest('Ce métier est utilisé par des professionnels');
-  const deleted = await repository.deleteTrade(id);
-  if (!deleted) throw ApiError.notFound('Métier introuvable');
-  return { id };
-}
+export const listCities = cityService.list;
+export const createCity = cityService.create;
+export const updateCity = cityService.update;
+export const deleteCity = cityService.remove;
+export const reorderCities = cityService.reorder;
 
-export async function reorderTrades(ids) {
-  await repository.reorderTrades(ids);
-  return { ids };
-}
-
-export async function listZones() {
-  return { items: await repository.listZones() };
-}
-
-export async function createZone({ name, cityId }) {
-  try {
-    return await repository.createZone(name, cityId);
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Cette zone existe déjà');
-    if (err?.code === '23503') throw ApiError.badRequest('Ville inconnue');
-    throw err;
-  }
-}
-
-export async function updateZone(id, { name, cityId }) {
-  try {
-    const updated = await repository.updateZone(id, name, cityId);
-    if (!updated) throw ApiError.notFound('Zone introuvable');
-    return updated;
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Cette zone existe déjà');
-    if (err?.code === '23503') throw ApiError.badRequest('Ville inconnue');
-    throw err;
-  }
-}
-
-export async function listCities() {
-  return { items: await repository.listCities() };
-}
-
-export async function createCity({ name }) {
-  try {
-    return await repository.createCity(name);
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Cette ville existe déjà');
-    throw err;
-  }
-}
-
-export async function updateCity(id, { name }) {
-  try {
-    const updated = await repository.updateCity(id, name);
-    if (!updated) throw ApiError.notFound('Ville introuvable');
-    return updated;
-  } catch (err) {
-    if (err?.code === '23505') throw ApiError.conflict('Cette ville existe déjà');
-    throw err;
-  }
-}
-
-export async function deleteCity(id) {
-  if (await repository.cityInUse(id))
-    throw ApiError.badRequest('Déplacez les arrondissements de cette ville avant de la supprimer');
-  const deleted = await repository.deleteCity(id);
-  if (!deleted) throw ApiError.notFound('Ville introuvable');
-  return { id };
-}
-
-export async function reorderCities(ids) {
-  await repository.reorderCities(ids);
-  return { ids };
-}
-
-export async function deleteZone(id) {
-  if (await repository.zoneInUse(id)) throw ApiError.badRequest('Cette zone est utilisée par des professionnels');
-  const deleted = await repository.deleteZone(id);
-  if (!deleted) throw ApiError.notFound('Zone introuvable');
-  return { id };
-}
+export const listZones = zoneService.list;
+export const createZone = zoneService.create;
+export const updateZone = zoneService.update;
+export const deleteZone = zoneService.remove;
 
 export async function reorderZones(ids) {
   await repository.reorderZones(ids);

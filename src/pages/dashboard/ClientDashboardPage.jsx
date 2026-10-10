@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { User, Star, Pencil, Camera, Phone } from 'lucide-react';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { Card } from '@/shared/components/ui/Card.jsx';
-import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { DataState } from '@/shared/components/ui/DataState.jsx';
+import { StarRating } from '@/shared/components/ui/StarRating.jsx';
+import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
+import { formatDateFr } from '@/shared/utils';
 import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { ContactsSection } from '@/features/contacts/components/ContactsSection.jsx';
 import { EmptyState } from '@/shared/components/ui/EmptyState.jsx';
@@ -220,51 +223,36 @@ function ProfilSection({ user }) {
 }
 
 function ActiviteSection() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    getMyReviews()
-      .then((d) => { if (!cancelled) setData(d); })
-      .catch(() => { if (!cancelled) setData(null); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
-
+  const { data, loading, error } = useAsyncData(async () => getMyReviews(), []);
   const items = data?.items ?? [];
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-extrabold tracking-tight text-gray-900">Mes avis</h2>
-      {loading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-        </div>
-      ) : items.length === 0 ? (
-        <EmptyState
-          title="Aucun avis pour le moment"
-          description="Les avis que vous laissez aux professionnels apparaîtront ici pour garder un historique."
-        />
-      ) : (
-        <ul className="space-y-3">
-          {items.map((r) => (
-            <li key={r.id} className="rounded-2xl border border-gray-200 bg-white p-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-semibold text-gray-900">{r.professionalName}</p>
-                <span className="text-sm font-bold text-amber-500">★ {r.rating}/5</span>
-              </div>
-              {r.comment && <p className="mt-2 text-sm leading-6 text-gray-600">{r.comment}</p>}
-              <p className="mt-1 text-xs text-gray-400">
-                {new Date(r.createdAt).toLocaleDateString('fr-FR')}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
+      <DataState loading={loading} error={error} errorPrefix="Impossible de charger vos avis">
+        {items.length === 0 ? (
+          <EmptyState
+            title="Aucun avis pour le moment"
+            description="Les avis que vous laissez aux professionnels apparaîtront ici pour garder un historique."
+          />
+        ) : (
+          <ul className="space-y-3">
+            {items.map((r) => (
+              <li key={r.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-semibold text-gray-900">{r.professionalName}</p>
+                  <span className="inline-flex items-center gap-1.5">
+                    <StarRating value={r.rating} size="sm" />
+                    <span className="text-sm text-gray-500">{r.rating}/5</span>
+                  </span>
+                </div>
+                {r.comment && <p className="mt-2 text-sm leading-6 text-gray-600">{r.comment}</p>}
+                <p className="mt-1 text-xs text-gray-400">{formatDateFr(r.createdAt)}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </DataState>
     </div>
   );
 }

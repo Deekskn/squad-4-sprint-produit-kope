@@ -24,5 +24,3 @@ export function listZones() {
 export function invalidateReferenceCache() {
   cacheInvalidate('reference:');
 }
-
-export default { listTrades, listZones };

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Calendar, Check, GripVertical, Pencil, Plus, Trash2, Users, X } from 'lucide-react';
+import { Calendar, GripVertical, Pencil, Plus, Trash2, Users, X } from 'lucide-react';
 import { Button, CustomSelect, DataState, Modal, Tooltip } from '@/shared/components/ui';
 import {
   AdminFilterGroup,
@@ -8,92 +8,8 @@ import {
 } from './AdminSectionLayout.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { cn, formatDateFr } from '@/shared/utils';
-
-const key = (groupId) => (groupId == null ? null : Number(groupId));
-
-
-const GROUP_TINTS = [
-  { band: 'bg-primary-500', dot: 'bg-primary-200' },
-  { band: 'bg-primary-400', dot: 'bg-primary-100' },
-  { band: 'bg-[#6d8a58]', dot: 'bg-[#c3d6b4]' },
-  { band: 'bg-[#3f8a78]', dot: 'bg-[#b6dbd1]' },
-  { band: 'bg-[#5b7fa8]', dot: 'bg-[#bcd0e4]' },
-  { band: 'bg-[#7a8098]', dot: 'bg-[#c8ccd8]' },
-  { band: 'bg-[#8b6d9a]', dot: 'bg-[#d2c0dc]' },
-  { band: 'bg-[#9b6157]', dot: 'bg-[#e2c4bd]' },
-  { band: 'bg-[#a17a3c]', dot: 'bg-[#e6d2ab]' },
-  { band: 'bg-[#9b6d82]', dot: 'bg-[#dfc6d2]' },
-  { band: 'bg-[#7b8b98]', dot: 'bg-[#c8d4dc]' },
-  { band: 'bg-[#8a7d58]', dot: 'bg-[#d8d0b6]' },
-];
-
-/** Attribue une teinte stable à un groupe, selon son nom. */
-function tintFor(name) {
-  let hash = 0;
-  const seed = String(name || '');
-  for (let i = 0; i < seed.length; i += 1)
-    hash = (hash * 31 + seed.charCodeAt(i)) % 1000003;
-  return GROUP_TINTS[hash % GROUP_TINTS.length];
-}
-
-const usedBy = (count) => `Utilisé par ${count} pro${count > 1 ? 's' : ''}`;
-
-function groupItems(items, groups, groupByKey) {
-  const map = new Map(groups.map((g) => [key(g.id), []]));
-  for (const item of items) map.get(key(item[groupByKey]))?.push(item);
-  return map;
-}
-
-/** Saisie en ligne, validée à la touche Entrée. */
-function InlineInput({ value, onChange, onSubmit, onCancel, placeholder, ariaLabel, className = '' }) {
-  return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
-      <input
-        autoFocus
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') onSubmit();
-          if (e.key === 'Escape') onCancel();
-        }}
-        placeholder={placeholder}
-        aria-label={ariaLabel}
-        className="h-9 w-full min-w-0 rounded-sm border border-primary-500 bg-white px-2.5 text-sm text-gray-900 outline-none focus:ring-4 focus:ring-primary-500/12"
-      />
-      <button
-        type="button"
-        onClick={onSubmit}
-        aria-label="Valider"
-        className="grid h-8 w-8 shrink-0 place-items-center rounded-sm text-primary-600 transition-colors hover:bg-mint-100"
-      >
-        <Check className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        onClick={onCancel}
-        aria-label="Annuler"
-        className="grid h-8 w-8 shrink-0 place-items-center rounded-sm text-gray-500 transition-colors hover:bg-gray-100"
-      >
-        <X className="h-4 w-4" />
-      </button>
-    </div>
-  );
-}
-
-/** Numéro de position sur une carte. */
-function PositionBadge({ value, muted = false }) {
-  return (
-    <span
-      aria-hidden
-      className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold ${
-        muted ? 'bg-gray-200 text-gray-400' : 'bg-gray-100 text-gray-600'
-      }`}
-    >
-      {value}
-    </span>
-  );
-}
-
+import { groupKeyOf, groupItems, tintFor, usedBy, displayEntries as buildEntries, destinationIndex as entryDestination } from './catalog/catalogUtils.js';
+import { InlineInput, PositionBadge } from './catalog/InlineInput.jsx';
 
 export function AdminCatalogBoard({
   rightContainer = null,
@@ -168,39 +84,12 @@ export function AdminCatalogBoard({
 
   const cardsOf = (groupKey) => grouped.get(groupKey) ?? [];
 
-  /**
-   * Entrées affichées d'un groupe pendant un déplacement.
-   * La carte déplacée reste montée dans sa liste (`gap` ou `dragging`) et la
-   * position d'arrivée est matérialisée par une copie distincte (`preview`).
-   */
-  const displayEntries = (groupKey) => {
-    const cards = cardsOf(groupKey);
-    if (!draggingItem) return cards.map((item) => ({ item, state: 'normal', entryKey: item.id }));
-    const gapAt = cards.findIndex((i) => i.id === draggingItem.id);
-    const sourceState = gapAt < 0 ? null : preview && preview.key !== groupKey ? 'gap' : 'dragging';
-    const entries = cards.map((item) => ({
-      item,
-      state: item.id === draggingItem.id ? sourceState : 'normal',
-      entryKey: item.id,
-    }));
-    if (!preview || preview.key !== groupKey) return entries;
-    const position = Math.max(0, Math.min(preview.index, cards.length - (gapAt < 0 ? 0 : 1)));
-    const insertAt = gapAt < 0 ? position : position > gapAt ? position + 1 : position;
-    entries.splice(insertAt, 0, {
-      item: draggingItem,
-      state: 'preview',
-      entryKey: `preview-${draggingItem.id}`,
-    });
-    return entries;
-  };
+  // L'algorithme de aperçu (trou + clone) et la conversion d'index vivent dans
+  // catalogUtils : ils sont purs et testables sans React.
+  const displayEntries = (groupKey) => buildEntries(cardsOf(groupKey), draggingItem, preview, groupKey);
 
-  /** Convertit un index d'entrée (liste incluant le trou) en index de destination. */
-  const destinationIndex = (groupKey, entryIndex) => {
-    const cards = cardsOf(groupKey);
-    const gapAt = cards.findIndex((i) => draggingItem && i.id === draggingItem.id);
-    if (gapAt < 0) return entryIndex;
-    return entryIndex > gapAt ? entryIndex - 1 : entryIndex;
-  };
+  const destinationIndex = (groupKey, entryIndex) => entryDestination(cardsOf(groupKey), entryIndex, draggingItem);
+
 
   const showPreview = (groupKey, entryIndex) => {
     if (!canReorder || !draggingItem) return;
@@ -331,10 +220,10 @@ export function AdminCatalogBoard({
   const dropItem = (itemId, targetKey, index) => {
     const moved = items.find((i) => i.id === itemId);
     if (!moved) return;
-    const bucket = items.filter((i) => i.id !== itemId && key(i[groupByKey]) === targetKey);
+    const bucket = items.filter((i) => i.id !== itemId && groupKeyOf(i[groupByKey]) === targetKey);
     const position = Math.max(0, Math.min(index ?? bucket.length, bucket.length));
     bucket.splice(position, 0, { ...moved, [groupByKey]: targetKey });
-    const rest = items.filter((i) => i.id !== itemId && key(i[groupByKey]) !== targetKey);
+    const rest = items.filter((i) => i.id !== itemId && groupKeyOf(i[groupByKey]) !== targetKey);
     setItems([...rest, ...bucket]);
     updateItem(itemId, { name: moved.name, [groupByKey]: targetKey })
       .then(() => reorderItems(bucket.map((i) => i.id)))
@@ -362,7 +251,7 @@ export function AdminCatalogBoard({
   const handleDrop = (targetKey, entryIndex) => {
     if (!drag) return;
     if (drag.kind === 'group') {
-      const groupIndex = groups.findIndex((g) => key(g.id) === targetKey);
+      const groupIndex = groups.findIndex((g) => groupKeyOf(g.id) === targetKey);
       dropGroup(drag.id, groupIndex < 0 ? groups.length : groupIndex);
     } else if (preview && preview.key === targetKey)
       dropItem(drag.id, targetKey, preview.index);
@@ -497,7 +386,7 @@ export function AdminCatalogBoard({
   };
 
   const renderGroup = (group) => {
-    const groupKey = key(group.id);
+    const groupKey = groupKeyOf(group.id);
     const entries = displayEntries(groupKey);
     const realCount = cardsOf(groupKey).length;
     const filteredOut = Boolean(groupFilter) && groupFilter !== String(group.id);

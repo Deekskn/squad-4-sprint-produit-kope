@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useId } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/shared/utils';
+import { useOverlay } from './useOverlay.js';
 
 export function Modal({
   open,
@@ -12,34 +13,8 @@ export function Modal({
   size = 'md',
   dismissable = true,
 }) {
-  const [render, setRender] = useState(open);
-  const [show, setShow] = useState(open);
-
-  useEffect(() => {
-    if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRender(true);
-      requestAnimationFrame(() => setShow(true));
-    } else {
-      setShow(false);
-      const timer = setTimeout(() => setRender(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => {
-      if (e.key === 'Escape' && dismissable) onClose?.();
-    };
-    document.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [open, dismissable, onClose]);
+  const titleId = useId();
+  const { render, show, panelRef } = useOverlay({ open, onClose, dismissable });
 
   if (!render || typeof document === 'undefined') return null;
   const widths = {
@@ -62,11 +37,12 @@ export function Modal({
         show ? 'opacity-100' : 'opacity-0',
       )}
       onClick={() => dismissable && onClose?.()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={title ? 'kop-modal-title' : undefined}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
         onClick={(e) => e.stopPropagation()}
         className={cn(
           'w-full max-h-[90vh] overflow-y-auto bg-white shadow-[var(--shadow-pop)] transition-opacity duration-300',
@@ -79,7 +55,7 @@ export function Modal({
         {(title || description) && (
           <div className="border-b border-gray-100 px-5 py-4">
             {title && (
-              <h2 id="kop-modal-title" className="text-lg font-semibold text-gray-900">
+              <h2 id={titleId} className="text-lg font-semibold text-gray-900">
                 {title}
               </h2>
             )}

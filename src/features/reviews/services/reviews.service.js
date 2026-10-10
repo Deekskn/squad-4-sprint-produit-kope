@@ -42,5 +42,3 @@ export function getClientReviews(clientId, { page = 1, pageSize = 20 } = {}) {
     async () => ({ items: [], total: 0, page, pageSize, totalPages: 1 }),
   );
 }
-
-export default { listReviews, createReview, getMyReviews, getClientReviews };

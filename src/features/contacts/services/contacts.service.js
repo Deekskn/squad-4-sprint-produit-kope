@@ -22,5 +22,3 @@ export function createContact({ toUserId, message }) {
     }),
   );
 }
-
-export default { getMyContacts, createContact };

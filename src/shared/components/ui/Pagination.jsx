@@ -65,6 +65,7 @@ export function Pagination({ page, pageSize, total, onPageChange, className, var
     >
       <button
         type="button"
+        aria-label="Page précédente"
         disabled={prevDisabled}
         onClick={() => onPageChange?.(current - 1)}
         className={cn(
@@ -104,6 +105,7 @@ export function Pagination({ page, pageSize, total, onPageChange, className, var
 
       <button
         type="button"
+        aria-label="Page suivante"
         disabled={nextDisabled}
         onClick={() => onPageChange?.(current + 1)}
         className={cn(

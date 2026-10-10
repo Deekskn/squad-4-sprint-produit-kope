@@ -1,7 +1,6 @@
 export { Button } from './Button.jsx';
 export { Input } from './Input.jsx';
 export { Textarea } from './Textarea.jsx';
-export { Select } from './Select.jsx';
 export { CustomSelect } from './CustomSelect.jsx';
 export { SearchInput } from './SearchInput.jsx';
 export { Checkbox } from './Checkbox.jsx';
@@ -23,7 +22,6 @@ export { EmptyState } from './EmptyState.jsx';
 export { FloatingCaption } from './FloatingCaption.jsx';
 export { BottomNav } from './BottomNav.jsx';
 export { SidebarNav } from './SidebarNav.jsx';
-export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from './Table.jsx';
 export { MultiSelect } from './MultiSelect.jsx';
 export { PasswordInput } from './PasswordInput.jsx';
 export { UserAvatar } from './UserAvatar.jsx';

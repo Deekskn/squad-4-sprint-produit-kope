@@ -11,8 +11,9 @@ export function BottomNav({ items, active, onChange, ariaLabel }) {
           <li key={id} className="min-w-0 flex-1">
             <button
               type="button"
-              role="tab"
-              aria-selected={active === id}
+              // Ce sont des boutons de navigation, pas des onglets ARIA :
+              // `aria-current` est le signal correct (pas de tabpanel ici).
+              aria-current={active === id ? 'page' : undefined}
               onClick={() => onChange(id)}
               className={cn(
                 'flex w-full cursor-pointer flex-col items-center gap-1 px-1 py-2.5 text-[11px] font-semibold transition',

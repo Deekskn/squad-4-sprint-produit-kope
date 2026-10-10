@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import * as authService from '@/features/auth/services/auth.service.js';
+import { UNAUTHORIZED_EVENT } from '@/shared/lib/api.js';
 import { ROUTES } from '@/shared/lib/constants.js';
 
 const AuthContext = createContext(null);
@@ -29,6 +30,14 @@ export function AuthProvider({ children }) {
     fetchMe();
   }, [fetchMe]);
 
+  // Une réponse 401 en cours de session (cookie expiré, compte supprimé) doit
+  // déconnecter l'utilisateur : plus de jeton à rafraîchir, le cookie fait foi.
+  useEffect(() => {
+    const onUnauthorized = () => setUser(null);
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+  }, []);
+
   const login = useCallback((userData) => setUser(userData), []);
 
   const logout = useCallback(async () => {
@@ -36,25 +45,24 @@ export function AuthProvider({ children }) {
       await authService.logout();
     } catch { /* ignore */ } finally {
       setUser(null);
-      setTimeout(() => redirect(ROUTES.HOME), 0);
+      redirect(ROUTES.HOME);
     }
   }, []);
 
-  const hasRole = useCallback(
-    (role) => Boolean(user?.role && user.role === role),
-    [user],
-  );
+  const hasRole = useCallback((role) => Boolean(user?.role && user.role === role), [user]);
 
-  const value = { user, loading, login, logout, hasRole, refresh: fetchMe };
+  const value = useMemo(
+    () => ({ user, loading, login, logout, hasRole, refresh: fetchMe }),
+    [user, loading, login, logout, hasRole, fetchMe],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// Le Provider et son hook vivent ensemble : c'est le pattern React advocated.
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuthContext() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuthContext must be used inside <AuthProvider>');
   return ctx;
 }
-
-export default AuthContext;

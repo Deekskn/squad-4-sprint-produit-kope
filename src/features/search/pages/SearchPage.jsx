@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/Button.jsx';
+import { DataState } from '@/shared/components/ui/DataState.jsx';
 import { SearchFilters } from '../components/SearchFilters.jsx';
 import { SearchRefineFilters } from '../components/SearchRefineFilters.jsx';
 import { Sheet } from '@/shared/components/ui/Sheet.jsx';
@@ -101,12 +102,11 @@ export function SearchPage() {
               </div>
             )}
             {error && !loading && (
-              <div role="alert" className="rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700">
-                {error.message || 'Erreur de chargement des résultats.'}
-                <div className="mt-3">
-                  <Button variant="outline" onClick={refresh}>Réessayer</Button>
-                </div>
-              </div>
+              <DataState
+                error={error}
+                errorPrefix="Erreur de chargement des résultats"
+                onRetry={refresh}
+              />
             )}
             {!loading && !error && (
               <SearchResults data={results} listMode />

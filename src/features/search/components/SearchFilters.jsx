@@ -11,19 +11,6 @@ import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { ROUTES } from '@/shared/lib/constants.js';
 import { cn } from '@/shared/utils';
 
-export function SearchFiltersResponsive({ initial, className, searching = false }) {
-  return (
-    <>
-      <div className="hidden lg:block">
-        <SearchFilters variant="sidebar" initial={initial} className={className} searching={searching} />
-      </div>
-      <div className="lg:hidden">
-        <SearchFilters variant="home-k" initial={initial} className={className} searching={searching} />
-      </div>
-    </>
-  );
-}
-
 export function SearchFilters({ initial = {}, variant = "search", className, searching = false }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();

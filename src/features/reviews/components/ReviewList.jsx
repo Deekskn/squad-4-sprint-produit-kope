@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pagination } from '@/shared/components/ui/Pagination.jsx';
 import { Card } from '@/shared/components/ui/Card.jsx';
-import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
+import { DataState } from '@/shared/components/ui/DataState.jsx';
+import { EmptyState } from '@/shared/components/ui/EmptyState.jsx';
 import { StarRating } from '@/shared/components/ui/StarRating.jsx';
 import { PAGE_SIZE } from '@/shared/lib/constants.js';
 import { formatDateFr } from '@/shared/utils';
@@ -32,30 +33,13 @@ export function ReviewList({ professionalId }) {
     load();
   }, [load]);
 
-  if (loading)
-    return (
-      <div className="space-y-3 py-4" aria-busy="true">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-      </div>
-    );
-
-  if (error)
-    return (
-      <div role="alert" className="rounded-md border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
-        Impossible de charger les avis.
-      </div>
-    );
+  if (loading || error)
+    return <DataState loading={loading} error={error} errorPrefix="Impossible de charger les avis" />;
 
   const total = Number(data?.total ?? 0);
   const items = data?.items ?? [];
 
-  if (items.length === 0)
-    return (
-      <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-        Aucun avis pour le moment.
-      </div>
-    );
+  if (items.length === 0) return <EmptyState title="Aucun avis pour le moment." />;
 
   return (
     <div className="space-y-4">

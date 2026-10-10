@@ -1,14 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ExternalLink, Eye, EyeOff, MapPin, Phone, Wrench } from 'lucide-react';
-import { Badge, Button, CustomSelect, SearchInput, Pagination, Modal, DataState, UserAvatar, Tooltip } from '@/shared/components/ui';
+import { Badge, Button, CustomSelect, SearchInput, Pagination, DataState, UserAvatar, Tooltip } from '@/shared/components/ui';
 import {
   AdminFilterField,
   AdminFilterGroup,
   AdminFilterPanel,
   AdminSectionLayout,
 } from './AdminSectionLayout.jsx';
+import { AdminConfirmModal } from './AdminConfirmModal.jsx';
 import { useAdminPage } from '../hooks/useAdminPage.js';
+import { useAdminFilters } from '../hooks/useAdminFilters.js';
+import { useAdminList } from '../hooks/useAdminList.js';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listPros, setProHidden } from '../services/admin.service.js';
 import {
@@ -45,33 +48,29 @@ function statusVariant(s) {
 export function AdminProfessionalsGrid({ rightContainer = null }) {
   const { toast } = useNotification();
   const [page, changePage, setPage] = useAdminPage();
-  const [query, setQuery] = useState('');
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [sort, setSort] = useState('name');
-  const [city, setCity] = useState(DEFAULT_CITY);
-  const [country, setCountry] = useState(DEFAULT_COUNTRY);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { draft, applied, dirty, set, submit, reset } = useAdminFilters({
+    query: '',
+    status: '',
+    sort: 'name',
+    city: DEFAULT_CITY,
+    country: DEFAULT_COUNTRY,
+  });
   const [confirm, setConfirm] = useState(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setData(await listPros({ page, pageSize: PAGE_SIZE, query: search, status, sort, city, country }));
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search, status, sort, city, country]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
+  const fetchList = useCallback(
+    () =>
+      listPros({
+        page,
+        pageSize: PAGE_SIZE,
+        query: applied.query,
+        status: applied.status,
+        sort: applied.sort,
+        city: applied.city,
+        country: applied.country,
+      }),
+    [page, applied.query, applied.status, applied.sort, applied.city, applied.country],
+  );
+  const { data, loading, error, reload } = useAdminList(fetchList);
 
   const apply = async () => {
     if (!confirm) return;
@@ -82,43 +81,31 @@ export function AdminProfessionalsGrid({ rightContainer = null }) {
         type: 'success',
       });
       setConfirm(null);
-      load();
+      reload();
     } catch (err) {
       toast({ message: err?.message || 'Erreur.', type: 'error' });
     }
   };
 
-  const submitSearch = (e) => {
-    e.preventDefault();
+  const applyFilters = () => {
     setPage(1);
-    setSearch(query.trim());
+    submit();
   };
 
   const resetFilters = () => {
-    setQuery('');
-    setSearch('');
-    setStatus('');
-    setSort('name');
-    setCity(DEFAULT_CITY);
-    setCountry(DEFAULT_COUNTRY);
+    reset();
     setPage(1);
   };
 
-  const dirty =
-    Boolean(query || search || status) ||
-    sort !== 'name' ||
-    city !== DEFAULT_CITY ||
-    country !== DEFAULT_COUNTRY;
-
   const renderFilters = (searchId) => (
     <AdminFilterPanel dirty={dirty} onReset={resetFilters}>
-      <form onSubmit={submitSearch} className="divide-y divide-gray-100">
+      <form onSubmit={applyFilters} className="divide-y divide-gray-100">
         <AdminFilterGroup title="Recherche">
           <SearchInput
             id={searchId}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onClear={() => setQuery('')}
+            value={draft.query}
+            onChange={(e) => set('query', e.target.value)}
+            onClear={() => set('query', '')}
             placeholder="Nom, métier, téléphone..."
             aria-label="Rechercher un professionnel"
           />
@@ -126,9 +113,9 @@ export function AdminProfessionalsGrid({ rightContainer = null }) {
 
         <AdminFilterGroup title="Statut">
           <CustomSelect
-            value={status}
+            value={draft.status}
             onChange={(v) => {
-              setStatus(v);
+              set('status', v, { immediate: true });
               setPage(1);
             }}
             options={STATUS_OPTIONS}
@@ -140,9 +127,9 @@ export function AdminProfessionalsGrid({ rightContainer = null }) {
         <AdminFilterGroup title="Localisation">
           <AdminFilterField label="Ville">
             <CustomSelect
-              value={city}
+              value={draft.city}
               onChange={(v) => {
-                setCity(v);
+                set('city', v, { immediate: true });
                 setPage(1);
               }}
               options={CITIES.map((c) => ({ value: c, label: c }))}
@@ -152,9 +139,9 @@ export function AdminProfessionalsGrid({ rightContainer = null }) {
           </AdminFilterField>
           <AdminFilterField label="Pays">
             <CustomSelect
-              value={country}
+              value={draft.country}
               onChange={(v) => {
-                setCountry(v);
+                set('country', v, { immediate: true });
                 setPage(1);
               }}
               options={COUNTRIES.map((c) => ({ value: c, label: c }))}
@@ -166,8 +153,8 @@ export function AdminProfessionalsGrid({ rightContainer = null }) {
 
         <AdminFilterGroup title="Trier par">
           <CustomSelect
-            value={sort}
-            onChange={setSort}
+            value={draft.sort}
+            onChange={(v) => set('sort', v, { immediate: true })}
             options={SORT_OPTIONS}
             className="w-full"
             aria-label="Trier"
@@ -304,27 +291,18 @@ export function AdminProfessionalsGrid({ rightContainer = null }) {
     >
       {cards}
 
-      <Modal
-        open={!!confirm}
-        onClose={() => setConfirm(null)}
+      <AdminConfirmModal
+        open={Boolean(confirm)}
+        onCancel={() => setConfirm(null)}
+        onConfirm={apply}
+        danger={confirm?.action === 'hide'}
         title={confirm?.action === 'hide' ? 'Masquer le profil ?' : 'Réactiver le profil ?'}
         description={
-          confirm
-            ? confirm.action === 'hide'
-              ? 'Le profil disparaîtra des recherches et de la fiche publique. Vous pouvez le réactiver à tout moment.'
-              : 'Le profil sera à nouveau visible dans les recherches et sa fiche publique sera réouverte.'
-            : ''
+          confirm?.action === 'hide'
+            ? 'Le profil disparaîtra des recherches et de la fiche publique. Vous pouvez le réactiver à tout moment.'
+            : 'Le profil sera à nouveau visible dans les recherches et sa fiche publique sera rouverte.'
         }
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setConfirm(null)}>
-              Annuler
-            </Button>
-            <Button variant={confirm?.action === 'hide' ? 'danger' : 'primary'} onClick={apply}>
-              {confirm?.action === 'hide' ? 'Masquer' : 'Réactiver'}
-            </Button>
-          </>
-        }
+        confirmLabel={confirm?.action === 'hide' ? 'Masquer' : 'Réactiver'}
       />
     </AdminSectionLayout>
   );

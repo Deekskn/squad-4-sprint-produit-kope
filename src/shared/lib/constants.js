@@ -13,8 +13,6 @@ export const PAGE_SIZE = 10;
 export const MAX_PHOTOS = 10;
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 export const ALLOWED_MIME = ['image/jpeg', 'image/png'];
-export const PHOTO_MAX_WIDTH = 1280;
-export const PHOTO_THUMB_WIDTH = 400;
 
 export const RG04_CHECKLIST = [
   { code: 'displayName', label: 'Renseignez le nom affiché' },
