@@ -95,6 +95,34 @@ export async function list({ limit, offset, status, q }, db = pool) {
   return rows;
 }
 
+/** Compte des professionnels signalés (tous statuts confondus). */
+export async function countGrouped({ status, q }, db = pool) {
+  const conditions = [];
+  const values = [];
+
+  if (status) {
+    values.push(status);
+    conditions.push(`r.status = $${values.length}`);
+  }
+  if (q) {
+    values.push(`%${q}%`);
+    conditions.push(
+      `(p.display_name ILIKE $${values.length} OR r.message ILIKE $${values.length} OR u.first_name ILIKE $${values.length} OR u.last_name ILIKE $${values.length})`,
+    );
+  }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const { rows } = await db.query(
+    `SELECT COUNT(DISTINCT r.professional_id)::int AS count
+       FROM account_reports r
+       JOIN professionals p ON p.user_id = r.professional_id
+       JOIN users u ON u.id = r.reporter_id
+       ${where}`,
+    values,
+  );
+  return Number(rows[0]?.count ?? 0);
+}
+
 export async function setStatus(id, status, db = pool) {
   const { rows } = await db.query(
     `UPDATE account_reports

@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PublicationStatus } from '../src/features/professionals/components/PublicationStatus.jsx';
@@ -161,15 +161,22 @@ describe('US-06 - statut de publication du profil', () => {
     );
     expect(db.query.mock.calls[1][0]).toContain('FROM published_professionals p');
 
-    const migration = await readFile(
-      new URL('../server/db/migrations/1759500000003_update_rg04_publication.sql', import.meta.url),
-      'utf8',
-    );
-    const publicationView = migration.match(
-      /CREATE OR REPLACE VIEW published_professionals AS([\s\S]*?)-- Down Migration/,
-    )?.[1];
+    // La vue est redéfinie par plusieurs migrations : il faut lire la DERNIÈRE
+    // définition, sinon le test passe alors que la vue réelle a changé.
+    const dir = new URL('../server/db/migrations/', import.meta.url);
+    const files = (await readdir(dir)).filter((f) => f.endsWith('.sql')).sort();
+    const definitions = [];
 
-    expect(publicationView).toBeTruthy();
+    for (const file of files) {
+      const content = await readFile(new URL(file, dir), 'utf8');
+      const up = content.split('-- Down Migration')[0];
+      const view = up.match(/(?:CREATE OR REPLACE VIEW|CREATE VIEW) published_professionals AS([\s\S]*)/i);
+      if (view) definitions.push(view[1]);
+    }
+
+    expect(definitions.length).toBeGreaterThan(0);
+    const publicationView = definitions[definitions.length - 1];
+
     expect(publicationView).toContain('char_length(btrim(p.display_name)) > 0');
     expect(publicationView).toContain('char_length(btrim(t.name)) > 0');
     expect(publicationView).toContain('EXISTS (SELECT 1 FROM professional_zones');
@@ -177,6 +184,7 @@ describe('US-06 - statut de publication du profil', () => {
     expect(publicationView).toContain('char_length(btrim(p.description)) >= 30');
     expect(publicationView).toContain('EXISTS (SELECT 1 FROM photos');
     expect(publicationView).toContain('WHERE NOT p.is_hidden');
-    expect(publicationView).not.toContain('years_experience IS NOT NULL');
+    // Un compte suspendu ne doit jamais rester dans l'annuaire public.
+    expect(publicationView).toContain('u.suspended_at IS NULL');
   });
 });

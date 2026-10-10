@@ -1,5 +1,5 @@
 import { ApiError } from '../../utils/ApiError.js';
-import { offsetOf, paginate } from '../../utils/pagination.js';
+import { offsetOf, paginateSafely } from '../../utils/pagination.js';
 import * as repository from './contacts.repository.js';
 import * as authRepository from '../auth/auth.repository.js';
 
@@ -36,5 +36,5 @@ export async function listContacts(userId, pagination) {
     limit: pagination.pageSize,
     offset: offsetOf(pagination),
   });
-  return paginate(rows, pagination);
+  return paginateSafely(rows, pagination, () => repository.countForUser(userId));
 }

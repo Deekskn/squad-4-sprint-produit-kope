@@ -53,3 +53,28 @@ export async function searchPublished(
   );
   return rows;
 }
+
+/** Compte des résultats sans pagination (utilisé quand la page demandée est vide). */
+export async function countPublished(
+  { tradeId, zoneId, keyword, available, minExperience, minRating },
+  db = pool,
+) {
+  const { rows } = await db.query(
+    `SELECT COUNT(*)::int AS count
+       FROM published_professionals p
+       JOIN trades t ON t.id = p.trade_id
+       LEFT JOIN reviews r ON r.professional_id = p.user_id AND NOT r.is_hidden
+      WHERE ($1::smallint IS NULL OR p.trade_id = $1)
+        AND ($2::smallint IS NULL
+             OR EXISTS (SELECT 1 FROM professional_zones pz
+                         WHERE pz.professional_id = p.user_id AND pz.zone_id = $2))
+        AND ($3::text IS NULL
+             OR p.display_name ILIKE '%' || $3 || '%'
+             OR t.name ILIKE '%' || $3 || '%')
+        AND ($4::boolean IS NULL OR p.is_available = $4)
+        AND ($5::numeric IS NULL OR p.years_experience >= $5)
+      HAVING ($6::numeric IS NULL OR AVG(r.rating) >= $6)`,
+    [tradeId ?? null, zoneId ?? null, keyword ?? null, available ?? null, minExperience ?? null, minRating ?? null],
+  );
+  return Number(rows[0]?.count ?? 0);
+}

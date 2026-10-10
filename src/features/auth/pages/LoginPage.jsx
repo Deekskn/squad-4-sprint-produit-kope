@@ -107,17 +107,9 @@ export function LoginForm({ bare = false } = {}) {
             </button>
           </div>
         </FormField>
-          <p className="text-end -mt-3 mr-2">
-
-            <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs text-gray-500 ">
-              Mot de passe oublié
-            </Link>
-          </p>
-
         <Button type="submit" loading={submitting} size="lg" className="w-full!">
           Se connecter
         </Button>
-
       </form>
       <p className="text-sm">
         Je n'ai pas de compte.

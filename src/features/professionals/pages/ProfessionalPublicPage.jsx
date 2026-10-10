@@ -4,6 +4,8 @@ import { Briefcase, Calendar, ChevronLeft, ChevronRight, MapPin, MapPinned, Mess
 import { useAsyncData } from '@/shared/hooks/useAsyncData.js';
 import { getPublishedDetail, canReview } from '../services/professionals.service.js';
 import { RatingSummary, ReviewList, ReviewForm } from '@/features/reviews/components/index.js';
+import { ReviewCards } from '@/features/reviews/components/ReviewCards.jsx';
+import { listReviews } from '@/features/reviews/services/reviews.service.js';
 import { ReportDialog, ReportTrigger } from '../components/ReportDialog.jsx';
 import { DataState } from '@/shared/components/ui/DataState.jsx';
 import { Badge } from '@/shared/components/ui/Badge.jsx';
@@ -41,6 +43,8 @@ export function ProfessionalPublicPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const detail = useAsyncData(() => getPublishedDetail(id), [id]);
   const canReviewState = useAsyncData(() => canReview(id), [id, user?.id]);
+  // Une seule requête pour les deux emplacements (desktop et mobile).
+  const compactReviews = useAsyncData(() => listReviews(id, { page: 1, pageSize: 3 }), [id]);
 
   if (detail.loading || detail.error)
     return (
@@ -97,6 +101,7 @@ export function ProfessionalPublicPage() {
   const refreshAfterReview = () => {
     setReviewSubmittedFor(id);
     detail.reload().catch(() => { });
+    compactReviews.reload().catch(() => { });
   };
 
   const goPrev = () => setOpenIndex((cur) => (cur == null ? 0 : (cur - 1 + photos.length) % photos.length));
@@ -115,6 +120,10 @@ export function ProfessionalPublicPage() {
         openAuthModal('login');
       return;
     }
+    if (sectionId === 'profile') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -128,11 +137,13 @@ export function ProfessionalPublicPage() {
 
   return (
     <div className="container-kop page-padding space-y-6 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0">
-
+      <h1 className="sr-only">
+        {profile.displayName} - {tradeName} à {CITY}
+      </h1>
 
       <div className="grid min-w-0 gap-6 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)_minmax(0,280px)] lg:items-start">
         <aside className="hidden min-w-0 space-y-6 lg:block lg:self-stretch">
-          <Card id="profile" className="space-y-3.5 p-4">
+          <Card className="space-y-3.5 p-4">
             <div className="flex items-center gap-3">
               <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-gray-100">
                 {avatarSrc ? (
@@ -156,9 +167,9 @@ export function ProfessionalPublicPage() {
                   </Badge>
                 </div>
                 <div className="min-w-0 space-y-0.5">
-                  <h1 className="truncate text-base font-bold leading-tight tracking-tight text-gray-900">
+                  <h2 className="truncate text-base font-bold leading-tight tracking-tight text-gray-900">
                     {profile.displayName}
-                  </h1>
+                  </h2>
                   <p className="truncate text-xs font-medium text-primary-700">
                     {tradeName} à {CITY}
                   </p>
@@ -304,7 +315,7 @@ export function ProfessionalPublicPage() {
 
         <div className="min-w-0 space-y-12">
           <div className="lg:hidden">
-            <Card id="profile" className=" p-2 sm:p-2">
+            <Card className="p-2">
               <div className="flex flex-col gap-5">
                 <div className="relative w-full shrink-0">
                   <div className="aspect-4/4 w-full overflow-hidden rounded-sm bg-gray-100">
@@ -322,9 +333,9 @@ export function ProfessionalPublicPage() {
                   <Badge variant={profile.isAvailable ? 'success' : 'warning'}>
                     {profile.isAvailable ? 'Disponible' : 'Indisponible'}
                   </Badge>
-                  <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
+                  <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
                     {profile.displayName}
-                  </h1>
+                  </h2>
                   <p className="font-semibold text-primary-700">{tradeName} à {CITY}</p>
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-700">
                     {profile.yearsExperience != null && (
@@ -459,7 +470,7 @@ export function ProfessionalPublicPage() {
               onLeaveReview={onLeaveReviewClick}
             />
             <h2 className="text-xl font-bold text-gray-900">Les retours de ses clients</h2>
-            <ReviewList professionalId={profile.id} compact onViewAll={() => setReviewsOpen(true)} />
+            <ReviewCards state={compactReviews} onViewAll={() => setReviewsOpen(true)} />
           </section>
 
           {isVisitorView && (
@@ -476,7 +487,7 @@ export function ProfessionalPublicPage() {
               onLeaveReview={onLeaveReviewClick}
             />
             <h2 className="text-base font-bold text-gray-900">Les retours de ses clients</h2>
-            <ReviewList professionalId={profile.id} compact onViewAll={() => setReviewsOpen(true)} />
+            <ReviewCards state={compactReviews} onViewAll={() => setReviewsOpen(true)} />
           </section>
 
           <Card id="contact" className="space-y-4 p-5 lg:sticky lg:top-23 lg:bottom-4">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { SearchFilters } from '../components/SearchFilters.jsx';
 import { SearchRefineFilters } from '../components/SearchRefineFilters.jsx';
@@ -8,13 +8,12 @@ import { Search } from 'lucide-react';
 import { SearchResults } from '../components/SearchResults.jsx';
 import { useSearch } from '../hooks/useSearch.js';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
-import { ROUTES } from '@/shared/lib/constants.js';
 
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const { trade, zone, page, q, available, minRating, minExperience } = Object.fromEntries(params.entries());
   const [sort, setSort] = useState(params.get('sort') || 'recommended');
-  const { results, loading, error } = useSearch({
+  const { results, loading, error, refresh } = useSearch({
     trade,
     zone,
     q,
@@ -105,7 +104,7 @@ export function SearchPage() {
               <div role="alert" className="rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700">
                 {error.message || 'Erreur de chargement des résultats.'}
                 <div className="mt-3">
-                  <Button variant="outline" as={Link} to={ROUTES.SEARCH}>Réessayer</Button>
+                  <Button variant="outline" onClick={refresh}>Réessayer</Button>
                 </div>
               </div>
             )}

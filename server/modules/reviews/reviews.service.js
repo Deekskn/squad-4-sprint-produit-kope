@@ -1,5 +1,5 @@
 import { ApiError } from '../../utils/ApiError.js';
-import { offsetOf, paginate } from '../../utils/pagination.js';
+import { offsetOf, paginate, paginateSafely } from '../../utils/pagination.js';
 import * as repository from './reviews.repository.js';
 import * as professionalsRepository from '../professionals/professionals.repository.js';
 
@@ -50,5 +50,8 @@ export async function listReviews(viewer, professionalId, pagination) {
     repository.getSummary(professionalId),
   ]);
 
-  return { summary, ...paginate(rows, pagination) };
+  const result = await paginateSafely(rows, pagination, () =>
+    repository.countByProfessional(professionalId),
+  );
+  return { summary, ...result };
 }

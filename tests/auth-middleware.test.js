@@ -79,17 +79,43 @@ describe('requireAuth', () => {
 });
 
 describe('requireRole', () => {
-  it('autorise le bon rôle via Bearer', () => {
-    const mw = requireRole('professional');
-    const req = bearer({ sub: 1, role: 'professional' });
-    let called = false;
-    mw(req, {}, () => { called = true; });
-    expect(called).toBe(true);
+  beforeEach(() => {
+    isBlocked.mockResolvedValue(false);
+    isSuspended.mockResolvedValue(false);
   });
 
-  it('refuse un mauvais rôle (403)', () => {
+  function runRole(mw, req) {
+    return new Promise((resolve, reject) => {
+      mw(req, {}, (err) => (err ? reject(err) : resolve()));
+    });
+  }
+
+  it('autorise le bon rôle via Bearer', async () => {
+    const mw = requireRole('professional');
+    await expect(runRole(mw, bearer({ sub: 1, role: 'professional' }))).resolves.toBeUndefined();
+  });
+
+  it('refuse un mauvais rôle (403)', async () => {
     const mw = requireRole('admin');
-    const req = bearer({ sub: 1, role: 'client' });
-    expect(() => mw(req, {}, () => {})).toThrow(/Accès refusé/);
+    await expect(runRole(mw, bearer({ sub: 1, role: 'client' }))).rejects.toThrow(/Accès refusé/);
+  });
+
+  it('refuse un administrateur bloqué (fuite de privilèges)', async () => {
+    isBlocked.mockResolvedValue(true);
+    const mw = requireRole('admin');
+    await expect(runRole(mw, bearer({ sub: 1, role: 'admin' }))).rejects.toThrow(/bloqué/);
+  });
+
+  it('refuse un administrateur suspendu', async () => {
+    isSuspended.mockResolvedValue(true);
+    const mw = requireRole('admin');
+    await expect(runRole(mw, bearer({ sub: 1, role: 'admin' }))).rejects.toThrow(/suspendu/);
+  });
+
+  it('expose req.user à la route', async () => {
+    const mw = requireRole('admin');
+    const req = bearer({ sub: 42, role: 'admin' });
+    await runRole(mw, req);
+    expect(req.user).toEqual({ id: 42, role: 'admin' });
   });
 });

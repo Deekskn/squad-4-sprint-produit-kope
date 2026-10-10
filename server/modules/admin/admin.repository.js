@@ -31,6 +31,24 @@ export async function listProfessionals({ limit, offset, q, status, sort }, db =
   return rows;
 }
 
+export async function countProfessionals({ q, status }, db = pool) {
+  const { rows } = await db.query(
+    `SELECT COUNT(*)::int AS count
+       FROM professionals p
+       JOIN users u ON u.id = p.user_id
+       LEFT JOIN published_professionals v ON v.user_id = p.user_id
+      WHERE ($1::text IS NULL
+             OR p.display_name ILIKE '%' || $1 || '%'
+             OR u.phone ILIKE '%' || $1 || '%')
+        AND ($2::text IS NULL
+             OR ($2 = 'hidden' AND p.is_hidden)
+             OR ($2 = 'published' AND NOT p.is_hidden AND v.user_id IS NOT NULL)
+             OR ($2 = 'incomplete' AND NOT p.is_hidden AND v.user_id IS NULL))`,
+    [q ?? null, status ?? null],
+  );
+  return Number(rows[0]?.count ?? 0);
+}
+
 export async function setProfessionalHidden(id, hidden, db = pool) {
   const { rowCount } = await db.query('UPDATE professionals SET is_hidden = $2 WHERE user_id = $1', [id, hidden]);
   return rowCount > 0;
@@ -64,6 +82,23 @@ export async function listReviews({ limit, offset, hidden, q }, db = pool) {
   return rows;
 }
 
+export async function countReviews({ hidden, q }, db = pool) {
+  const { rows } = await db.query(
+    `SELECT COUNT(*)::int AS count
+       FROM reviews r
+       JOIN users u ON u.id = r.client_id
+       JOIN professionals p ON p.user_id = r.professional_id
+      WHERE ($1::boolean IS NULL OR r.is_hidden = $1)
+        AND ($2::text IS NULL
+             OR u.first_name ILIKE '%' || $2 || '%'
+             OR u.last_name ILIKE '%' || $2 || '%'
+             OR p.display_name ILIKE '%' || $2 || '%'
+             OR r.comment ILIKE '%' || $2 || '%')`,
+    [typeof hidden === 'boolean' ? hidden : null, q ?? null],
+  );
+  return Number(rows[0]?.count ?? 0);
+}
+
 export async function setReviewHidden(id, hidden, db = pool) {
   const { rowCount } = await db.query('UPDATE reviews SET is_hidden = $2 WHERE id = $1', [id, hidden]);
   return rowCount > 0;
@@ -91,22 +126,35 @@ export async function listUsers({ limit, offset, role, q }, db = pool) {
   return rows;
 }
 
+export async function countUsers({ role, q }, db = pool) {
+  const { rows } = await db.query(
+    `SELECT COUNT(*)::int AS count
+       FROM users u
+      WHERE ($1::text IS NULL OR u.role = $1)
+        AND ($2::text IS NULL
+             OR u.first_name ILIKE '%' || $2 || '%'
+             OR u.last_name ILIKE '%' || $2 || '%'
+             OR u.phone ILIKE '%' || $2 || '%')`,
+    [role ?? null, q ?? null],
+  );
+  return Number(rows[0]?.count ?? 0);
+}
+
 export async function countStats(db = pool) {
   const { rows } = await db.query(
     `SELECT
         (SELECT COUNT(*)::int FROM users) AS "users",
         (SELECT COUNT(*)::int FROM users WHERE role = 'client') AS "clients",
         (SELECT COUNT(*)::int FROM users WHERE role = 'professional') AS "professionals",
-        (SELECT COUNT(*)::int FROM professionals WHERE NOT is_hidden AND description IS NOT NULL
-            AND years_experience IS NOT NULL
-            AND EXISTS (SELECT 1 FROM professional_zones z WHERE z.professional_id = professionals.user_id)
-            AND EXISTS (SELECT 1 FROM photos ph WHERE ph.professional_id = professionals.user_id)) AS "published",
+        -- Source de vérité unique : la vue porte les critères de publication
+        -- (et l'exclusion des comptes suspendus). Ne pas recalculer ici.
+        (SELECT COUNT(*)::int FROM published_professionals) AS "published",
         (SELECT COUNT(*)::int FROM professionals WHERE is_hidden) AS "hidden",
         (SELECT COUNT(*)::int FROM professionals) AS "total",
         (SELECT COUNT(*)::int FROM reviews) AS "reviews",
         (SELECT COUNT(*)::int FROM reviews WHERE is_hidden) AS "reviewsHidden",
         (SELECT COALESCE(ROUND(AVG(rating), 1)::float8, 0) FROM reviews WHERE NOT is_hidden) AS "ratingAverage",
-        (SELECT COUNT(*)::int FROM contact_requests) AS "contacts"`,
+        (SELECT COUNT(*)::int FROM contacts) AS "contacts"`,
   );
   return rows[0];
 }

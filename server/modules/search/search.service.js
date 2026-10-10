@@ -1,7 +1,7 @@
-import { offsetOf, paginate } from '../../utils/pagination.js';
+import { offsetOf, paginateSafely } from '../../utils/pagination.js';
 import { uploadUrl } from '../../utils/uploads.js';
 import * as repository from './search.repository.js';
-const PAGE_SIZE = 10; 
+const PAGE_SIZE = 10;
 function toCard(row) {
   return {
     id: row.id,
@@ -17,16 +17,19 @@ function toCard(row) {
 }
 export async function search({ trade, zone, q, available, minRating, minExperience, page }) {
   const pagination = { page, pageSize: PAGE_SIZE };
-  const rows = await repository.searchPublished({
+  const filters = {
     tradeId: trade ?? null,
     zoneId: zone ?? null,
     keyword: q ?? null,
     available: available ?? null,
     minRating: minRating ?? null,
     minExperience: minExperience ?? null,
+  };
+  const rows = await repository.searchPublished({
+    ...filters,
     limit: PAGE_SIZE,
     offset: offsetOf(pagination),
   });
-  const result = paginate(rows, pagination);
+  const result = await paginateSafely(rows, pagination, () => repository.countPublished(filters));
   return { ...result, items: result.items.map(toCard) };
 }

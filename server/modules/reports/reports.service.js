@@ -1,5 +1,5 @@
 import { ApiError } from '../../utils/ApiError.js';
-import { offsetOf, paginate } from '../../utils/pagination.js';
+import { offsetOf, paginateSafely } from '../../utils/pagination.js';
 import { env } from '../../config/env.js';
 import * as repository from './reports.repository.js';
 import * as professionalsRepository from '../professionals/professionals.repository.js';
@@ -47,7 +47,7 @@ export async function listReports({ status, q, ...pagination }) {
     status,
     q,
   });
-  return paginate(rows, pagination);
+  return paginateSafely(rows, pagination, () => repository.countGrouped({ status, q }));
 }
 
 export async function setReportStatus(id, status) {

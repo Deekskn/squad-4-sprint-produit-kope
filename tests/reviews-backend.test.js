@@ -1,4 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+// requireRole interroge la base (blocage / suspension) : on isole cette dépendance.
+vi.mock('../server/modules/auth/auth.repository.js', () => ({
+  isBlocked: vi.fn().mockResolvedValue(false),
+  isSuspended: vi.fn().mockResolvedValue(false),
+}));
+
 import * as repository from '../server/modules/reviews/reviews.repository.js';
 import * as service from '../server/modules/reviews/reviews.service.js';
 import * as professionalsRepository from '../server/modules/professionals/professionals.repository.js';
@@ -66,19 +73,18 @@ describe('Un professionnel peut aussi laisser un avis', () => {
     vi.restoreAllMocks();
   });
 
-  it('autorise le rôle professional sur la route de création', () => {
+  it('autorise le rôle professional sur la route de création', async () => {
     const layer = reviewsRoutes.stack.find(
       (l) => l.route?.path === '/professionals/:id/reviews' && l.route.methods.post,
     );
     expect(layer).toBeTruthy();
 
-    let allowed = false;
-    requireRole('client', 'professional')(
-      { headers: { authorization: `Bearer ${signToken({ sub: 25, role: 'professional' }, env.ACCESS_TOKEN_SECRET, 3600)}` } },
-      {},
-      () => { allowed = true; },
-    );
-    expect(allowed).toBe(true);
+    const mw = requireRole('client', 'professional');
+    const req = { headers: { authorization: `Bearer ${signToken({ sub: 25, role: 'professional' }, env.ACCESS_TOKEN_SECRET, 3600)}` } };
+    await expect(
+      new Promise((resolve, reject) => mw(req, {}, (err) => (err ? reject(err) : resolve()))),
+    ).resolves.toBeUndefined();
+    expect(req.user).toEqual({ id: 25, role: 'professional' });
   });
 
   it('canReview est vrai pour un professionnel qui visite un autre pro', async () => {

@@ -47,6 +47,14 @@ export async function listByProfessional(professionalId, { limit, offset }, db =
   return rows;
 }
 
+export async function countByProfessional(professionalId, db = pool) {
+  const { rows } = await db.query(
+    'SELECT COUNT(*)::int AS count FROM reviews WHERE professional_id = $1 AND NOT is_hidden',
+    [professionalId],
+  );
+  return Number(rows[0]?.count ?? 0);
+}
+
 /** Tous les avis laissés par un client */
 export async function listByClient(clientId, { limit = 20, offset = 0 } = {}, db = pool) {
   const { rows } = await db.query(

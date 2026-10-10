@@ -67,3 +67,12 @@ export async function listForUser(userId, { limit = 20, offset = 0 } = {}, db = 
   );
   return rows;
 }
+
+export async function countForUser(userId, db = pool) {
+  const { rows } = await db.query(
+    `SELECT (SELECT COUNT(*)::int FROM contacts WHERE sender_id = $1)
+          + (SELECT COUNT(*)::int FROM contacts WHERE recipient_id = $1) AS count`,
+    [userId],
+  );
+  return Number(rows[0]?.count ?? 0);
+}

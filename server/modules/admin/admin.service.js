@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { ApiError } from '../../utils/ApiError.js';
-import { offsetOf, paginate } from '../../utils/pagination.js';
+import { offsetOf, paginateSafely } from '../../utils/pagination.js';
 import * as repository from './admin.repository.js';
 import * as refreshTokensRepository from '../auth/refreshTokens.repository.js';
 
@@ -14,7 +14,7 @@ export async function listProfessionals(query) {
     status: query.status,
     sort: query.sort,
   });
-  return paginate(rows, query);
+  return paginateSafely(rows, query, () => repository.countProfessionals({ q: query.q, status: query.status }));
 }
 
 export async function listReviews(query) {
@@ -24,7 +24,7 @@ export async function listReviews(query) {
     hidden: query.hidden,
     q: query.q,
   });
-  return paginate(rows, query);
+  return paginateSafely(rows, query, () => repository.countReviews({ hidden: query.hidden, q: query.q }));
 }
 
 export async function listUsers(query) {
@@ -34,7 +34,7 @@ export async function listUsers(query) {
     role: query.role,
     q: query.q,
   });
-  return paginate(rows, query);
+  return paginateSafely(rows, query, () => repository.countUsers({ role: query.role, q: query.q }));
 }
 
 /** Bloque ou débloque un compte utilisateur. */
@@ -83,14 +83,16 @@ export async function createAdmin({ firstName, lastName, phone, password }) {
 export async function getStats() {
   const stats = await repository.countStats();
   const recent = await repository.listRecentProfessionals(5);
-  const total = stats.incomplete + stats.published + stats.hidden;
+  // `published` et `hidden` sont disjoints (la vue exclut les profils masqués) :
+  // le solde correspond aux profils incomplets.
+  const incomplete = Math.max(0, stats.total - stats.published - stats.hidden);
   return {
     users: stats.users,
     clients: stats.clients,
     professionals: stats.professionals,
     published: stats.published,
     hidden: stats.hidden,
-    incomplete: Math.max(0, total - stats.published - stats.hidden),
+    incomplete,
     reviews: stats.reviews,
     reviewsHidden: stats.reviewsHidden,
     ratingAverage: stats.ratingAverage,
