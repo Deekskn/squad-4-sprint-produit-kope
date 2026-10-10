@@ -3,12 +3,13 @@ import { requireAuth } from '../server/middlewares/requireAuth.js';
 import { requireRole } from '../server/middlewares/requireRole.js';
 import { signToken } from '../server/utils/tokens.js';
 
-// requireAuth vérifie en base si le compte est bloqué : on isole cette dépendance.
+// requireAuth vérifie en base si le compte est bloqué ou suspendu : on isole cette dépendance.
 vi.mock('../server/modules/auth/auth.repository.js', () => ({
   isBlocked: vi.fn().mockResolvedValue(false),
+  isSuspended: vi.fn().mockResolvedValue(false),
 }));
 
-const { isBlocked } = await import('../server/modules/auth/auth.repository.js');
+const { isBlocked, isSuspended } = await import('../server/modules/auth/auth.repository.js');
 
 // requireAuth/requireRole utilisent env.ACCESS_TOKEN_SECRET - on génère le token avec le même env.
 import { env } from '../server/config/env.js';
@@ -26,6 +27,7 @@ function run(req) {
 describe('requireAuth', () => {
   beforeEach(() => {
     isBlocked.mockResolvedValue(false);
+    isSuspended.mockResolvedValue(false);
   });
 
   it('accepte un Bearer token valide et remplit req.user', async () => {
@@ -67,6 +69,12 @@ describe('requireAuth', () => {
     isBlocked.mockResolvedValue(true);
     const req = { headers: {}, session: { user: { id: 9, role: 'client' } } };
     await expect(run(req)).rejects.toThrow(/bloqué/);
+  });
+
+  it('refuse un compte suspendu avec un message dédié', async () => {
+    isSuspended.mockResolvedValue(true);
+    const req = bearer({ sub: 7, role: 'professional' });
+    await expect(run(req)).rejects.toThrow(/suspendu/);
   });
 });
 

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { BarChart3, Hammer, MapPin, ShieldCheck, Star, Users } from 'lucide-react';
+import { BarChart3, Flag, Hammer, MapPin, ShieldCheck, Star, Users } from 'lucide-react';
 import { cn } from '@/shared/utils';
 import { SidebarNav } from '@/shared/components/ui/SidebarNav.jsx';
 import { BottomNav } from '@/shared/components/ui/BottomNav.jsx';
 import { AdminStats } from '../components/AdminStats.jsx';
 import { AdminProfessionalsGrid } from '../components/AdminProfessionalsGrid.jsx';
 import { AdminReviewsTable } from '../components/AdminReviewsTable.jsx';
+import { AdminReportsTable } from '../components/AdminReportsTable.jsx';
 import { AdminTradesBoard } from '../components/AdminTradesBoard.jsx';
 import { AdminZonesBoard } from '../components/AdminZonesBoard.jsx';
 import { AdminUsersTable } from '../components/AdminUsersTable.jsx';
@@ -14,6 +15,7 @@ const SECTIONS = [
   { id: 'overview', label: "Vue d'ensemble", shortLabel: 'Aperçu', icon: BarChart3 },
   { id: 'professionals', label: 'Professionnels', shortLabel: 'Pros', icon: ShieldCheck },
   { id: 'reviews', label: 'Avis', shortLabel: 'Avis', icon: Star },
+  { id: 'reports', label: 'Signalements', shortLabel: 'Signal.', icon: Flag },
   { id: 'trades', label: 'Métiers', shortLabel: 'Métiers', icon: Hammer },
   { id: 'zones', label: 'Zones', shortLabel: 'Zones', icon: MapPin },
   { id: 'users', label: 'Utilisateurs', shortLabel: 'Users', icon: Users },
@@ -23,12 +25,13 @@ const TITLES = {
   overview: "Vue d'ensemble",
   professionals: 'Gestion des professionnels',
   reviews: 'Modération des avis',
+  reports: 'Signalements de profils',
   trades: 'Métiers',
   zones: 'Zones / quartiers',
   users: 'Utilisateurs',
 };
 
-const FILTERED_SECTIONS = ['professionals', 'reviews', 'trades', 'zones', 'users'];
+const FILTERED_SECTIONS = ['professionals', 'reviews', 'reports', 'trades', 'zones', 'users'];
 
 export function AdminDashboardPage() {
   const [section, setSection] = useState('overview');
@@ -55,6 +58,7 @@ export function AdminDashboardPage() {
           {section === 'overview' && <AdminStats />}
           {section === 'professionals' && <AdminProfessionalsGrid rightContainer={rightEl} />}
           {section === 'reviews' && <AdminReviewsTable rightContainer={rightEl} />}
+          {section === 'reports' && <AdminReportsTable rightContainer={rightEl} />}
           {section === 'trades' && <AdminTradesBoard rightContainer={rightEl} />}
           {section === 'zones' && <AdminZonesBoard rightContainer={rightEl} />}
           {section === 'users' && <AdminUsersTable rightContainer={rightEl} />}

@@ -18,6 +18,11 @@ function resolveUrl(url) {
   return `/api${normalized}`;
 }
 
+/** Declenche quand l'API refuse la requete pour un compte suspendu. */
+export const SUSPENDED_EVENT = 'kop:account-suspended';
+
+const SUSPENDED_PATTERN = /compete? (a été|est) suspendu/i;
+
 async function parseResponse(res) {
   let payload = null;
   const contentType = res.headers.get('content-type') || '';
@@ -30,6 +35,8 @@ async function parseResponse(res) {
   
   if (!res.ok) {
     const message = payload?.message || `Erreur ${res.status}`;
+    if (res.status === 403 && typeof window !== 'undefined' && SUSPENDED_PATTERN.test(message))
+      window.dispatchEvent(new CustomEvent(SUSPENDED_EVENT, { detail: { message } }));
     throw new ApiError(res.status, message, payload?.errors);
   }
   return payload;

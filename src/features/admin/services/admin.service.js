@@ -14,6 +14,7 @@ import {
   mockDeleteTradeCategory,
   mockDeleteZone,
   mockAdminReviews,
+  mockAdminReports,
   mockListCities,
   mockListTradeCategories,
   mockListTrades,
@@ -22,7 +23,9 @@ import {
   mockReorderTradeCategories,
   mockReorderTrades,
   mockReorderZones,
+  mockResolveReport,
   mockSetUserBlocked,
+  mockSetUserSuspended,
   mockUpdateCity,
   mockUpdateTrade,
   mockUpdateTradeCategory,
@@ -87,6 +90,32 @@ export function setReviewHidden(reviewId, hidden) {
   return callApi(
     () => api.patchJson(`/admin/reviews/${reviewId}/visibility`, { hidden: Boolean(hidden) }),
     async () => ({ id: reviewId, isHidden: Boolean(hidden) }),
+  );
+}
+
+export function listReports({ page = 1, pageSize = 20, status = '', query = '' } = {}) {
+  return callApi(
+    () => {
+      const params = { page, pageSize };
+      if (status) params.status = status;
+      if (query) params.q = query;
+      return api.get('/admin/reports', params);
+    },
+    async () => mockAdminReports({ page, pageSize, status, query }),
+  );
+}
+
+export function setReportStatus(reportId, status) {
+  return callApi(
+    () => api.patchJson(`/admin/reports/${reportId}`, { status }).then((r) => r.report),
+    async () => mockResolveReport(reportId, status),
+  );
+}
+
+export function setUserSuspended(actorId, id, suspended) {
+  return callApi(
+    () => api.patchJson(`/admin/users/${id}/suspended`, { suspended: Boolean(suspended) }),
+    async () => mockSetUserSuspended(actorId, id, suspended),
   );
 }
 
@@ -262,6 +291,9 @@ export default {
   setProHidden,
   listReviews,
   setReviewHidden,
+  listReports,
+  setReportStatus,
+  setUserSuspended,
   listUsers,
   listTrades,
   createTrade,

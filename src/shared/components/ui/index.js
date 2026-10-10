@@ -7,6 +7,7 @@ export { SearchInput } from './SearchInput.jsx';
 export { Checkbox } from './Checkbox.jsx';
 export { RadioGroup, Radio } from './RadioGroup.jsx';
 export { Card } from './Card.jsx';
+export { Separator } from './Separator.jsx';
 export { Badge } from './Badge.jsx';
 export { FormField } from './FormField.jsx';
 export { Spinner } from './Spinner.jsx';

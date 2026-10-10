@@ -72,7 +72,7 @@ export function SearchPage() {
   return (
     <div>
       <div className="container-kop page-padding">
-        <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)_minmax(0,260px)] lg:items-start">
+        <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)_minmax(0,280px)] lg:items-start">
           <aside className="hidden lg:block lg:sticky lg:top-23 space-y-4">
             <SearchFilters variant="sidebar" initial={{ trade, zone, keyword: q }} searching={loading} />
           </aside>

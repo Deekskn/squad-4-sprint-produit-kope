@@ -8,6 +8,34 @@ import hero from '@/shared/assets/hero.png';
 
 const IMAGES = [what1, what2, what3, user1, user2, hero];
 
+// Palettes des visuels de réalisation : une par quadruple, pour que deux
+// professionnels différents n'affichent jamais les mêmes photos.
+const WORK_PALETTES = [
+  ['#eef4f1', '#2d5c4a'], ['#f7f1e4', '#8b6b2f'], ['#fbeae3', '#a45e3a'],
+  ['#e8ecfa', '#3e4c8a'], ['#f1ecf6', '#5b3f7a'], ['#e9f3f6', '#276b7d'],
+  ['#f6ece9', '#8c4033'], ['#edf5e8', '#4a7327'], ['#fdf3e0', '#96601a'],
+  ['#eaf6f0', '#1f6b57'], ['#f5eef4', '#7a3566'], ['#eef1f7', '#334a72'],
+];
+
+/** Visuel de réalisation généré, unique par professionnel et par photo. */
+function workImage(proIndex, photoIndex, label) {
+  // Pas de 5 (premier avec 12) : les 3 photos d'un même pro jamais la même teinte.
+  const [bg, fg] = WORK_PALETTES[(proIndex + photoIndex * 5) % WORK_PALETTES.length];
+  const a = 30 + ((proIndex * 17 + photoIndex * 29) % 40);
+  const b = 90 + ((proIndex * 11 + photoIndex * 23) % 70);
+  const c = 150 + ((proIndex * 7 + photoIndex * 19) % 90);
+  const text = String(label || '').slice(0, 22);
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'>` +
+    `<rect width='400' height='300' fill='${bg}'/>` +
+    `<rect x='${20 + a}' y='${40 + b / 2}' width='${120 - a / 2}' height='${160 - b / 2}' rx='10' fill='${fg}' opacity='0.75'/>` +
+    `<rect x='${170 - a / 3}' y='${70 + c / 3}' width='${190 - a / 3}' height='${120 - c / 4}' rx='10' fill='${fg}' opacity='0.45'/>` +
+    `<circle cx='${330 - a}' cy='${250 - b}' r='${26 + (photoIndex % 3) * 8}' fill='${fg}' opacity='0.6'/>` +
+    `<text x='20' y='276' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='${fg}'>${text}</text>` +
+    `</svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
 export const MOCK_TRADE_CATEGORIES = [
   { id: 1, name: 'Bâtiment & gros œuvre' },
   { id: 2, name: 'Électricité & plomberie' },
@@ -74,8 +102,8 @@ function makePro(i) {
     ratingCount,
     photos: [0, 1, 2].map((k) => ({
       id: i * 10 + k + 1,
-      url: IMAGES[(i + k) % IMAGES.length],
-      thumbUrl: IMAGES[(i + k) % IMAGES.length],
+      url: workImage(i, k, trade.name),
+      thumbUrl: workImage(i, k, trade.name),
       caption: k === 0 ? 'Chantier récent' : k === 1 ? 'Réalisation' : 'Prestation',
       title: k === 0 ? 'Chantier récent' : k === 1 ? 'Réalisation' : 'Prestation',
       description:
@@ -169,6 +197,7 @@ export function getProDetailMock(id) {
       whatsapp: p.whatsapp ?? p.phone,
       zones: p.zones,
       tags: tagsByTrade[p.tradeId] ?? [],
+      createdAt: new Date(Date.now() - (p.id + 2) * 86400000 * 11).toISOString(),
       updatedAt: new Date(Date.now() - p.id * 86400000).toISOString(),
     },
     photos: p.photos,
@@ -277,6 +306,143 @@ export function mockAdminProfessionals({ page = 1, pageSize = 20, query = '', st
   return paginateMock(rows, page, pageSize);
 }
 
+const MOCK_REPORTERS = [
+  { id: 901, firstName: 'Nadeige', lastName: 'B.', avatarUrl: null },
+  { id: 902, firstName: 'Herve', lastName: 'M.', avatarUrl: null },
+  { id: 903, firstName: 'Chantal', lastName: 'K.', avatarUrl: null },
+];
+
+let MOCK_REPORTS = [
+  {
+    id: 1,
+    professionalId: MOCK_PROS[2].id,
+    reporterId: MOCK_REPORTERS[0].id,
+    reason: 'fake_profile',
+    message: 'Les photos de cette fiche ne correspondent pas du tout au métier annoncé.',
+    status: 'pending',
+    resolvedAt: null,
+    createdAt: '2026-09-28T09:12:00.000Z',
+    reporter: MOCK_REPORTERS[0],
+  },
+  {
+    id: 2,
+    professionalId: MOCK_PROS[5].id,
+    reporterId: MOCK_REPORTERS[1].id,
+    reason: 'spam',
+    message: 'Envoie des messages promotionnels dès la prise de contact.',
+    status: 'pending',
+    resolvedAt: null,
+    createdAt: '2026-09-24T16:40:00.000Z',
+    reporter: MOCK_REPORTERS[1],
+  },
+  {
+    id: 3,
+    professionalId: MOCK_PROS[1].id,
+    reporterId: MOCK_REPORTERS[2].id,
+    reason: 'other',
+    message: 'Informations professionnelles incomplètes.',
+    status: 'resolved',
+    resolvedAt: '2026-09-20T11:05:00.000Z',
+    createdAt: '2026-09-18T08:30:00.000Z',
+    reporter: MOCK_REPORTERS[2],
+  },
+];
+
+const withProName = (r) => {
+  const pro = MOCK_PROS.find((p) => String(p.id) === String(r.professionalId));
+  return {
+    ...r,
+    professionalName: pro?.displayName ?? `Pro #${r.professionalId}`,
+    professionalAvatarUrl: pro?.avatarUrl ?? null,
+    professionalBlockedAt: pro?.blockedAt ?? null,
+    professionalSuspendedAt: pro?.suspendedAt ?? null,
+  };
+};
+
+export const MOCK_AUTO_BLOCK_THRESHOLD = 3;
+export const MOCK_AUTO_SUSPEND_THRESHOLD = 5;
+
+export function mockReportProfessional({ professionalId, reporterId = 901, reason, message = null }) {
+  const pro = MOCK_PROS.find((p) => String(p.id) === String(professionalId));
+  if (!pro) throw new Error('Profil introuvable');
+  if (String(pro.id) === String(reporterId)) throw new Error('Vous ne pouvez pas signaler votre propre profil');
+  if (MOCK_REPORTS.some((r) => String(r.professionalId) === String(pro.id) && String(r.reporterId) === String(reporterId)))
+    throw new Error('Vous avez déjà signalé ce profil');
+
+  const created = {
+    id: Math.max(0, ...MOCK_REPORTS.map((r) => r.id)) + 1,
+    professionalId: pro.id,
+    reporterId: Number(reporterId),
+    reason,
+    message: message || null,
+    status: 'pending',
+    resolvedAt: null,
+    createdAt: new Date().toISOString(),
+    reporter: MOCK_REPORTERS.find((u) => String(u.id) === String(reporterId)) ?? {
+      id: Number(reporterId),
+      firstName: 'Client',
+      lastName: '',
+      avatarUrl: null,
+    },
+  };
+  MOCK_REPORTS = [created, ...MOCK_REPORTS];
+
+  // Traitement automatique au seuil, comme le service serveur.
+  const reportCount = MOCK_REPORTS.filter((r) => String(r.professionalId) === String(pro.id)).length;
+  const autoBlocked = MOCK_AUTO_BLOCK_THRESHOLD > 0 && reportCount >= MOCK_AUTO_BLOCK_THRESHOLD;
+  const autoSuspended = MOCK_AUTO_SUSPEND_THRESHOLD > 0 && reportCount >= MOCK_AUTO_SUSPEND_THRESHOLD;
+  if (autoBlocked) pro.blockedAt = pro.blockedAt || new Date().toISOString();
+  if (autoSuspended) pro.suspendedAt = pro.suspendedAt || new Date().toISOString();
+
+  return { ...withProName(created), reportCount, autoBlocked, autoSuspended };
+}
+
+export function mockAdminReports({ page = 1, pageSize = 20, status, query = '' } = {}) {
+  const q = String(query || '').trim().toLowerCase();
+  let rows = MOCK_REPORTS.map(withProName);
+  if (status) rows = rows.filter((r) => r.status === status);
+  if (q)
+    rows = rows.filter((r) => {
+      const reporter = `${r.reporter?.firstName || ''} ${r.reporter?.lastName || ''}`.toLowerCase();
+      return (
+        (r.professionalName || '').toLowerCase().includes(q) ||
+        String(r.message || '').toLowerCase().includes(q) ||
+        reporter.includes(q)
+      );
+    });
+
+  // Regroupement par professionnel : un seul item par profil signalé.
+  const groups = [...rows.reduce((acc, r) => acc.set(String(r.professionalId), [...(acc.get(String(r.professionalId)) || []), r]), new Map()).entries()]
+    .map(([professionalId, reports]) => {
+      const sorted = [...reports].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const pendingCount = sorted.filter((r) => r.status === 'pending').length;
+      return {
+        professionalId: Number(professionalId),
+        professionalName: sorted[0].professionalName,
+        professionalAvatarUrl: sorted[0].professionalAvatarUrl,
+        professionalBlockedAt: sorted[0].professionalBlockedAt,
+        professionalSuspendedAt: sorted[0].professionalSuspendedAt,
+        reportCount: sorted.length,
+        pendingCount,
+        latestAt: sorted[0].createdAt,
+        reports: sorted,
+      };
+    })
+    .sort(
+      (a, b) => b.pendingCount - a.pendingCount || new Date(b.latestAt) - new Date(a.latestAt),
+    );
+
+  return paginateMock(groups, page, pageSize);
+}
+
+export function mockResolveReport(id, status) {
+  const report = MOCK_REPORTS.find((r) => String(r.id) === String(id));
+  if (!report) throw new Error('Signalement introuvable');
+  report.status = status;
+  report.resolvedAt = new Date().toISOString();
+  return withProName(report);
+}
+
 export function mockAdminReviews({ page = 1, pageSize = 20, hidden, query = '' } = {}) {
   const q = String(query || '').trim().toLowerCase();
   let all = MOCK_PROS.flatMap((p) =>
@@ -365,6 +531,16 @@ export function mockSetUserBlocked(actorId, id, blocked) {
   }
   if (persist) persist.find((u) => u.id === Number(id)).blockedAt = blocked ? new Date().toISOString() : null;
   return { id: Number(id), role: user.role, blockedAt: blocked ? new Date().toISOString() : null };
+}
+
+export function mockSetUserSuspended(actorId, id, suspended) {
+  if (Number(actorId) === Number(id)) throw new Error('Vous ne pouvez pas suspendre votre propre compte');
+  const pro = MOCK_PROS.find((p) => String(p.id) === String(id));
+  if (!pro) throw new Error('Utilisateur introuvable');
+
+  pro.suspendedAt = suspended ? pro.suspendedAt || new Date().toISOString() : null;
+  pro.blockedAt = suspended ? pro.blockedAt || new Date().toISOString() : null;
+  return { id: Number(id), role: 'professional', blockedAt: pro.blockedAt, suspendedAt: pro.suspendedAt };
 }
 
 export function mockCreateAdmin({ firstName, lastName, phone }) {

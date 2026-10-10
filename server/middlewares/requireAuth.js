@@ -1,11 +1,13 @@
 import { ApiError } from '../utils/ApiError.js';
 import { env } from '../config/env.js';
 import { verifyToken } from '../utils/tokens.js';
-import { isBlocked } from '../modules/auth/auth.repository.js';
+import { isBlocked, isSuspended } from '../modules/auth/auth.repository.js';
 
 const ACCOUNT_BLOCKED = 'Ce compte a été bloqué par un administrateur.';
+const ACCOUNT_SUSPENDED = 'Votre compte a été suspendu.';
 
 async function rejectIfBlocked(userId) {
+  if (await isSuspended(userId)) throw ApiError.forbidden(ACCOUNT_SUSPENDED);
   if (await isBlocked(userId)) throw ApiError.forbidden(ACCOUNT_BLOCKED);
 }
 

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Ban, Calendar, Check, Phone, Plus, ShieldCheck, UserPlus, X } from 'lucide-react';
 import {
   Badge,
@@ -20,7 +21,7 @@ import { useAdminPage } from '../hooks/useAdminPage.js';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { createAdmin, listUsers, setUserBlocked } from '../services/admin.service.js';
-import { ROLES } from '@/shared/lib/constants.js';
+import { ROLES, ROUTES } from '@/shared/lib/constants.js';
 import { formatDateFr } from '@/shared/utils';
 
 const PAGE_SIZE = 100;
@@ -189,6 +190,7 @@ export function AdminUsersTable({ rightContainer = null }) {
                 `#${u.id}`;
               const blocked = Boolean(u.blockedAt);
               const isSelf = currentUser?.id === u.id;
+              const isPro = u.role === ROLES.PRO;
               return (
                 <li
                   key={u.id}
@@ -197,13 +199,36 @@ export function AdminUsersTable({ rightContainer = null }) {
                   }`}
                 >
                   <div className="flex items-start gap-3 p-4">
-                    <UserAvatar
-                      user={{ firstName: u.firstName, lastName: u.lastName, avatarUrl: u.avatarUrl }}
-                      name={name}
-                      className="h-11 w-11"
-                    />
+                    {isPro ? (
+                      <Link
+                        to={ROUTES.PROFESSIONAL(u.id)}
+                        className="shrink-0 rounded-full transition hover:opacity-80"
+                        aria-label={`Voir la fiche publique de ${name}`}
+                      >
+                        <UserAvatar
+                          user={{ firstName: u.firstName, lastName: u.lastName, avatarUrl: u.avatarUrl }}
+                          name={name}
+                          className="h-11 w-11"
+                        />
+                      </Link>
+                    ) : (
+                      <UserAvatar
+                        user={{ firstName: u.firstName, lastName: u.lastName, avatarUrl: u.avatarUrl }}
+                        name={name}
+                        className="h-11 w-11"
+                      />
+                    )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-gray-900">{name}</p>
+                      {isPro ? (
+                        <Link
+                          to={ROUTES.PROFESSIONAL(u.id)}
+                          className="block truncate font-semibold text-gray-900 transition hover:text-primary-700 hover:underline"
+                        >
+                          {name}
+                        </Link>
+                      ) : (
+                        <p className="truncate font-semibold text-gray-900">{name}</p>
+                      )}
                       {u.phone && (
                         <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
                           <Phone className="h-3.5 w-3.5 shrink-0" />

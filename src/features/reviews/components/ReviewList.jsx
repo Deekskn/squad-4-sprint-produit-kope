@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { listReviews } from '../services/reviews.service.js';
 import { Pagination } from '@/shared/components/ui/Pagination.jsx';
+import { Card } from '@/shared/components/ui/Card.jsx';
 import { StarRating } from '@/shared/components/ui/StarRating.jsx';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
 import { Button } from '@/shared/components/ui/Button.jsx';
@@ -14,7 +15,7 @@ const COMPACT_COUNT = 3;
 function Author({ review }) {
   const first = review.client?.firstName;
   const last = review.client?.lastName;
-  const name = review.client?.displayName || fullNameInitials(first, last) || 'Client';
+  const name = review.client?.displayName || fullNameInitials(first, last) || 'Membre';
   return (
     <div className="flex items-center gap-2.5">
       <UserAvatar
@@ -73,7 +74,7 @@ export function ReviewList({ professionalId, compact, onViewAll }) {
 
   if (items.length === 0)
     return (
-      <div className="rounded-[20px] border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
+      <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
         Aucun avis pour le moment.
       </div>
     );
@@ -81,28 +82,26 @@ export function ReviewList({ professionalId, compact, onViewAll }) {
 
   if (compact)
     return (
-      <div className="space-y-0">
-        <div className="divide-y divide-gray-100">
-          {items.map((r) => (
-            <article key={r.id} className="py-4 first:pt-2 last:pb-0">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <Author review={r} />
-                <div className="flex items-center gap-2 text-xs">
-                  <StarRating value={r.rating} size="sm" />
-                  <span className="text-gray-400">·</span>
-                  <span className="text-gray-500">{formatDateFr(r.createdAt)}</span>
-                </div>
+      <div className="space-y-3">
+        {items.map((r) => (
+          <Card key={r.id} className="space-y-2 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Author review={r} />
+              <div className="flex items-center gap-2 text-xs">
+                <StarRating value={r.rating} size="sm" />
+                <span className="text-gray-400">·</span>
+                <span className="text-gray-500">{formatDateFr(r.createdAt)}</span>
               </div>
-              {r.comment && (
-                <p className="mt-2 line-clamp-3 text-sm leading-6 text-gray-700">
-                  {r.comment}
-                </p>
-              )}
-            </article>
-          ))}
-        </div>
+            </div>
+            {r.comment && (
+              <p className="line-clamp-3 text-sm leading-6 text-gray-700">
+                {r.comment}
+              </p>
+            )}
+          </Card>
+        ))}
         {total > COMPACT_COUNT && onViewAll && (
-          <div className="mt-3">
+          <div>
             <Button
               variant="ghost"
               size="sm"
@@ -121,19 +120,21 @@ export function ReviewList({ professionalId, compact, onViewAll }) {
     <div className="space-y-4">
       <ul className="space-y-3">
         {items.map((r) => (
-          <li key={r.id} className="rounded-md border border-gray-200 bg-white p-5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <Author review={r} />
-              <div className="flex items-center gap-2">
-                <StarRating value={r.rating} size="sm" />
-                <span className="text-xs text-gray-500">{formatDateFr(r.createdAt)}</span>
+          <li key={r.id}>
+            <Card className="space-y-3 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Author review={r} />
+                <div className="flex items-center gap-2">
+                  <StarRating value={r.rating} size="sm" />
+                  <span className="text-xs text-gray-500">{formatDateFr(r.createdAt)}</span>
+                </div>
               </div>
-            </div>
-            {r.comment && (
-              <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-[15px] leading-7 text-gray-700">
-                {r.comment}
-              </p>
-            )}
+              {r.comment && (
+                <p className="line-clamp-4 whitespace-pre-wrap text-[15px] leading-7 text-gray-700">
+                  {r.comment}
+                </p>
+              )}
+            </Card>
           </li>
         ))}
       </ul>

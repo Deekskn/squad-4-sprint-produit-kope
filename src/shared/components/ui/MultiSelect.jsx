@@ -231,6 +231,9 @@ export function MultiSelect({
             className={cx(
               "absolute left-0 right-0 z-50 overflow-auto rounded-md border border-gray-200 bg-white p-1.5 shadow-lg",
               placeAbove ? "bottom-full mb-1" : "top-full mt-1",
+              // Même animation d'apparition que le menu du header (animate-scale-in).
+              "animate-scale-in origin-top motion-reduce:animate-none",
+              placeAbove ? "origin-bottom" : "origin-top",
             )}
           >
             {options.map((option, index) => {

@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MapPin, Search, Wrench } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { FormField } from '@/shared/components/ui/FormField.jsx';
-import { Select } from '@/shared/components/ui/Select.jsx';
 import { CustomSelect } from '@/shared/components/ui/CustomSelect.jsx';
 import { SearchInput } from '@/shared/components/ui/SearchInput.jsx';
 import { Input } from '@/shared/components/ui/Input.jsx';
@@ -39,22 +38,6 @@ export function SearchFilters({ initial = {}, variant = "search", className, sea
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const t = String(fd.get("trade") || "").trim();
-    const z = String(fd.get("zone") || "").trim();
-    const k = String(fd.get("q") || keyword || "").trim();
-    const next = new URLSearchParams();
-    if (t) next.set("trade", t);
-    if (z) next.set("zone", z);
-    if (k) next.set("q", k);
-    next.set("page", "1");
-    navigate(`${ROUTES.SEARCH}?${next.toString()}`);
-  };
-
-  // La sidebar utilise des CustomSelect (pas de champ natif "name") :
-  // la soumission se fait donc depuis l'état, pas depuis un FormData.
-  const submitRefined = (e) => {
-    e.preventDefault();
     const next = new URLSearchParams();
     if (tradeValue) next.set("trade", tradeValue);
     if (zoneValue) next.set("zone", zoneValue);
@@ -63,6 +46,8 @@ export function SearchFilters({ initial = {}, variant = "search", className, sea
     next.set("page", "1");
     navigate(`${ROUTES.SEARCH}?${next.toString()}`);
   };
+
+  const submitRefined = onSubmit;
 
   const dense = variant === "sidebar";
   const home = variant === "home";
@@ -165,32 +150,36 @@ export function SearchFilters({ initial = {}, variant = "search", className, sea
             <p className='opacity-10 sm:border-x border-y sm:border-y-0 w-[96%] sm:w-0 mx-auto sm:h-8'></p>
           </>
         )}
-        <Select
+        <CustomSelect
           id="sf-trade-h"
           name="trade"
-          defaultValue={trade}
-          error={error?.trade}
-          className="sm:h-fit h-16 border-0! bg-transparent! "
-        >
-          <option value="">Tous les métiers</option>
-          {trades.map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
-        </Select>
+          value={tradeValue}
+          onChange={setTradeValue}
+          placeholder="Tous les métiers"
+          options={[
+            { value: '', label: 'Tous les métiers' },
+            ...trades.map((t) => ({ value: String(t.id), label: t.name })),
+          ]}
+          aria-label="Filtrer par métier"
+          aria-invalid={Boolean(error?.trade) || undefined}
+          className="sm:h-16"
+        />
 
         <p className='opacity-10 sm:border-x border-y sm:border-y-0 w-[96%] sm:w-0 mx-auto sm:h-8'></p>
 
-        <Select
+        <CustomSelect
           id="sf-zone-h"
           name="zone"
-          defaultValue={zone}
-          className=" sm:h-fit h-16 border-0! bg-transparent!"
-        >
-          <option value="">Toutes les zones</option>
-          {zones.map((z) => (
-            <option key={z.id} value={z.id}>{z.name}</option>
-          ))}
-        </Select>
+          value={zoneValue}
+          onChange={setZoneValue}
+          placeholder="Toutes les zones"
+          options={[
+            { value: '', label: 'Toutes les zones' },
+            ...zones.map((z) => ({ value: String(z.id), label: z.name })),
+          ]}
+          aria-label="Filtrer par zone"
+          className="sm:h-16"
+        />
 
 
         <Button
@@ -209,33 +198,39 @@ export function SearchFilters({ initial = {}, variant = "search", className, sea
     <form onSubmit={onSubmit} className={cn("space-y-4", className)} noValidate>
 
       <FormField label="Métier" error={error?.trade} id="sf-trade-d">
-        <Select
+        <CustomSelect
           id="sf-trade-d"
           name="trade"
-          defaultValue={trade}
-          error={error?.trade}
-        >
-          <option value="">Tous les métiers</option>
-          {trades.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </Select>
+          value={tradeValue}
+          onChange={setTradeValue}
+          placeholder="Tous les métiers"
+          options={[
+            { value: '', label: 'Tous les métiers' },
+            ...trades.map((t) => ({ value: String(t.id), label: t.name })),
+          ]}
+          className="w-full"
+          aria-label="Filtrer par métier"
+          aria-invalid={Boolean(error?.trade) || undefined}
+        />
       </FormField>
       <FormField
         label="Zone (facultatif)"
         help="Par défaut : toute la ville"
         id="sf-zone-d"
       >
-        <Select id="sf-zone-d" name="zone" defaultValue={zone}>
-          <option value="">Toute la ville</option>
-          {zones.map((z) => (
-            <option key={z.id} value={z.id}>
-              {z.name}
-            </option>
-          ))}
-        </Select>
+        <CustomSelect
+          id="sf-zone-d"
+          name="zone"
+          value={zoneValue}
+          onChange={setZoneValue}
+          placeholder="Toute la ville"
+          options={[
+            { value: '', label: 'Toute la ville' },
+            ...zones.map((z) => ({ value: String(z.id), label: z.name })),
+          ]}
+          className="w-full"
+          aria-label="Filtrer par zone"
+        />
       </FormField>
       <Button type="submit" size="lg" loading={searching}>
         Rechercher

@@ -7,7 +7,7 @@ import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { FormField } from '@/shared/components/ui/FormField.jsx';
 import { Input } from '@/shared/components/ui/Input.jsx';
-import { Select } from '@/shared/components/ui/Select.jsx';
+import { CustomSelect } from '@/shared/components/ui/CustomSelect.jsx';
 import { Textarea } from '@/shared/components/ui/Textarea.jsx';
 import { Card } from '@/shared/components/ui/Card.jsx';
 import { Skeleton } from '@/shared/components/ui/Skeleton.jsx';
@@ -91,20 +91,22 @@ export function BecomeProForm({ bare = false } = {}) {
               value={values.displayName}
               onChange={(e) => setField('displayName', e.target.value.slice(0, 100))}
             />
-            <FormField id="bp-trade" label="Métier" required error={errors.tradeId} as="select">
-              <Select
+            <FormField id="bp-trade" label="Métier" required error={errors.tradeId}>
+              <CustomSelect
                 id="bp-trade"
                 name="tradeId"
-                className="border border-gray-200 "
-                value={values.tradeId}
-                error={errors.tradeId}
-                onChange={(e) => setField('tradeId', e.target.value)}
-              >
-                <option value="">Choisissez un métier</option>
-                {trades.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </Select>
+                className="w-full"
+                value={values.tradeId ?? ''}
+                placeholder="Choisissez un métier"
+                onChange={(value) => setField('tradeId', value)}
+                options={[
+                  { value: '', label: 'Choisissez un métier' },
+                  ...trades.map((t) => ({ value: String(t.id), label: t.name })),
+                ]}
+                aria-label="Métier"
+                aria-invalid={Boolean(errors.tradeId) || undefined}
+                aria-describedby={errors.tradeId ? 'bp-trade-error' : undefined}
+              />
             </FormField>
             <MultiSelect
               label="Zone"

@@ -52,6 +52,23 @@ export async function setUserBlocked(actorId, id, blocked) {
   return updated;
 }
 
+/** Lève ou applique la suspension d'un compte. */
+export async function setUserSuspended(actorId, id, suspended) {
+  if (Number(actorId) === Number(id)) throw ApiError.badRequest('Vous ne pouvez pas suspendre votre propre compte');
+
+  const target = await repository.findUserById(id);
+  if (!target) throw ApiError.notFound('Utilisateur introuvable');
+  if (suspended && target.role === 'admin' && (await repository.countActiveAdmins(id)) === 0)
+    throw ApiError.badRequest('Impossible de suspendre le dernier administrateur actif');
+
+  const updated = await repository.setUserSuspended(id, suspended);
+  if (!updated) throw ApiError.notFound('Utilisateur introuvable');
+  // Une suspension imply le blocage ; lever la suspension redonne aussi l'accès.
+  await repository.setUserBlocked(id, suspended);
+  if (suspended) await refreshTokensRepository.revokeAllForUser(id);
+  return updated;
+}
+
 /** Crée un compte administrateur. */
 export async function createAdmin({ firstName, lastName, phone, password }) {
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);

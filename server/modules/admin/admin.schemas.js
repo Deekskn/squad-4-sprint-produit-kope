@@ -7,6 +7,10 @@ export const userBlockedSchema = z.object({
   blocked: z.boolean({ error: 'Valeur invalide' }),
 });
 
+export const userSuspendedSchema = z.object({
+  suspended: z.boolean({ error: 'Valeur invalide' }),
+});
+
 export const createAdminSchema = z.object({
   firstName: requiredText(60, 'Le prénom est obligatoire'),
   lastName: requiredText(60, 'Le nom est obligatoire'),

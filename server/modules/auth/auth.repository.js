@@ -57,6 +57,14 @@ export async function isBlocked(id, db = pool) {
   return Boolean(rows[0]?.blockedAt);
 }
 
+export async function isSuspended(id, db = pool) {
+  const { rows } = await db.query(
+    'SELECT suspended_at AS "suspendedAt" FROM users WHERE id = $1',
+    [id],
+  );
+  return Boolean(rows[0]?.suspendedAt);
+}
+
 export async function findById(id, db = pool) {
   const { rows } = await db.query(
     `SELECT u.id, u.role, u.phone,

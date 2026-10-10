@@ -1,5 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import * as repository from '../server/modules/reviews/reviews.repository.js';
+import * as service from '../server/modules/reviews/reviews.service.js';
+import * as professionalsRepository from '../server/modules/professionals/professionals.repository.js';
+import reviewsRoutes from '../server/modules/reviews/reviews.routes.js';
+import { requireRole } from '../server/middlewares/requireRole.js';
+import { env } from '../server/config/env.js';
+import { signToken } from '../server/utils/tokens.js';
 
 describe('US-15 reviews backend', () => {
   it('returns recent visible reviews with only the client first name and last initial', async () => {
@@ -52,5 +58,55 @@ describe('US-15 reviews backend', () => {
     expect(db.query.mock.calls[0][0]).toContain('INSERT INTO reviews');
     expect(db.query.mock.calls[1][0]).toContain('ROUND(AVG(rating), 1)');
     expect(summary).toEqual({ average: 4.7, count: 3 });
+  });
+});
+
+describe('Un professionnel peut aussi laisser un avis', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('autorise le rôle professional sur la route de création', () => {
+    const layer = reviewsRoutes.stack.find(
+      (l) => l.route?.path === '/professionals/:id/reviews' && l.route.methods.post,
+    );
+    expect(layer).toBeTruthy();
+
+    let allowed = false;
+    requireRole('client', 'professional')(
+      { headers: { authorization: `Bearer ${signToken({ sub: 25, role: 'professional' }, env.ACCESS_TOKEN_SECRET, 3600)}` } },
+      {},
+      () => { allowed = true; },
+    );
+    expect(allowed).toBe(true);
+  });
+
+  it('canReview est vrai pour un professionnel qui visite un autre pro', async () => {
+    vi.spyOn(repository, 'exists').mockResolvedValue(false);
+    await expect(service.canReview({ id: 25, role: 'professional' }, 31)).resolves.toBe(true);
+  });
+
+  it('canReview est faux pour soi-même et pour un administrateur', async () => {
+    const exists = vi.spyOn(repository, 'exists');
+    await expect(service.canReview({ id: 25, role: 'professional' }, 25)).resolves.toBe(false);
+    await expect(service.canReview({ id: 1, role: 'admin' }, 25)).resolves.toBe(false);
+    expect(exists).not.toHaveBeenCalled();
+  });
+
+  it('refuse un doublon même pour un professionnel (contrainte unique)', async () => {
+    vi.spyOn(professionalsRepository, 'existsPublished').mockResolvedValue(true);
+    vi.spyOn(repository, 'create').mockRejectedValue(
+      Object.assign(new Error('duplicate key'), { code: '23505' }),
+    );
+
+    await expect(service.createReview(25, 31, { rating: 4, comment: null })).rejects.toMatchObject({ status: 409 });
+  });
+
+  it('enregistre l’avis d’un professionnel', async () => {
+    vi.spyOn(professionalsRepository, 'existsPublished').mockResolvedValue(true);
+    const insert = vi.spyOn(repository, 'create').mockResolvedValue({ id: 42, rating: 4, comment: null });
+
+    await expect(service.createReview(25, 31, { rating: 4, comment: null })).resolves.toMatchObject({ id: 42 });
+    expect(insert).toHaveBeenCalledWith({ clientId: 25, professionalId: 31, rating: 4, comment: null });
   });
 });

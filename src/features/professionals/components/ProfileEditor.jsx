@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Camera, Pencil } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { FormField } from '@/shared/components/ui/FormField.jsx';
-import { Select } from '@/shared/components/ui/Select.jsx';
+import { CustomSelect } from '@/shared/components/ui/CustomSelect.jsx';
 import { MultiSelect } from '@/shared/components/ui/MultiSelect.jsx';
 import { Textarea } from '@/shared/components/ui/Textarea.jsx';
 import { Card } from '@/shared/components/ui/Card.jsx';
@@ -254,20 +254,22 @@ export function ProfileEditor({ profile, user, onUpdated }) {
 
           <Section title="Informations professionnelles">
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField id="pe-trade" label="Métier" required error={errors.tradeId} as="select">
-                <Select
+              <FormField id="pe-trade" label="Métier" required error={errors.tradeId}>
+                <CustomSelect
                   id="pe-trade"
                   name="tradeId"
-                  className="border border-gray-200"
-                  value={values.tradeId}
-                  error={errors.tradeId}
-                  onChange={(e) => setField('tradeId', e.target.value)}
-                >
-                  <option value="">Choisissez un métier</option>
-                  {trades.map((t) => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </Select>
+                  className="w-full"
+                  value={values.tradeId ?? ''}
+                  placeholder="Choisissez un métier"
+                  onChange={(value) => setField('tradeId', value)}
+                  options={[
+                    { value: '', label: 'Choisissez un métier' },
+                    ...trades.map((t) => ({ value: String(t.id), label: t.name })),
+                  ]}
+                  aria-label="Métier"
+                  aria-invalid={Boolean(errors.tradeId) || undefined}
+                  aria-describedby={errors.tradeId ? 'pe-trade-error' : undefined}
+                />
               </FormField>
               <FormField
                 id="pe-years"

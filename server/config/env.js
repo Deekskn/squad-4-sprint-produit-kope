@@ -33,4 +33,8 @@ export const env = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   CLOUDINARY_FOLDER: process.env.CLOUDINARY_FOLDER ?? 'kope',
+  // Nombre de signalements déclenchant le blocage automatique du compte.
+  AUTO_BLOCK_REPORTS_THRESHOLD: Number(process.env.AUTO_BLOCK_REPORTS_THRESHOLD) || 3,
+  // Nombre de signalements déclenchant la suspension (plus forte que le blocage).
+  AUTO_SUSPEND_REPORTS_THRESHOLD: Number(process.env.AUTO_SUSPEND_REPORTS_THRESHOLD) || 5,
 };

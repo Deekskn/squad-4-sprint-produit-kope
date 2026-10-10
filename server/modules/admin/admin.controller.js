@@ -26,6 +26,12 @@ export async function setUserBlocked(req, res) {
   );
 }
 
+export async function setUserSuspended(req, res) {
+  res.json(
+    await service.setUserSuspended(req.user.id, req.validated.params.id, req.validated.body.suspended),
+  );
+}
+
 export async function createAdmin(req, res) {
   res.status(201).json(await service.createAdmin(req.validated.body));
 }

@@ -2,6 +2,7 @@ import { ChevronRight, Star } from 'lucide-react';
 import { Card } from '@/shared/components/ui/Card.jsx';
 import { Badge } from '@/shared/components/ui/Badge.jsx';
 import { StarRating } from '@/shared/components/ui/StarRating.jsx';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { cn } from '@/shared/utils';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '@/shared/lib/constants.js';
@@ -30,16 +31,33 @@ function Availability({ isAvailable }) {
   return <Badge variant="success">Disponible</Badge>;
 }
 
+/** Photo de profil : une seule image, ratio identique sur toutes les cards. */
+function ProfileMedia({ item }) {
+  return (
+    <div className="aspect-[4/5] w-full shrink-0 self-start overflow-hidden bg-gray-100 sm:w-[170px]">
+      <UserAvatar
+        src={item.avatarUrl || item.image || null}
+        name={item.displayName}
+        rounded="rounded-none"
+        iconSize={40}
+        className="h-full w-full"
+        fallbackClassName="h-full w-full bg-gray-100 text-gray-300"
+      />
+    </div>
+  );
+}
+
 export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
-  const imgSrc = coverImage({ ...item, featuredPrompt });
   const avg = Number(item.rating?.average ?? 0);
   const cnt = Number(item.rating?.count ?? 0);
+  const coverSrc = coverImage({ ...item, featuredPrompt });
 
-  if (mode === 'grid') 
+  if (mode === 'grid')
     return (
-      <Card className="group border-[#BDC0C8]! flex h-full cursor-pointer flex-col overflow-hidden relative aspect-4/5.5 ">
+      <Link to={ROUTES.PROFESSIONAL(item.id)} className="group block h-full">
+        <Card className="border-[#BDC0C8]! flex h-full cursor-pointer flex-col overflow-hidden relative aspect-4/5.5 ">
           <img
-            src={imgSrc}
+            src={coverSrc}
             alt={item.displayName}
             loading="lazy"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
@@ -68,36 +86,23 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
                   </>
                 )}
               </div>
-              <Link
-                to={ROUTES.PROFESSIONAL(item.id)}
-                className="relative text-[12px] font-bold text-primary-500 rounded p-1 -mr-1 after:absolute after:inset-0 after:z-10 after:content-['']"
-              >
+              <span className="text-[12px] font-bold text-primary-500 rounded p-1 -mr-1">
                 Voir le profil <ChevronRight size={14} className="inline" aria-hidden />
-              </Link>
+              </span>
             </div>
           </div>
-      </Card>
+        </Card>
+      </Link>
     );
   
 
   return (
     <li>
-      <Card className={cn(
-        'group relative flex h-full cursor-pointer flex-col overflow-hidden gap-0 border border-gray-200 bg-white transition hover:border-primary-200 hover:shadow-sm sm:flex-row',
-      )}>
-        <div className="relative block aspect-[3/3.5] w-full shrink-0 overflow-hidden bg-gray-100 sm:h-auto sm:w-[170px]">
-          <img
-            src={imgSrc}
-            alt={item.displayName}
-            loading="lazy"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-          />
-          {item.coverBadge && (
-            <div className="absolute left-3 bottom-3 rounded-[10px] bg-white/95 px-3 py-1 text-[10px] font-bold text-gray-700 ring-1 ring-black/5 backdrop-blur">
-              {item.coverBadge}
-            </div>
-          )}
-        </div>
+      <Link to={ROUTES.PROFESSIONAL(item.id)} className="group block h-full">
+        <Card className={cn(
+          'flex h-full cursor-pointer flex-col overflow-hidden gap-0 border border-gray-200 bg-white transition hover:border-primary-200 hover:shadow-sm sm:flex-row',
+        )}>
+        <ProfileMedia item={item} />
         <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 space-y-1.5">
@@ -126,15 +131,13 @@ export function ProfessionalCard({ item, mode = 'list', featuredPrompt }) {
 
           <div className="mt-auto flex items-center justify-between pt-1">
             <Availability isAvailable={item.isAvailable} />
-            <Link
-              to={ROUTES.PROFESSIONAL(item.id)}
-              className="relative inline-flex items-center justify-center rounded-[10px] border border-[#dfe5e2] bg-[#f5f7f6] px-4 py-2.5 text-sm font-bold text-gray-900 transition group-hover:bg-white after:absolute after:inset-0 after:z-10 after:content-['']"
-            >
+            <span className="inline-flex items-center justify-center rounded-[10px] border border-[#dfe5e2] bg-[#f5f7f6] px-4 py-2.5 text-sm font-bold text-gray-900 transition group-hover:bg-white">
               Afficher le profil
-            </Link>
+            </span>
           </div>
         </div>
       </Card>
+      </Link>
     </li>
   );
 }

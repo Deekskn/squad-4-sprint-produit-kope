@@ -143,6 +143,17 @@ export async function setUserBlocked(id, blocked, db = pool) {
   return rows[0] ?? null;
 }
 
+export async function setUserSuspended(id, suspended, db = pool) {
+  const { rows } = await db.query(
+    `UPDATE users
+        SET suspended_at = CASE WHEN $2::boolean THEN now() ELSE NULL END
+      WHERE id = $1
+      RETURNING id, role, blocked_at AS "blockedAt", suspended_at AS "suspendedAt"`,
+    [id, suspended],
+  );
+  return rows[0] ?? null;
+}
+
 export async function countActiveAdmins(excludeId, db = pool) {
   const { rows } = await db.query(
     `SELECT COUNT(*)::int AS count

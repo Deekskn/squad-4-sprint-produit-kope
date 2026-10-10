@@ -3,7 +3,7 @@ import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { ROUTES, ROLES, PROFILE_STATUS } from '@/shared/lib/constants.js';
 import { Button } from '@/shared/components/ui/Button.jsx';
 import { cn } from '@/shared/utils';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
 import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { displayNameFor, roleLabel, dashboardHref } from '@/shared/utils/userMenuUtils.js';
@@ -13,6 +13,7 @@ export function UserMenu({ onNavigate }) {
   const { user, loading, logout, hasRole } = useAuthContext();
   const { open: openModal } = useAuthModal();
   const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
   const [proStatus, setProStatus] = useState(null);
   const isPro = Boolean(user) && hasRole(ROLES.PRO);
 
@@ -25,10 +26,29 @@ export function UserMenu({ onNavigate }) {
     return () => { cancelled = true; };
   }, [open, isPro, proStatus]);
 
-  const close = () => {
+  const close = useCallback(() => {
     setOpen(false);
     onNavigate?.();
-  };
+  }, [onNavigate]);
+
+  // Même comportement que CustomSelect : le menu se ferme au clic sur
+  // n'importe quel élément extérieur, y compris ceux placés au-dessus
+  // de la superposition (modales, toast…).
+  useEffect(() => {
+    if (!open) return undefined;
+    const onPointerDown = (event) => {
+      if (!menuRef.current?.contains(event.target)) close();
+    };
+    const onKey = (event) => {
+      if (event.key === 'Escape') close();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, close]);
 
   if (loading) 
     return <div className="h-9 w-24 rounded-lg bg-gray-100 animate-pulse" />;
@@ -72,6 +92,7 @@ export function UserMenu({ onNavigate }) {
         <>
           <div className="fixed inset-0 z-30" onClick={close} aria-hidden />
           <div
+            ref={menuRef}
             role="menu"
             className="absolute right-0 z-40 mt-2 w-64 origin-top-right overflow-hidden rounded-sm border border-gray-200 bg-white shadow-[var(--shadow-pop)] animate-scale-in"
           >

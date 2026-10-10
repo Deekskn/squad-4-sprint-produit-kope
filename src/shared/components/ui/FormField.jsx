@@ -1,13 +1,13 @@
 import { cn } from '@/shared/utils';
 import { Input } from './Input.jsx';
 import { Textarea } from './Textarea.jsx';
-import { Select } from './Select.jsx';
+import { CustomSelect } from './CustomSelect.jsx';
 
 const FIELD_LABEL = 'block text-sm font-medium text-gray-700 mb-1.5';
 const FIELD_HELP = 'mt-1 text-xs text-gray-500';
 const FIELD_ERROR = 'mt-1 text-xs text-danger-500';
 
-const COMPONENT = { input: Input, textarea: Textarea, select: Select };
+const COMPONENT = { input: Input, textarea: Textarea, select: CustomSelect };
 
 export function FormField({
   id,

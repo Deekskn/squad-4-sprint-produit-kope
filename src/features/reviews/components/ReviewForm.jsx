@@ -49,7 +49,7 @@ export function ReviewForm({ professionalId, onSuccess }) {
       <form onSubmit={submit} className="space-y-5" noValidate>
         <div>
           <label className="mb-2 block text-sm font-bold text-gray-900">Note *</label>
-          <StarInput value={rating} onChange={setRating} size="lg" count={5} />
+          <p className='flex'><StarInput value={rating} onChange={setRating} size="lg" count={5} /></p>
         </div>
         <FormField
           id="rv-comment"

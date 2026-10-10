@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar.jsx';
 import { Footer } from './Footer.jsx';
+import { SuspensionNotice } from './SuspensionNotice.jsx';
 import { AuthModal } from '@/features/auth/components/AuthModal.jsx';
 import { useMockMode } from '@/shared/lib/dataSource.js';
 import { ROUTES } from '@/shared/lib/constants.js';
@@ -15,7 +16,7 @@ export function RootLayout() {
   const demo = useMockMode();
   const { pathname } = useLocation();
   const hasBottomNav = BOTTOM_NAV_ROUTES.includes(pathname);
-  const hasDottedBg = DOTTED_BG_ROUTES.includes(pathname);
+  const hasDottedBg = DOTTED_BG_ROUTES.includes(pathname) || pathname.startsWith(ROUTES.PROFESSIONAL(''));
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <Navbar />
@@ -26,6 +27,7 @@ export function RootLayout() {
       </main>
       <Footer className={hasBottomNav ? 'pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0' : undefined} />
       <AuthModal />
+      <SuspensionNotice />
       {demo && (
         <div className={cn(
           'fixed left-1/2 z-80 -translate-x-1/2 rounded-full bg-gray-900/90 px-4 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur',

@@ -12,6 +12,7 @@ import {
   reorderSchema,
   tradeItemSchema,
   userBlockedSchema,
+  userSuspendedSchema,
   visibilitySchema,
   zoneItemSchema,
 } from './admin.schemas.js';
@@ -46,6 +47,12 @@ router.patch(
   validate(idParamSchema, 'params'),
   validate(userBlockedSchema),
   controller.setUserBlocked,
+);
+router.patch(
+  '/admin/users/:id/suspended',
+  validate(idParamSchema, 'params'),
+  validate(userSuspendedSchema),
+  controller.setUserSuspended,
 );
 router.post('/admin/users', validate(createAdminSchema), controller.createAdmin);
 

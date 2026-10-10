@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
+import { cn } from '@/shared/utils';
 
 /** Avatar utilisateur */
 export function UserAvatar({
@@ -9,6 +10,7 @@ export function UserAvatar({
   fallbackClassName = 'bg-primary-100 text-primary-800',
   src,
   iconSize = 16,
+  rounded = 'rounded-full',
 }) {
   const [failed, setFailed] = useState(false);
   const label = name || [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || user?.displayName || 'Profil';
@@ -25,13 +27,13 @@ export function UserAvatar({
       <img
         src={photoUrl}
         alt={label}
-        className={`${className} rounded-full object-cover`}
+        className={cn(className, rounded, 'object-cover')}
         onError={() => setFailed(true)}
       />
     );
   
   return (
-    <span className={`${className} inline-flex items-center justify-center rounded-full font-semibold ${fallbackClassName}`}>
+    <span className={cn(className, rounded, 'inline-flex items-center justify-center font-semibold', fallbackClassName)}>
       <User size={iconSize} aria-hidden />
     </span>
   );
