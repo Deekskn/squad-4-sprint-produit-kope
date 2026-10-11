@@ -1,7 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Calendar, ExternalLink, Eye, EyeOff, MapPin, Phone, Wrench } from 'lucide-react';
-import { Badge, Button, CustomSelect, SearchInput, Pagination, DataState, UserAvatar, Tooltip } from '@/shared/components/ui';
+import { CustomSelect, DataState, Pagination, SearchInput } from '@/shared/components/ui';
 import {
   AdminFilterField,
   AdminFilterGroup,
@@ -9,41 +7,16 @@ import {
   AdminSectionLayout,
 } from './AdminSectionLayout.jsx';
 import { AdminConfirmModal } from './AdminConfirmModal.jsx';
+import { AdminProfessionalCard } from './professionals/AdminProfessionalCard.jsx';
+import { SORT_OPTIONS, STATUS_OPTIONS } from './professionals/professionalFilters.js';
 import { useAdminPage } from '../hooks/useAdminPage.js';
 import { useAdminFilters } from '../hooks/useAdminFilters.js';
 import { useAdminList } from '../hooks/useAdminList.js';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { listPros, setProHidden } from '../services/admin.service.js';
-import {
-  CITIES,
-  COUNTRIES,
-  DEFAULT_CITY,
-  DEFAULT_COUNTRY,
-  PROFILE_STATUS,
-  PROFILE_STATUS_LABELS,
-  ROUTES,
-} from '@/shared/lib/constants.js';
-import { formatDateFr } from '@/shared/utils';
+import { CITIES, COUNTRIES, DEFAULT_CITY, DEFAULT_COUNTRY } from '@/shared/lib/constants.js';
 
 const PAGE_SIZE = 100;
-
-const STATUS_OPTIONS = [
-  { value: '', label: 'Tous les statuts' },
-  { value: PROFILE_STATUS.PUBLISHED, label: 'Publiés' },
-  { value: PROFILE_STATUS.INCOMPLETE, label: 'Incomplets' },
-  { value: PROFILE_STATUS.HIDDEN, label: 'Masqués' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'name', label: 'Nom (A-Z)' },
-  { value: 'recent', label: 'Plus récents' },
-];
-
-function statusVariant(s) {
-  if (s === PROFILE_STATUS.PUBLISHED) return 'success';
-  if (s === PROFILE_STATUS.HIDDEN) return 'danger';
-  return 'warning';
-}
 
 export function AdminProfessionalsGrid({ rightContainer = null }) {
   const { toast } = useNotification();
@@ -165,109 +138,27 @@ export function AdminProfessionalsGrid({ rightContainer = null }) {
   );
 
   const total = Number(data?.total || 0);
+  const pros = data?.items || [];
 
   const cards = (
     <DataState loading={loading} error={error}>
       <>
-        
         <ul className="space-y-3">
-          {(data?.items || []).length === 0 ? (
+          {pros.length === 0 ? (
             <li className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-sm text-gray-500">
               Aucun résultat.
             </li>
           ) : (
-            (data?.items || []).map((p) => {
-              const id = p.userId || p.id;
-              const name = p.displayName || [p.firstName, p.lastName].filter(Boolean).join(' ') || `#${id}`;
-              const hidden = p.status === PROFILE_STATUS.HIDDEN;
-              return (
-                <li key={id} className=" relative flex flex-col rounded-lg border border-gray-200 bg-white p-4">
-                  <div className="flex items-start gap-3">
-                    <UserAvatar
-                      user={{ firstName: p.firstName, lastName: p.lastName, avatarUrl: p.avatarUrl }}
-                      name={name}
-                      className="h-11 w-11"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-gray-900">{name}</p>
-                      <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
-                        <Wrench className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate">{p.trade || '-'}</span>
-                      </p>
-                    </div>
-                    <Badge variant={statusVariant(p.status)}>
-                      {PROFILE_STATUS_LABELS[p.status] || p.status || '-'}
-                    </Badge>
-                  </div>
-
-                  <div className="mt-3  pl-3 space-y-2 text-xs text-gray-600">
-                    <p className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">
-                        {[p.city || DEFAULT_CITY, p.country || DEFAULT_COUNTRY].filter(Boolean).join(', ')}
-                      </span>
-                    </p>
-                    {p.phone && (
-                      <p className="flex items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate">{p.phone}</span>
-                      </p>
-                    )}
-                    {
-                      p.createdAt &&
-                      <p className="text-gray-400 flex items-center gap-1.5 text-xs">
-                        <Calendar  className="h-3.5 w-3.5 shrink-0"/>
-                        Inscrit le {formatDateFr(p.createdAt)}
-                      </p>
-                    }
-                  </div>
-
-                  <div className="flex items-center gap-1.5 absolute  right-3  bottom-3 overflow-hidden bg-gray-100/50 border border-gray-200   rounded-md">
-                    <Tooltip content="Voir la fiche">
-                      <Button
-                        as={Link}
-                        to={ROUTES.PROFESSIONAL(id)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        size="icon-sm"
-                        variant="ghost"
-                        aria-label="Voir la fiche"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    </Tooltip>
-                    <span className="border border-gray-200 h-2" ></span>
-                    {hidden ? (
-                      <Tooltip content="Réactiver le profil">
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          className="text-primary-600 hover:bg-mint-100"
-                          onClick={() => setConfirm({ item: p, action: 'show' })}
-                          aria-label="Réactiver le profil"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Tooltip>
-                    ) : (
-                      <Tooltip content="Masquer le profil">
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          className="text-rose-600 hover:bg-rose-50"
-                          onClick={() => setConfirm({ item: p, action: 'hide' })}
-                          aria-label="Masquer le profil"
-                        >
-                          <EyeOff className="h-4 w-4" />
-                        </Button>
-                      </Tooltip>
-                    )}
-                  </div>
-                </li>
-              );
-            })
+            pros.map((pro) => (
+              <AdminProfessionalCard
+                key={pro.userId || pro.id}
+                pro={pro}
+                onToggleVisibility={(item, action) => setConfirm({ item, action })}
+              />
+            ))
           )}
         </ul>
+
         <Pagination
           page={Number(data?.page || page)}
           pageSize={Number(data?.pageSize || PAGE_SIZE)}

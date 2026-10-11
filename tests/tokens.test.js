@@ -35,4 +35,18 @@ describe('tokens.js (JWT HS256)', () => {
     expect(() => verifyToken('', SECRET)).toThrow();
     expect(() => verifyToken(null, SECRET)).toThrow();
   });
+
+  it('rejette une signature tronquée sans lever de RangeError', () => {
+    const token = signToken({ sub: 1, role: 'client' }, SECRET, 3600);
+    const [h, b, s] = token.split('.');
+    // Une signature de longueur différente faisait échouer timingSafeEqual.
+    expect(() => verifyToken(`${h}.${b}.${s.slice(0, 10)}`, SECRET)).toThrow(/Signature invalide/);
+  });
+
+  it('rejette un corps illisible', () => {
+    const token = signToken({ sub: 1, role: 'client' }, SECRET, 3600);
+    const [h, , s] = token.split('.');
+    const forged = `${h}.${Buffer.from('pas-du-json').toString('base64url')}.${s}`;
+    expect(() => verifyToken(forged, SECRET)).toThrow();
+  });
 });

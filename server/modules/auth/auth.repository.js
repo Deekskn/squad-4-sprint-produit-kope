@@ -49,20 +49,17 @@ export async function findByPhone(phone, db = pool) {
   return rows[0] ?? null;
 }
 
-export async function isBlocked(id, db = pool) {
+/**
+ * Relit l'état du compte en base : rôle courant, blocage et suspension.
+ * Une seule requête remplace les contrôles séparés, et évite de faire
+ * confiance au rôle figé dans le access token.
+ */
+export async function getAccountState(id, db = pool) {
   const { rows } = await db.query(
-    'SELECT blocked_at AS "blockedAt" FROM users WHERE id = $1',
+    'SELECT role, blocked_at AS "blockedAt", suspended_at AS "suspendedAt" FROM users WHERE id = $1',
     [id],
   );
-  return Boolean(rows[0]?.blockedAt);
-}
-
-export async function isSuspended(id, db = pool) {
-  const { rows } = await db.query(
-    'SELECT suspended_at AS "suspendedAt" FROM users WHERE id = $1',
-    [id],
-  );
-  return Boolean(rows[0]?.suspendedAt);
+  return rows[0] ?? null;
 }
 
 export async function findById(id, db = pool) {

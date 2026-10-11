@@ -1,0 +1,108 @@
+import { Link } from 'react-router-dom';
+import { Ban, Calendar, Check, Phone } from 'lucide-react';
+import { Badge, Button, Tooltip, UserAvatar } from '@/shared/components/ui';
+import { ROLES, ROUTES } from '@/shared/lib/constants.js';
+import { formatDateFr } from '@/shared/utils';
+import { getUserName, ROLE_LABELS, ROLE_VARIANTS } from './adminUserOptions.js';
+
+/**
+ * Ligne utilisateur : identité cliquable pour un professionnel, badges de rôle
+ * et action de blocage. Le professionnel est le seul à avoir une fiche publique.
+ */
+export function AdminUserRow({ user, isSelf, onToggleBlock }) {
+  const name = getUserName(user);
+  const blocked = Boolean(user.blockedAt);
+  const isPro = user.role === ROLES.PRO;
+
+  const avatar = (
+    <UserAvatar
+      user={{ firstName: user.firstName, lastName: user.lastName, avatarUrl: user.avatarUrl }}
+      name={name}
+      className="h-11 w-11"
+    />
+  );
+
+  return (
+    <li
+      className={`flex flex-col overflow-hidden rounded-lg border bg-white ${
+        blocked ? 'border-rose-200 bg-rose-50/40' : 'border-gray-200'
+      }`}
+    >
+      <div className="flex items-start gap-3 p-4">
+        {isPro ? (
+          <Link
+            to={ROUTES.PROFESSIONAL(user.id)}
+            className="shrink-0 rounded-full transition hover:opacity-80"
+            aria-label={`Voir la fiche publique de ${name}`}
+          >
+            {avatar}
+          </Link>
+        ) : (
+          avatar
+        )}
+
+        <div className="min-w-0 flex-1">
+          {isPro ? (
+            <Link
+              to={ROUTES.PROFESSIONAL(user.id)}
+              className="block truncate font-semibold text-gray-900 transition hover:text-primary-700 hover:underline"
+            >
+              {name}
+            </Link>
+          ) : (
+            <p className="truncate font-semibold text-gray-900">{name}</p>
+          )}
+          {user.phone && (
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
+              <Phone className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{user.phone}</span>
+            </p>
+          )}
+          {user.createdAt && (
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-400">
+              <Calendar className="h-3.5 w-3.5 shrink-0" />
+              Inscrit le {formatDateFr(user.createdAt)}
+            </p>
+          )}
+        </div>
+
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <Badge variant={ROLE_VARIANTS[user.role] || 'neutral'}>
+            {ROLE_LABELS[user.role] || user.role}
+          </Badge>
+          {blocked && <Badge variant="danger">Bloqué</Badge>}
+        </div>
+      </div>
+
+      <div className="-mx-4 -mb-4 flex items-center justify-end gap-1 border-t border-gray-100 bg-gray-50/80 px-4 py-1.5">
+        {isSelf ? (
+          <span className="text-xs text-gray-400">Votre compte</span>
+        ) : blocked ? (
+          <Tooltip content="Débloquer le compte">
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              className="text-primary-600 hover:bg-mint-100"
+              onClick={() => onToggleBlock(user, false)}
+              aria-label={`Débloquer ${name}`}
+            >
+              <Check className="h-3.5 w-3.5" />
+            </Button>
+          </Tooltip>
+        ) : (
+          <Tooltip content="Bloquer le compte">
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              className="text-rose-600 hover:bg-rose-50"
+              onClick={() => onToggleBlock(user, true)}
+              aria-label={`Bloquer ${name}`}
+            >
+              <Ban className="h-3.5 w-3.5" />
+            </Button>
+          </Tooltip>
+        )}
+      </div>
+    </li>
+  );
+}

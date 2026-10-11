@@ -114,13 +114,13 @@ export async function listUsers({ limit, offset, role, q }, db = pool) {
             u.blocked_at AS "blockedAt",
             COUNT(*) OVER()::int AS total
        FROM users u
-      WHERE ($1::text IS NULL OR u.role = $1)
-        AND ($2::text IS NULL
-             OR u.first_name ILIKE '%' || $2 || '%'
-             OR u.last_name ILIKE '%' || $2 || '%'
-             OR u.phone ILIKE '%' || $2 || '%')
-      ORDER BY u.created_at DESC, u.id DESC
-      LIMIT $3 OFFSET $4`,
+WHERE ($1::user_role IS NULL OR u.role = $1::user_role)
+       AND ($2::text IS NULL
+            OR u.first_name ILIKE '%' || $2 || '%'
+            OR u.last_name ILIKE '%' || $2 || '%'
+            OR u.phone ILIKE '%' || $2 || '%')
+     ORDER BY u.created_at DESC, u.id DESC
+     LIMIT $3 OFFSET $4`,
     [role ?? null, q ?? null, limit, offset],
   );
   return rows;
@@ -130,7 +130,7 @@ export async function countUsers({ role, q }, db = pool) {
   const { rows } = await db.query(
     `SELECT COUNT(*)::int AS count
        FROM users u
-      WHERE ($1::text IS NULL OR u.role = $1)
+      WHERE ($1::user_role IS NULL OR u.role = $1::user_role)
         AND ($2::text IS NULL
              OR u.first_name ILIKE '%' || $2 || '%'
              OR u.last_name ILIKE '%' || $2 || '%'
@@ -231,8 +231,8 @@ export async function listTrades(db = pool) {
        FROM trades t
        LEFT JOIN trade_categories c ON c.id = t.category_id
        LEFT JOIN professionals p ON p.trade_id = t.id
-      GROUP BY t.id, t.name, t.category_id, c.name, t.sort_order, t.created_at
-      ORDER BY c.sort_order NULLS LAST, t.sort_order, t.name`,
+GROUP BY t.id, t.name, t.category_id, c.name, t.sort_order, t.created_at, c.sort_order
+ ORDER BY c.sort_order NULLS LAST, t.sort_order, t.name`,
   );
   return rows;
 }
@@ -256,8 +256,8 @@ export async function listZones(db = pool) {
        FROM zones z
        LEFT JOIN cities c ON c.id = z.city_id
        LEFT JOIN professional_zones pz ON pz.zone_id = z.id
-      GROUP BY z.id, z.name, z.city_id, c.name, z.sort_order, z.created_at
-      ORDER BY c.sort_order NULLS LAST, z.sort_order, z.name`,
+GROUP BY z.id, z.name, z.city_id, c.name, z.sort_order, z.created_at, c.sort_order
+ ORDER BY c.sort_order NULLS LAST, z.sort_order, z.name`,
   );
   return rows;
 }

@@ -9,8 +9,7 @@ import {
 } from '../../utils/commonSchemas.js';
 
 /** US-01 */
-export const registerClientSchema = z.object({
-  firstName: requiredText(100),
+export const registerClientSchema = z.object({  firstName: requiredText(100),
   lastName: requiredText(100),
   phone: phoneSchema,
   password: passwordSchema,
@@ -58,4 +57,20 @@ export const updateAccountSchema = z.object({
 export const changePasswordSchema = z.object({
   currentPassword: z.string({ error: 'Champ obligatoire' }).min(1, 'Champ obligatoire'),
   newPassword: passwordSchema,
+});
+
+/**
+ * Le corps de /auth/refresh et /auth/logout était lu brut (seules routes mutantes
+ * non validées) : un objet arbitraire arrivait jusqu'à verifyToken.
+ */
+export const refreshTokenSchema = z.object({
+  refreshToken: z
+    .string({ error: 'Refresh token manquant' })
+    .trim()
+    .min(1, 'Refresh token manquant')
+    .optional(),
+});
+
+export const logoutSchema = z.object({
+  refreshToken: z.string().trim().min(1).optional(),
 });

@@ -1,12 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Camera, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button.jsx';
-import { FormField } from '@/shared/components/ui/FormField.jsx';
-import { CustomSelect } from '@/shared/components/ui/CustomSelect.jsx';
-import { MultiSelect } from '@/shared/components/ui/MultiSelect.jsx';
-import { Textarea } from '@/shared/components/ui/Textarea.jsx';
-import { Card } from '@/shared/components/ui/Card.jsx';
-import { UserAvatar } from '@/shared/components/ui/UserAvatar.jsx';
 import { useForm } from '@/shared/hooks/useForm.js';
 import { updateProfileSchema } from '@/shared/utils/validators.js';
 import { useReferenceData } from '@/features/reference/hooks/useReferenceData.js';
@@ -15,41 +9,10 @@ import { updateAccount, uploadAvatar } from '@/features/auth/services/auth.servi
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
 import { useAuthContext } from '@/shared/context/AuthContext.jsx';
 import { useAuthModal } from '@/shared/context/AuthModalContext.jsx';
-
-const DESC_MIN = 30;
-const DESC_MAX = 500;
-
-function extractInitial(profile) {
-  return {
-    displayName: profile?.displayName ?? '',
-    tradeId: profile?.tradeId ?? '',
-    description: profile?.description ?? '',
-    yearsExperience: profile?.yearsExperience ?? '',
-    whatsapp: profile?.whatsapp ?? '',
-    zoneIds: profile?.zones?.map((z) => Number(z.id ?? z))?.filter(Boolean) ?? profile?.zoneIds ?? [],
-  };
-}
-
-function Section({ title, description, children }) {
-  return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-base font-bold text-gray-900">{title}</h3>
-      </div>
-      {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
-      <div className="mt-3">{children}</div>
-    </Card>
-  );
-}
-
-function Row({ label, value }) {
-  return (
-    <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-4 py-1.5">
-      <dt className="text-sm text-gray-500">{label}</dt>
-      <dd className="text-sm font-semibold text-gray-900">{value || '-'}</dd>
-    </div>
-  );
-}
+import { ProfileAvatarCard } from './profile/ProfileAvatarCard.jsx';
+import { ProfileDetails } from './profile/ProfileDetails.jsx';
+import { ProfileEditForm } from './profile/ProfileEditForm.jsx';
+import { extractInitial, getFullName } from './profile/profileForm.js';
 
 export function ProfileEditor({ profile, user, onUpdated }) {
   const { trades, zones, loading: loadingRefs } = useReferenceData();
@@ -72,13 +35,6 @@ export function ProfileEditor({ profile, user, onUpdated }) {
     initial,
     async (data) => updateMyProfile(data),
   );
-
-  const name =
-    [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() ||
-    user?.displayName ||
-    'Professionnel';
-  const zoneNames = (profile?.zones || []).map((z) => z.name).filter(Boolean).join(', ');
-  const descLen = String(values.description ?? '').length;
 
   const onSubmit = async (e) => {
     const res = await handleSubmit(e);
@@ -116,6 +72,12 @@ export function ProfileEditor({ profile, user, onUpdated }) {
     }
   };
 
+  const setAccountField = (field, value) => {
+    if (field === 'firstName') setFirstName(value);
+    else if (field === 'lastName') setLastName(value);
+    else setPhone(value);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -132,218 +94,32 @@ export function ProfileEditor({ profile, user, onUpdated }) {
         </div>
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="flex items-center gap-5 bg-mint-50/40 p-6">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
-            <UserAvatar user={user} src={avatar} className="h-full w-full" />
-            {editing && (
-              <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 text-white">
-                <Camera size={18} aria-hidden />
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  className="sr-only"
-                  disabled={uploading}
-                  onChange={onAvatarChange}
-                />
-              </label>
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="text-lg font-semibold text-gray-900">{name}</p>
-            <p className="text-sm text-gray-500">{profile?.tradeName || 'Professionnel'}</p>
-            {uploading && (
-              <div className="mt-2 w-40 overflow-hidden rounded-full bg-gray-200">
-                <div
-                  className="h-2 rounded-full bg-primary-500 transition-all duration-200"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </Card>
+      <ProfileAvatarCard
+        user={user}
+        avatar={avatar}
+        name={getFullName(user)}
+        tradeName={profile?.tradeName}
+        editing={editing}
+        uploading={uploading}
+        uploadProgress={uploadProgress}
+        onAvatarChange={onAvatarChange}
+      />
 
       {editing ? (
-        <form onSubmit={onSubmit} noValidate className="space-y-4">
-          <Section title="Informations personnelles">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label htmlFor="pe-firstName" className="text-xs font-semibold text-gray-600">Prénom</label>
-                <input
-                  id="pe-firstName"
-                  className="w-full rounded-sm border border-gray-200 bg-white px-3 py-2 text-sm"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="pe-lastName" className="text-xs font-semibold text-gray-600">Nom</label>
-                <input
-                  id="pe-lastName"
-                  className="w-full rounded-sm border border-gray-200 bg-white px-3 py-2 text-sm"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="mt-4">
-              <FormField
-                id="pe-display"
-                label="Nom affiché (votre nom pour le grand public)"
-                required
-                error={errors.displayName}
-                placeholder="Ex : Plomberie Makélékélé Services"
-                help="1 à 100 caractères"
-                counter={
-                  <span className={values.displayName?.length > 100 ? 'text-danger-500 font-semibold' : ''}>
-                    {(values.displayName || '').length}/100
-                  </span>
-                }
-                value={values.displayName}
-                onChange={(e) => setField('displayName', e.target.value.slice(0, 100))}
-              />
-            </div>
-          </Section>
-
-          <Section title="Contact">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField
-                id="pe-phone"
-                label="Téléphone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                inputMode="tel"
-              />
-              <FormField
-                id="pe-whatsapp"
-                label="Numéro WhatsApp"
-                error={errors.whatsapp}
-                placeholder="+242... (laisser vide pour utiliser votre numéro de compte)"
-                value={values.whatsapp}
-                onChange={(e) => setField('whatsapp', e.target.value)}
-                inputMode="tel"
-              />
-            </div>
-          </Section>
-
-          <Section title="Description">
-            <FormField
-              id="pe-desc"
-              label="Description de votre activité"
-              required
-              as="textarea"
-              error={errors.description}
-              help={`${DESC_MIN} à ${DESC_MAX} caractères : décrivez le contexte, la prestation, le résultat.`}
-              counter={
-                <span className={descLen < DESC_MIN || descLen > DESC_MAX ? 'text-danger-500 font-semibold' : ''}>
-                  {descLen}/{DESC_MAX}
-                </span>
-              }
-            >
-              <Textarea
-                id="pe-desc"
-                rows={3}
-                placeholder="Présentez votre activité, vos services, vos horaires, vos garanties..."
-                value={values.description}
-                onChange={(e) => setField('description', e.target.value.slice(0, DESC_MAX + 10))}
-                error={errors.description}
-              />
-            </FormField>
-          </Section>
-
-          <Section title="Informations professionnelles">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField id="pe-trade" label="Métier" required error={errors.tradeId}>
-                <CustomSelect
-                  id="pe-trade"
-                  name="tradeId"
-                  className="w-full"
-                  value={values.tradeId ?? ''}
-                  placeholder="Choisissez un métier"
-                  onChange={(value) => setField('tradeId', value)}
-                  options={[
-                    { value: '', label: 'Choisissez un métier' },
-                    ...trades.map((t) => ({ value: String(t.id), label: t.name })),
-                  ]}
-                  aria-label="Métier"
-                  aria-invalid={Boolean(errors.tradeId) || undefined}
-                  aria-describedby={errors.tradeId ? 'pe-trade-error' : undefined}
-                />
-              </FormField>
-              <FormField
-                id="pe-years"
-                label="Années d'expérience"
-                required
-                error={errors.yearsExperience}
-                type="number"
-                min={0}
-                max={60}
-                step={1}
-                help="Entier entre 0 et 60"
-                value={values.yearsExperience}
-                onChange={(e) => setField('yearsExperience', e.target.value)}
-              />
-            </div>
-
-            <div className="mt-4">
-              <MultiSelect
-                label="Zone"
-                required
-                hint="Sélectionnez au moins une zone."
-                error={errors.zoneIds}
-                disabled={loadingRefs}
-                options={zones.map((z) => ({ value: z.id, label: z.name }))}
-                value={values.zoneIds || []}
-                onChange={(ids) => setField('zoneIds', ids)}
-              />
-            </div>
-          </Section>
-
-          <div className="flex justify-end gap-3 pt-1">
-            <Button type="submit" loading={submitting} size="md">Enregistrer</Button>
-          </div>
-        </form>
+        <ProfileEditForm
+          onSubmit={onSubmit}
+          values={values}
+          errors={errors}
+          submitting={submitting}
+          setField={setField}
+          trades={trades}
+          zones={zones}
+          loadingRefs={loadingRefs}
+          account={{ firstName, lastName, phone }}
+          onAccountField={setAccountField}
+        />
       ) : (
-        <>
-          <Section title="Informations personnelles">
-            <dl className="divide-y divide-gray-100">
-              <Row label="Prénom" value={user?.firstName} />
-              <Row label="Nom" value={user?.lastName} />
-              <Row label="Nom affiché" value={profile?.displayName} />
-            </dl>
-          </Section>
-
-          <Section title="Contact" description="Vos coordonnées sont visibles des clients qui vous contactent.">
-            <dl className="divide-y divide-gray-100">
-              <Row label="Téléphone" value={user?.phone} />
-              <Row label="WhatsApp" value={profile?.whatsapp} />
-            </dl>
-          </Section>
-
-          <Section title="Description">
-            {profile?.description ? (
-              <p className="whitespace-pre-wrap text-sm leading-7 text-gray-700">{profile.description}</p>
-            ) : (
-              <p className="text-sm text-gray-400">Aucune description pour le moment.</p>
-            )}
-          </Section>
-
-          <Section title="Informations professionnelles">
-            <dl className="divide-y divide-gray-100">
-              <Row label="Métier" value={profile?.tradeName} />
-              <Row label="Zones" value={zoneNames} />
-              <Row
-                label="Expérience"
-                value={
-                  profile?.yearsExperience != null && profile?.yearsExperience !== ''
-                    ? `${profile.yearsExperience} an(s)`
-                    : ''
-                }
-              />
-            </dl>
-          </Section>
-        </>
+        <ProfileDetails profile={profile} user={user} />
       )}
 
       <div className="sm:hidden">

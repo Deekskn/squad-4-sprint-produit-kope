@@ -23,7 +23,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['server/**/*.js', 'vite.config.js', 'vitest.config.js'],
+    files: ['server/**/*.js', 'vite.config.js', 'vitest.config.js', 'tests/setup.js', 'tests/sql-live.test.js', 'tests/rateLimit.test.js'],
     languageOptions: {
       globals: globals.node,
     },

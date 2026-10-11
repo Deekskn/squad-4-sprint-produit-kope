@@ -10,14 +10,25 @@ async function main() {
   
 
   const passwordHash = await bcrypt.hash(env.ADMIN_PASSWORD, 10);
-  const { rowCount } = await pool.query(
+  // DO NOTHING silencieusement : si le numéro appartient déjà à un compte
+  // client ou professionnel, la connexion aboutit mais /admin répond 403 sans
+  // explication. On promeut donc explicitement le compte existant.
+  const { rows } = await pool.query(
     `INSERT INTO users (role, phone, password_hash)
      VALUES ('admin', $1, $2)
-     ON CONFLICT (phone) DO NOTHING`,
+     ON CONFLICT (phone) DO UPDATE
+       SET role = 'admin',
+           password_hash = EXCLUDED.password_hash
+     RETURNING id, (xmax = 0) AS created`,
     [phone, passwordHash],
   );
 
-  console.log(rowCount ? `Compte admin créé : ${phone}` : `Un compte existe déjà pour ${phone}, rien à faire`);
+  const { id, created } = rows[0];
+  console.log(
+    created
+      ? `Compte admin créé : ${phone} (#${id})`
+      : `Compte ${phone} (#${id}) promu en administrateur`,
+  );
 }
 
 main()

@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Calendar, GripVertical, Pencil, Plus, Trash2, Users, X } from 'lucide-react';
-import { Button, CustomSelect, DataState, Modal, Tooltip } from '@/shared/components/ui';
+import { Plus, X } from 'lucide-react';
+import { Button, CustomSelect, DataState, Modal } from '@/shared/components/ui';
 import {
   AdminFilterGroup,
   AdminFilterPanel,
   AdminSectionLayout,
 } from './AdminSectionLayout.jsx';
 import { useNotification } from '@/shared/context/NotificationContext.jsx';
-import { cn, formatDateFr } from '@/shared/utils';
-import { groupKeyOf, groupItems, tintFor, usedBy, displayEntries as buildEntries, destinationIndex as entryDestination } from './catalog/catalogUtils.js';
-import { InlineInput, PositionBadge } from './catalog/InlineInput.jsx';
+import { groupKeyOf, groupItems, tintFor, displayEntries as buildEntries, destinationIndex as entryDestination } from './catalog/catalogUtils.js';
+import { CatalogGroupColumn } from './catalog/CatalogGroupColumn.jsx';
+import { CatalogItemCard } from './catalog/CatalogItemCard.jsx';
+import { InlineInput } from './catalog/InlineInput.jsx';
 
 export function AdminCatalogBoard({
   rightContainer = null,
@@ -278,240 +279,77 @@ export function AdminCatalogBoard({
     }
   };
 
-  const itemFooter = (item) => (
-    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
-      <span className="flex items-center gap-1">
-        <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        {usedBy(item.professionals ?? 0)}
-      </span>
-      {item.createdAt && (
-        <span className="flex items-center gap-1">
-          <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          Créé le {formatDateFr(item.createdAt)}
-        </span>
-      )}
-    </p>
-  );
-
-  const renderEntry = (entry, index, groupKey) => {
-    const { item, state, entryKey } = entry;
-    const isGap = state === 'gap';
-    const isPreview = state === 'preview';
-
-    return (
-      <article
-        key={entryKey}
-        draggable={canReorder && editingItemId !== item.id && state === 'normal'}
-        aria-hidden={isGap || undefined}
-        onDragStart={(e) => {
-          setDrag({ kind: 'item', id: item.id });
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', String(item.id));
-        }}
-        onDragEnd={resetDrag}
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          showPreview(groupKey, index);
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (canReorder) handleDrop(groupKey, index);
-        }}
-        className={`overflow-hidden rounded-md border bg-white p-2.5 ${
-          isPreview
-            ? 'relative z-20 cursor-grabbing border-primary-500 border-2 border-dashed shadow-lg'
-            : isGap
-              ? 'border-2 border-dashed border-primary-300 bg-primary-50'
-              : 'cursor-grab border-gray-200 active:cursor-grabbing'
-        } ${
-          overKey === groupKey && drag?.kind === 'item' && drag.id !== item.id && state === 'normal'
-            ? 'ring-2 ring-primary-300'
-            : ''
-        }`}
-      >
-        <div className={`flex items-start gap-2 ${isGap ? 'invisible' : ''}`}>
-          <PositionBadge value={index + 1} muted={isGap} />
-
-          {editingItemId === item.id ? (
-            <InlineInput
-              value={itemName}
-              onChange={setItemName}
-              onSubmit={() => commitItemRename(item.id)}
-              onCancel={() => setEditingItemId(null)}
-              aria-label={`Renommer ${item.name}`}
-              className="flex-1"
-            />
-          ) : (
-            <p className="min-w-0 flex-1 break-words text-sm font-semibold text-gray-900">{item.name}</p>
-          )}
-        </div>
-
-        {editingItemId !== item.id ? itemFooter(item) : null}
-
-        <div
-          className={`-mx-2.5 -mb-2.5 mt-3 flex items-center justify-end gap-1 rounded-b-md border-t border-gray-100 bg-gray-50/80 px-2.5 py-1.5 ${
-            isGap ? 'invisible' : ''
-          }`}
-        >
-          <Tooltip content="Modifier">
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              className="text-primary-600 hover:bg-mint-100"
-              onClick={() => {
-                setEditingItemId(item.id);
-                setItemName(item.name);
-              }}
-              aria-label={`Modifier ${item.name}`}
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-          </Tooltip>
-          <Tooltip content="Supprimer">
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              className="text-rose-600 hover:bg-rose-50"
-              onClick={() => setConfirm({ kind: 'item', target: item })}
-              aria-label={`Supprimer ${item.name}`}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </Tooltip>
-        </div>
-      </article>
-    );
+const itemHandlers = {
+    startDrag: (id) => setDrag({ kind: 'item', id }),
+    resetDrag,
+    showPreview,
+    handleDrop,
+    setItemName,
+    commitItemRename,
+    stopEditingItem: () => setEditingItemId(null),
+    startEditingItem: (item) => {
+      setEditingItemId(item.id);
+      setItemName(item.name);
+    },
+    requestDelete: (kind, target) => setConfirm({ kind, target }),
   };
 
-  const renderGroup = (group) => {
-    const groupKey = groupKeyOf(group.id);
-    const entries = displayEntries(groupKey);
-    const realCount = cardsOf(groupKey).length;
-    const filteredOut = Boolean(groupFilter) && groupFilter !== String(group.id);
-    const draft = drafts[group.id] || '';
-    const tint = tintFor(group.name);
-
-    return (
-      <section
-        key={group.id}
-        aria-label={group.name}
-        className={cn('flex flex-col overflow-hidden rounded-lg border border-transparent', tint.band)}
-        onDragOver={(e) => {
-          e.preventDefault();
-          showPreview(groupKey, realCount);
-        }}
-        onDragLeave={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget)) setOverKey((k) => (k === groupKey ? null : k));
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (canReorder) handleDrop(groupKey, realCount);
-        }}
-      >
-        <header
-          draggable={canReorder && editingGroupId !== group.id}
-          onDragStart={(e) => {
-            setDrag({ kind: 'group', id: group.id });
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', `group-${group.id}`);
-          }}
-          onDragEnd={resetDrag}
-          className="flex items-center gap-2 border-b border-white/25 px-3 py-2.5"
-        >
-          {canReorder && <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-white/70" aria-hidden />}
-
-          <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', tint.dot)} aria-hidden />
-
-          {editingGroupId === group.id ? (
-            <InlineInput
-              value={groupName}
-              onChange={setGroupName}
-              onSubmit={() => commitGroupRename(group.id)}
-              onCancel={() => setEditingGroupId(null)}
-              aria-label={`Renommer ${group.name}`}
-              className="flex-1"
-            />
-          ) : (
-            <>
-              <h3 className="min-w-0 flex-1 truncate text-sm font-bold text-white">{group.name}</h3>
-              <span className="shrink-0 rounded-full border border-white/30 bg-white/20 px-2 py-0.5 text-[11px] font-semibold text-white">
-                {realCount}
-              </span>
-              <Tooltip content={`Modifier le ${groupNoun}`}>
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/20"
-                  onClick={() => {
-                    setEditingGroupId(group.id);
-                    setGroupName(group.name);
-                  }}
-                  aria-label={`Modifier ${group.name}`}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-              </Tooltip>
-            </>
-          )}
-
-          <Tooltip content={`Supprimer le ${groupNoun}`}>
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              className="text-white hover:bg-white/20"
-              onClick={() => setConfirm({ kind: 'group', target: group })}
-              aria-label={`Supprimer ${group.name}`}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </Tooltip>
-        </header>
-
-        <div className="flex min-h-16 flex-col gap-2 bg-white/10 p-2">
-          {filteredOut ? (
-            <p className="px-1 py-2 text-xs text-gray-400">Masqué par le filtre</p>
-          ) : entries.length === 0 ? (
-            <p className="px-1 py-2 text-xs text-gray-400">Déposez un élément ici</p>
-          ) : (
-            entries.map((entry, index) => renderEntry(entry, index, groupKey))
-          )}
-        </div>
-
-        <div className="border-t border-white/25 p-2">
-          {addingTo === group.id ? (
-            <InlineInput
-              value={draft}
-              onChange={(v) => setDrafts((prev) => ({ ...prev, [group.id]: v }))}
-              onSubmit={() => submitNewItem(group.id)}
-              onCancel={() => {
-                setDrafts((prev) => ({ ...prev, [group.id]: '' }));
-                setAddingTo(null);
-              }}
-              placeholder={itemPlaceholder}
-              ariaLabel={`Ajouter dans ${group.name}`}
-            />
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-white hover:bg-white/20"
-              onClick={() => setAddingTo(group.id)}
-            >
-              <Plus className="h-4 w-4" />
-              Ajouter
-            </Button>
-          )}
-        </div>
-      </section>
-    );
+  const groupHandlers = {
+    ...itemHandlers,
+    startGroupDrag: (id) => setDrag({ kind: 'group', id }),
+    setOverKey,
+    setGroupName,
+    commitGroupRename,
+    stopEditingGroup: () => setEditingGroupId(null),
+    startEditingGroup: (group) => {
+      setEditingGroupId(group.id);
+      setGroupName(group.name);
+    },
+    setDraft: (groupId, value) => setDrafts((prev) => ({ ...prev, [groupId]: value })),
+    submitNewItem,
+    cancelNewItem: (groupId) => {
+      setDrafts((prev) => ({ ...prev, [groupId]: '' }));
+      setAddingTo(null);
+    },
+    startAdding: (groupId) => setAddingTo(groupId),
+    renderEntry: (entry, index, groupKey) => (
+      <CatalogItemCard
+        key={entry.entryKey}
+        entry={entry}
+        index={index}
+        groupKey={groupKey}
+        canReorder={canReorder}
+        editingItemId={editingItemId}
+        itemName={itemName}
+        drag={drag}
+        overKey={overKey}
+        handlers={itemHandlers}
+      />
+    ),
   };
 
   const board = (
     <DataState loading={loading} error={error}>
       <div className="space-y-3 pb-2">
-        {groups.map(renderGroup)}
+        {groups.map((group) => (
+          <CatalogGroupColumn
+            key={group.id}
+            group={group}
+            groupKey={groupKeyOf(group.id)}
+            entries={displayEntries(groupKeyOf(group.id))}
+            realCount={cardsOf(groupKeyOf(group.id)).length}
+            filteredOut={Boolean(groupFilter) && groupFilter !== String(group.id)}
+            draft={drafts[group.id] || ''}
+            tint={tintFor(group.name)}
+            groupNoun={groupNoun}
+            itemPlaceholder={itemPlaceholder}
+            canReorder={canReorder}
+            editingGroupId={editingGroupId}
+            groupName={groupName}
+            isAdding={addingTo === group.id}
+            handlers={groupHandlers}
+          />
+        ))}
 
         <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50/70 p-2">          {newGroup == null ? (
             <Button

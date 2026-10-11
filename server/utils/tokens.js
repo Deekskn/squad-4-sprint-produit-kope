@@ -14,17 +14,36 @@ export function signToken(payload, secret, ttlSeconds) {
   return `${header}.${body}.${sign(`${header}.${body}`, secret)}`;
 }
 
+/**
+ * `crypto.timingSafeEqual` lève une RangeError quand les deux tampons
+ * n'ont pas la même longueur : une signature tronquée faisait donc remonter
+ * une erreur inattendue au lieu d'un simple « signature invalide ».
+ */
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a));
+  const right = Buffer.from(String(b));
+  if (left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
+function parsePayload(body) {
+  try {
+    const payload = JSON.parse(Buffer.from(body, 'base64url').toString());
+    if (!payload || typeof payload !== 'object') throw new Error('corps invalide');
+    return payload;
+  } catch {
+    throw new Error('Token illisible');
+  }
+}
+
 export function verifyToken(token, secret) {
-  if (typeof token !== 'string') throw new Error('Token manquant');
+  if (typeof token !== 'string' || !token) throw new Error('Token manquant');
   const [header, body, signature] = token.split('.');
   if (!header || !body || !signature) throw new Error('Token invalide');
-  const expected = sign(`${header}.${body}`, secret);
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) 
-    throw new Error('Signature invalide');
-  
-  const payload = JSON.parse(Buffer.from(body, 'base64url').toString());
-  if (payload.exp && payload.exp * 1000 < Date.now()) 
-    throw new Error('Token expiré');
-  
+  if (!safeEqual(signature, sign(`${header}.${body}`, secret))) throw new Error('Signature invalide');
+
+  const payload = parsePayload(body);
+  if (payload.exp && payload.exp * 1000 < Date.now()) throw new Error('Token expiré');
+
   return payload;
 }

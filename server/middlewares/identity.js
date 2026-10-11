@@ -1,7 +1,7 @@
 import { ApiError } from '../utils/ApiError.js';
 import { env } from '../config/env.js';
 import { verifyToken } from '../utils/tokens.js';
-import { isBlocked, isSuspended } from '../modules/auth/auth.repository.js';
+import { getAccountState } from '../modules/auth/auth.repository.js';
 
 const ACCOUNT_BLOCKED = 'Ce compte a été bloqué par un administrateur.';
 const ACCOUNT_SUSPENDED = 'Votre compte a été suspendu.';
@@ -24,8 +24,16 @@ export function resolveUser(req) {
   return req.session?.user ?? null;
 }
 
-/** Interrompt la requête si le compte est suspendu ou bloqué. */
-export async function assertAccountActive(userId) {
-  if (await isSuspended(userId)) throw ApiError.forbidden(ACCOUNT_SUSPENDED);
-  if (await isBlocked(userId)) throw ApiError.forbidden(ACCOUNT_BLOCKED);
+/**
+ * Relit l'état du compte en base et refuse la requête si le compte a été
+ * bloqué ou suspendu. Renvoie l'utilisateur avec son rôle réellement courant :
+ * le rôle inscrit dans le access token peut être périmé après une rétrogradation.
+ */
+export async function loadActiveUser(userId) {
+  const state = await getAccountState(userId);
+  if (!state) throw ApiError.unauthorized();
+  if (state.suspendedAt) throw ApiError.forbidden(ACCOUNT_SUSPENDED);
+  if (state.blockedAt) throw ApiError.forbidden(ACCOUNT_BLOCKED);
+
+  return { id: userId, role: state.role };
 }

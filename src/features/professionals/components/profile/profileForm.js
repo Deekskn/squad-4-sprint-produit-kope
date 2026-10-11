@@ -1,0 +1,29 @@
+export const DESC_MIN = 30;
+export const DESC_MAX = 500;
+
+/** Normalise la réponse API en valeurs de formulaire (chaînes, tableau de zones). */
+export function extractInitial(profile) {
+  return {
+    displayName: profile?.displayName ?? '',
+    tradeId: profile?.tradeId ?? '',
+    description: profile?.description ?? '',
+    yearsExperience: profile?.yearsExperience ?? '',
+    whatsapp: profile?.whatsapp ?? '',
+    zoneIds: profile?.zones?.map((z) => Number(z.id ?? z))?.filter(Boolean) ?? profile?.zoneIds ?? [],
+  };
+}
+
+/** Nom complet affiché dans l'en-tête, avec repli sur le nom du compte. */
+export function getFullName(user) {
+  return (
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() ||
+    user?.displayName ||
+    'Professionnel'
+  );
+}
+
+/** « 12 an(s) » — chaîne vide quand l'expérience n'est pas renseignée. */
+export function formatYearsExperience(years) {
+  if (years == null || years === '') return '';
+  return `${years} an(s)`;
+}

@@ -1,9 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-// requireRole interroge la base (blocage / suspension) : on isole cette dépendance.
+// requireRole interroge la base (rôle, blocage, suspension) : on isole cette dépendance.
 vi.mock('../server/modules/auth/auth.repository.js', () => ({
-  isBlocked: vi.fn().mockResolvedValue(false),
-  isSuspended: vi.fn().mockResolvedValue(false),
+  getAccountState: vi.fn().mockResolvedValue({ role: 'client', blockedAt: null, suspendedAt: null }),
 }));
 
 import * as repository from '../server/modules/reviews/reviews.repository.js';
@@ -11,6 +10,7 @@ import * as service from '../server/modules/reviews/reviews.service.js';
 import * as professionalsRepository from '../server/modules/professionals/professionals.repository.js';
 import reviewsRoutes from '../server/modules/reviews/reviews.routes.js';
 import { requireRole } from '../server/middlewares/requireRole.js';
+import { getAccountState } from '../server/modules/auth/auth.repository.js';
 import { env } from '../server/config/env.js';
 import { signToken } from '../server/utils/tokens.js';
 
@@ -81,6 +81,8 @@ describe('Un professionnel peut aussi laisser un avis', () => {
 
     const mw = requireRole('client', 'professional');
     const req = { headers: { authorization: `Bearer ${signToken({ sub: 25, role: 'professional' }, env.ACCESS_TOKEN_SECRET, 3600)}` } };
+    // Le rôle relu en base fait foi.
+    getAccountState.mockResolvedValue({ role: 'professional', blockedAt: null, suspendedAt: null });
     await expect(
       new Promise((resolve, reject) => mw(req, {}, (err) => (err ? reject(err) : resolve()))),
     ).resolves.toBeUndefined();
